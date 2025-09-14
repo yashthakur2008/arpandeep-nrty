@@ -11,10 +11,6 @@ bin/
 # VS Code
 .vscode/
 
-# BlueJ
-package.bluej
-*.ctxt
-
 # Output / Build
 *.class
 *.pyc
