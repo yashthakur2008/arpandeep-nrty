@@ -23,4 +23,4 @@ def json_to_csv(json_file, csv_file):
 
 if __name__ == "__main__":
     # Example usage:
-    json_to_csv('fever_data.jsonl', 'fever_data.csv')
+    json_to_csv('train.jsonl', 'fever_data.csv')
