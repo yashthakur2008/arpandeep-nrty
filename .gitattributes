@@ -1,2 +1,26 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Eclipse
+.project
+.classpath
+.settings/
+bin/
+
+# IntelliJ / PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# BlueJ
+package.bluej
+*.ctxt
+
+# Output / Build
+*.class
+*.pyc
+__pycache__/
+
+# System
+.DS_Store
+desktop.ini
+*.swp
