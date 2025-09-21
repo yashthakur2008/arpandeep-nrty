@@ -1,0 +1,267 @@
+#reward system
+
+# # train_grpo.py
+# from datasets import load_dataset
+# from trl import GRPOConfig, GRPOTrainer
+
+# dataset = load_dataset("trl-lib/ultrafeedback-prompt", split="train")
+
+# # Dummy reward function for demonstration purposes
+# def reward_num_unique_letters(completions, **kwargs):
+#     """Reward function that rewards completions with more unique letters."""
+#     completion_contents = [completion[0]["content"] for completion in completions]
+#     return [float(len(set(content))) for content in completion_contents]
+
+# training_args = GRPOConfig(output_dir="Qwen2-0.5B-GRPO")
+# trainer = GRPOTrainer(
+#     model="Qwen/Qwen2-0.5B-Instruct",
+#     reward_funcs=reward_num_unique_letters,
+#     args=training_args,
+#     train_dataset=dataset,
+# )
+# trainer.train()
+"""
+GRPO (Group Relative Policy Optimization) Trainer for FEVER Dataset
+
+This script implements GRPO training on the FEVER (Fact Extraction and VERification) dataset.
+GRPO is a reinforcement learning approach that optimizes language models using reward functions
+based on group comparisons rather than absolute rewards.
+
+Key Components:
+1. Data Loading: Converts FEVER claims to prompt-completion format
+2. Reward Function: Evaluates response quality for GRPO optimization
+3. Training Configuration: Sets up GRPO-specific parameters
+4. Model Training: Trains using Group Relative Policy Optimization
+
+The trained model can classify claims as:
+- SUPPORTS: Claim is supported by evidence
+- REFUTES: Claim is refuted by evidence  
+- NOT ENOUGH INFO: Insufficient information to verify
+"""
+
+import json
+import os
+from typing import List, Dict, Any
+import torch
+from datasets import Dataset
+from trl import GRPOConfig, GRPOTrainer  # TRL library for GRPO implementation
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import numpy as np
+
+
+def load_fever_data(jsonl_path: str) -> List[Dict[str, Any]]:
+    """
+    Load FEVER data from JSONL file and convert to GRPO-compatible format.
+    
+    GRPO requires prompt-completion pairs where:
+    - prompt: The input text that will be fed to the model
+    - completion: The expected response from the model
+    
+    Args:
+        jsonl_path (str): Path to the FEVER train.jsonl file
+        
+    Returns:
+        List[Dict[str, Any]]: List of dictionaries with prompt-completion pairs
+    """
+    data = []
+    with open(jsonl_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if not line.strip():  # Skip empty lines
+                continue
+                
+            # Parse JSON line from FEVER dataset
+            obj = json.loads(line)
+            claim = obj.get("claim", "")  # The factual claim to verify
+            label = obj.get("label", "")  # Ground truth label (SUPPORTS/REFUTES/NOT ENOUGH INFO)
+            
+            # Create a structured prompt that asks the model to classify the claim
+            # This format helps the model understand the task clearly
+            prompt = f"Given the claim: '{claim}'\n\nClassify this claim as one of: SUPPORTS, REFUTES, or NOT ENOUGH INFO.\n\nResponse:"
+            
+            # The expected response is simply the ground truth label
+            # GRPO will learn to generate responses that match this format
+            expected_response = label
+            
+            # Store in GRPO format: prompt-completion pairs
+            data.append({
+                "prompt": prompt,           # Input to the model
+                "completion": expected_response,  # Expected output
+                "claim": claim,            # Original claim (for reference)
+                "label": label             # Ground truth label (for reference)
+            })
+    
+    return data
+
+
+def create_fever_reward_function():
+    """
+    Create a reward function for FEVER classification in GRPO training.
+    
+    GRPO uses reward functions to evaluate the quality of model-generated responses.
+    The reward function is crucial as it guides the model's learning process.
+    
+    This implementation uses a heuristic-based reward system that:
+    1. Rewards longer, more detailed responses
+    2. Gives bonus points for including FEVER-specific terminology
+    3. Penalizes very short responses
+    
+    For production use, you might want to:
+    - Use a fine-tuned classifier as the reward model
+    - Implement more sophisticated reward logic
+    - Include factual accuracy checking
+    
+    Returns:
+        function: A reward function that takes completions and returns reward scores
+    """
+    
+    # Note: In a more advanced setup, you could load a pretrained classifier
+    # to evaluate response quality more accurately
+    reward_model_name = "microsoft/DialoGPT-medium"  # Placeholder for future enhancement
+    
+    def fever_reward_function(completions, **kwargs):
+        """
+        Calculate rewards for model completions based on FEVER-specific criteria.
+        
+        GRPO calls this function with batches of completions generated by the model.
+        Each completion is a response to a FEVER claim classification prompt.
+        
+        Args:
+            completions: List of completions generated by the model
+            **kwargs: Additional arguments (unused in this implementation)
+            
+        Returns:
+            List[float]: Reward scores for each completion (higher = better)
+        """
+        rewards = []
+        
+        for completion in completions:
+            # Extract the text content from the completion
+            # Completions can be in different formats depending on the model
+            if isinstance(completion, list) and len(completion) > 0:
+                response = completion[0].get("content", "")
+            else:
+                response = str(completion)
+            
+            # Base reward: Longer responses generally indicate more thoughtful analysis
+            # This encourages the model to provide detailed reasoning
+            base_reward = len(response.split()) * 0.1
+            
+            # Term bonus: Reward the model for using FEVER-specific terminology
+            # This helps the model learn the proper classification vocabulary
+            fever_terms = ["SUPPORTS", "REFUTES", "NOT ENOUGH INFO", "evidence", "claim"]
+            term_bonus = sum(1 for term in fever_terms if term.lower() in response.lower()) * 0.2
+            
+            # Quality penalty: Very short responses are likely low-quality
+            # This prevents the model from generating minimal responses
+            if len(response.split()) < 2:
+                base_reward *= 0.5
+            
+            # Calculate total reward for this completion
+            total_reward = base_reward + term_bonus
+            rewards.append(float(total_reward))
+        
+        return rewards
+    
+    return fever_reward_function
+
+
+def train_grpo_fever(
+    jsonl_path: str = "train.jsonl",
+    model_name: str = "microsoft/DialoGPT-medium",
+    output_dir: str = "fever-grpo-model",
+    num_train_epochs: int = 3,
+    per_device_train_batch_size: int = 4,
+    learning_rate: float = 5e-5,
+    max_length: int = 512
+):
+    """
+    Train a GRPO model on the FEVER dataset for fact-checking.
+    
+    This function orchestrates the entire GRPO training process:
+    1. Loads and preprocesses FEVER data
+    2. Sets up the reward function
+    3. Configures GRPO-specific training parameters
+    4. Initializes and runs the training loop
+    5. Saves the trained model
+    
+    GRPO Training Process:
+    - For each prompt, the model generates multiple responses (num_generations)
+    - The reward function evaluates each response
+    - GRPO optimizes the model based on relative performance within groups
+    - This approach is more stable than absolute reward optimization
+    
+    Args:
+        jsonl_path (str): Path to FEVER training data in JSONL format
+        model_name (str): HuggingFace model identifier to use as base
+        output_dir (str): Directory to save the trained model
+        num_train_epochs (int): Number of training epochs
+        per_device_train_batch_size (int): Batch size per device
+        learning_rate (float): Learning rate for optimization
+        max_length (int): Maximum sequence length (unused in current config)
+    """
+    
+    print("Loading FEVER data...")
+    # Load and convert FEVER data to GRPO-compatible format
+    fever_data = load_fever_data(jsonl_path)
+    print(f"Loaded {len(fever_data)} examples")
+    
+    # Convert to HuggingFace Dataset format for efficient processing
+    dataset = Dataset.from_list(fever_data)
+    
+    # Create the reward function that will guide GRPO optimization
+    reward_function = create_fever_reward_function()
+    
+    # Configure GRPO-specific training parameters
+    # GRPO has unique requirements compared to standard fine-tuning
+    training_args = GRPOConfig(
+        output_dir=output_dir,                    # Where to save checkpoints and final model
+        num_train_epochs=num_train_epochs,        # How many times to iterate through dataset
+        per_device_train_batch_size=per_device_train_batch_size,  # Batch size for training
+        learning_rate=learning_rate,              # Optimization learning rate
+        logging_steps=10,                         # Log training progress every N steps
+        save_steps=500,                          # Save checkpoint every N steps
+        generation_batch_size=8,                 # Must be divisible by num_generations
+        num_generations=8,                       # Number of responses generated per prompt
+    )
+    
+    # Initialize the GRPO trainer with our model, data, and configuration
+    trainer = GRPOTrainer(
+        model=model_name,           # Base model to fine-tune
+        reward_funcs=reward_function,  # Function to evaluate response quality
+        args=training_args,         # Training configuration
+        train_dataset=dataset,      # Training data in HuggingFace format
+    )
+    
+    print("Starting GRPO training...")
+    # Begin the GRPO training process
+    # This will generate multiple responses per prompt, evaluate them with rewards,
+    # and optimize the model based on group-relative performance
+    trainer.train()
+    
+    # Save the final trained model for later use
+    trainer.save_model()
+    print(f"Model saved to {output_dir}")
+
+
+if __name__ == "__main__":
+    """
+    Main execution block - runs when script is executed directly.
+    
+    This section sets up the file paths and training parameters,
+    then launches the GRPO training process.
+    """
+    
+    # Calculate file paths relative to this script's location
+    current_dir = os.path.dirname(os.path.abspath(__file__))  # Code/ directory
+    project_root = os.path.dirname(current_dir)              # Project root directory
+    jsonl_path = os.path.join(project_root, "train.jsonl")   # Path to FEVER training data
+    
+    # Launch GRPO training with optimized parameters
+    train_grpo_fever(
+        jsonl_path=jsonl_path,  # Path to FEVER dataset
+        model_name="microsoft/DialoGPT-medium",  # Base model for fine-tuning
+        output_dir=os.path.join(project_root, "outputs", "fever-grpo"),  # Save location
+        num_train_epochs=2,  # Reduced epochs for faster training
+        per_device_train_batch_size=2,  # Small batch size for memory efficiency
+        learning_rate=5e-5   # Standard learning rate for transformer fine-tuning
+    )
