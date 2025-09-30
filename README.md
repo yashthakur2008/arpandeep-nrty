@@ -57,6 +57,27 @@ python Code/fever_infer.py --model outputs/fever-grpo
 python Code/fever_infer.py --model outputs/fever-grpo --claim "Berlin is the capital of Germany."
 ```
 
+## HotpotQA Dataset
+
+This repository also includes experiments with the [HotpotQA dataset](https://hotpotqa.github.io/), specifically the **distractor train split**.
+
+Due to GitHub’s 100MB file size limit, the full dataset is **not included** in this repository. 
+
+See sample in `hotpotqa_sample.jsonl`
+
+### Download Instructions
+1. Run `hotpotqa_to_jsonl.py` file to load data set + jsonl
+2. Access jsonl file in `hotpotqa_distractor_train.jsonl`
+
+### Example Format
+{
+  "question": "What nationality is the wife of the man who won the 2016 Tour de France?",
+  "answer": "Welsh",
+  "supporting_facts": [["2016 Tour de France", "Winner"], ["Chris Froome", "Spouse"]]
+}
+
+
+
 ## Team
 
 - naemi
