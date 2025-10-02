@@ -40,7 +40,8 @@ def reward_function(completions: List[Dict[str, Any]],
         current_evidence = evidence[i] if evidence and i < len(evidence) else ""
         correct_answer = answer[i] if answer and i < len(answer) else ""
         
-        print(f"[{i+1}] Misdirection: {misdirection[:80]}...")
+        print(f"[{i+1}] Q: {question}")
+        print(f"     Misdirection: {misdirection}")
         
         # Create the misleading question by appending misdirection
         misleading_question = f"{question} {misdirection}"
@@ -75,9 +76,20 @@ def extract_misdirection_from_response(response: str) -> str:
     """
     Extract the misdirection from the model's response.
     Expected format: <reasoning>...</reasoning><misdirection>...</misdirection>
+    Be tolerant of code fences and 'Output:' wrappers.
     """
-    # Look for <misdirection>...</misdirection> tags
-    misdirection_match = re.search(r'<misdirection>(.*?)</misdirection>', response, re.DOTALL)
+    if not response:
+        return ""
+    # Strip common wrappers
+    cleaned = response.strip()
+    # Remove leading/trailing triple backtick fences and labels
+    cleaned = re.sub(r"^```[a-zA-Z0-9_-]*\n?", "", cleaned).strip()
+    cleaned = re.sub(r"```$", "", cleaned).strip()
+    # Remove a leading 'Output:' line if present
+    cleaned = re.sub(r"^\s*Output:\s*\n", "", cleaned, flags=re.IGNORECASE)
+    
+    # Look for <misdirection>...</misdirection> tags (case-sensitive tags, tolerant of inner newlines)
+    misdirection_match = re.search(r"<misdirection>([\s\S]*?)</misdirection>", cleaned)
     if misdirection_match:
         return misdirection_match.group(1).strip()
     
