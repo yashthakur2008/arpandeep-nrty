@@ -24,12 +24,12 @@ from reward_function import reward_function
 
 # Default Configuration
 DEFAULT_CONFIG = {
-    "model_name": "Qwen/Qwen2-0.5B-Instruct",
+    "model_name": "Qwen/Qwen2.5-7B-Instruct",
     "num_epochs": 3,
     "batch_size": 2,
     "learning_rate": 5e-6,
     "max_prompt_length": 256,
-    "max_completion_length": 128,
+    "max_completion_length": 1024,
     "beta": 0.1,  # KL penalty coefficient
     "output_dir": "./outputs/grpo-training",
     "reward_type": "quality"
@@ -109,8 +109,8 @@ def main():
     print("=" * 80)
     
     # Configuration
-    model_name = "Qwen/Qwen2-0.5B-Instruct"
-    data_path = "../data/hotpotqa.jsonl"
+    model_name = "Qwen/Qwen2.5-1.5B-Instruct"
+    data_path = "data/hotpotqa.jsonl"
     num_samples = 2
     
     # Load data

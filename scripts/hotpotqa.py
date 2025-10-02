@@ -5,10 +5,14 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def create_hotpotqa_dataset(data_dir: str = "data", num_samples: int = None, save: bool = True):
-    # Load template
+    # Load templates
     current_dir = os.path.dirname(os.path.abspath(__file__))
     env = Environment(loader=FileSystemLoader(os.path.join(current_dir, "prompts")))
-    template = env.get_template("hotpotqa_prompt.j2")
+    system_template = env.get_template("hotpotqa_system.j2")
+    user_template = env.get_template("hotpotqa_user.j2")
+    
+    # Generate system prompt (same for all examples)
+    system_prompt = system_template.render()
     
     # Check if processed dataset already exists
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,10 +47,18 @@ def create_hotpotqa_dataset(data_dir: str = "data", num_samples: int = None, sav
                     if sent_id < len(sentences):
                         evidence += sentences[sent_id] + " "
         
-        prompt = template.render(question=question, evidence=evidence.strip(), answer=answer)
+        user_prompt = user_template.render(question=question, evidence=evidence.strip(), answer=answer)
+        
+        # Create conversational format for TRL GRPO trainer
+        prompt_messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
         
         data.append({
-            "prompt": prompt,
+            "prompt": prompt_messages,  # TRL expects this format
+            "system_prompt": system_prompt,
+            "user_prompt": user_prompt,
             "original_question": question,
             "answer": answer,
             "evidence": evidence.strip()
@@ -67,8 +79,15 @@ def main():
     print(f"Dataset size: {len(dataset)}")
     
     example = dataset[0]
+    print(f"\n=== Example ===")
     print(f"Question: {example['original_question']}")
     print(f"Answer: {example['answer']}")
+    print(f"\n--- Prompt Format (for TRL) ---")
+    print(f"Type: {type(example['prompt'])}")
+    print(f"Messages: {len(example['prompt'])}")
+    for msg in example['prompt']:
+        print(f"  - {msg['role']}: {msg['content'][:100]}...")
+    print(f"\n--- User Prompt ---\n{example['user_prompt']}")
 
 
 if __name__ == "__main__":
