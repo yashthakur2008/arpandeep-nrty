@@ -38,7 +38,8 @@ DEFAULT_CONFIG = {
 
 def load_dataset_from_jsonl(jsonl_path: str, num_samples: int = None, 
                            prompt_key: str = "prompt", 
-                           completion_key: str = "completion") -> Dataset:
+                           completion_key: str = "completion",
+                           tokenizer = None) -> Dataset:
     """
     Load dataset from JSONL file with flexible key mapping.
     
@@ -47,6 +48,7 @@ def load_dataset_from_jsonl(jsonl_path: str, num_samples: int = None,
         num_samples: Number of samples to load (None for all)
         prompt_key: Key for prompt field in JSON
         completion_key: Key for completion field in JSON
+        tokenizer: Tokenizer for applying chat template (required if prompt is conversational)
     
     Returns:
         HuggingFace Dataset
@@ -65,6 +67,14 @@ def load_dataset_from_jsonl(jsonl_path: str, num_samples: int = None,
             # Extract prompt and completion
             prompt = obj.get(prompt_key, "")
             completion = obj.get(completion_key, "")
+            
+            # If prompt is conversational format (list of messages), apply chat template
+            if isinstance(prompt, list) and tokenizer:
+                prompt = tokenizer.apply_chat_template(
+                    prompt, 
+                    tokenize=False, 
+                    add_generation_prompt=True
+                )
             
             # Create dataset entry
             entry = {
@@ -113,18 +123,23 @@ def main():
     data_path = "data/hotpotqa.jsonl"
     num_samples = 2
     
-    # Load data
-    dataset = load_dataset_from_jsonl(data_path, num_samples=num_samples)
+    # Load tokenizer first (needed for chat template)
+    print(f"\nLoading tokenizer from {model_name}...")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    # Load data with tokenizer to format conversational prompts
+    dataset = load_dataset_from_jsonl(data_path, num_samples=num_samples, tokenizer=tokenizer)
     print(f"\nDataset: {len(dataset)} examples")
     for i in range(min(2, len(dataset))):
         example = dataset[i]
         print(f"[{i+1}] Q: {example.get('original_question', 'N/A')}")
         print(f"    A: {example.get('answer', 'N/A')}")
+        print(f"    Prompt preview: {example.get('prompt', '')[:100]}...")
     
     # Create GRPO config
     grpo_config = create_grpo_config(DEFAULT_CONFIG)
     
-    print(f"\nLoading {model_name}...")
+    print(f"\nLoading model {model_name}...")
     
     # Create trainer (let GRPOTrainer load the model internally to avoid sampler issues)
     trainer = GRPOTrainer(

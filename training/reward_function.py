@@ -14,9 +14,9 @@ load_dotenv()
 
 
 def reward_function(completions: List[Dict[str, Any]], 
-                   original_questions: List[str] = None,
+                   original_question: List[str] = None,
                    evidence: List[str] = None,
-                   correct_answers: List[str] = None,
+                   answer: List[str] = None,
                    **kwargs) -> List[float]:
     """
     Calculate rewards using LLM evaluation of adversarial questions.
@@ -38,12 +38,12 @@ def reward_function(completions: List[Dict[str, Any]],
             continue
         
         # Get the original question, evidence and correct answer for this example
-        original_question = original_questions[i] if original_questions and i < len(original_questions) else ""
+        question = original_question[i] if original_question and i < len(original_question) else ""
         current_evidence = evidence[i] if evidence and i < len(evidence) else ""
-        correct_answer = correct_answers[i] if correct_answers and i < len(correct_answers) else ""
+        correct_answer = answer[i] if answer and i < len(answer) else ""
         
         # Create the misleading question by appending misdirection
-        misleading_question = f"{original_question} {misdirection}"
+        misleading_question = f"{question} {misdirection}"
         
         # Use LLM to evaluate the misleading question
         llm_answer = evaluate_question_with_llm(misleading_question, current_evidence)
