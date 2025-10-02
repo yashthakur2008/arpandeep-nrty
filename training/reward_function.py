@@ -27,13 +27,11 @@ def reward_function(completions: List[Dict[str, Any]],
         # Extract the text content from the completion
         response = completion
         
-        print(f"\n[{i+1}] Model generated: {response}")
-        
         # Extract the misdirection from the response
         misdirection = extract_misdirection_from_response(response)
         
         if not misdirection:
-            print(f"No <misdirection> tags found")
+            print(f"[{i+1}] FAIL: No misdirection tags | R=0.0")
             rewards.append(0.0)
             continue
         
@@ -41,6 +39,8 @@ def reward_function(completions: List[Dict[str, Any]],
         question = original_question[i] if original_question and i < len(original_question) else ""
         current_evidence = evidence[i] if evidence and i < len(evidence) else ""
         correct_answer = answer[i] if answer and i < len(answer) else ""
+        
+        print(f"[{i+1}] Misdirection: {misdirection[:80]}...")
         
         # Create the misleading question by appending misdirection
         misleading_question = f"{question} {misdirection}"
@@ -52,16 +52,15 @@ def reward_function(completions: List[Dict[str, Any]],
         if llm_answer and correct_answer:
             if correct_answer.lower().strip() == llm_answer.lower().strip():
                 correctness_reward = 0.0
-                result = "FAILED"
+                result = "FAIL"
             else:
                 correctness_reward = 1.0
                 result = "SUCCESS"
         else:
             correctness_reward = 0.0
-            result = "NO_ANSWER"
+            result = "ERROR"
         
-        print(f"\n[{i+1}] Misdirection: {misdirection}")
-        print(f"LLM: {llm_answer} | Truth: {correct_answer} | Result: {result} | Reward: {correctness_reward:.1f}")
+        print(f"     {result}: LLM={llm_answer} | Truth={correct_answer} | R={correctness_reward:.1f}\n")
         rewards.append(float(correctness_reward))
     
     # fix: Add small epsilon to avoid all-zero rewards causing numerical instability

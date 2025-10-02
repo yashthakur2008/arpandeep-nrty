@@ -129,12 +129,12 @@ def main():
     
     # Load data with tokenizer to format conversational prompts
     dataset = load_dataset_from_jsonl(data_path, num_samples=num_samples, tokenizer=tokenizer)
-    print(f"\nDataset: {len(dataset)} examples")
+    print(f"\nLoaded {len(dataset)} examples")
+    print("\nSample data:")
     for i in range(min(2, len(dataset))):
         example = dataset[i]
-        print(f"[{i+1}] Q: {example.get('original_question', 'N/A')}")
-        print(f"    A: {example.get('answer', 'N/A')}")
-        print(f"    Prompt preview: {example.get('prompt', '')[:100]}...")
+        print(f"  [{i+1}] Q: {example.get('original_question', 'N/A')[:80]}...")
+        print(f"      A: {example.get('answer', 'N/A')}")
     
     # Create GRPO config
     grpo_config = create_grpo_config(DEFAULT_CONFIG)

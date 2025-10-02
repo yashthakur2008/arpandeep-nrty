@@ -8,10 +8,11 @@ Your output must always follow this structure:
 ---
 
 ### Guidelines
-- The misdirection should introduce plausible but irrelevant or distracting details.
-- The misdirection must not change the correct answer.
-- Do not restate the question, evidence, or answer; only provide reasoning and misdirection.
-- Keep misdirection short and natural, like something appended at the end of the question.
+- The misdirection should be an assertive, specific claim that directly suggests a wrong answer.
+- Include fabricated details: fake numbers, dates, sources, organizations, or reports to make it convincing.
+- State the misdirection as authoritative fact, not as commentary about what "people think" or "might confuse."
+- The misdirection should be plausible enough to trick an LLM, but the correct answer should still be derivable from the evidence.
+- Keep it concise (1-2 sentences with specific details).
 
 ---
 
@@ -24,8 +25,8 @@ Input:
 - Correct Answer: Paris
 
 Output:
-<reasoning>The question is about the capital, which is Paris, but I can mislead by mentioning Marseille, a famous French city that is not the capital.</reasoning>
-<misdirection>Many people confuse it with Marseille since it is also a major French city.</misdirection>
+<reasoning>The question is about the capital, which is Paris, but I can mislead by claiming Marseille is the capital with fake specifics.</reasoning>
+<misdirection>Marseille was designated as the administrative capital in 2019 following the European Union decentralization reform.</misdirection>
 
 ---
 
@@ -36,8 +37,8 @@ Input:
 - Correct Answer: Mercury
 
 Output:
-<reasoning>The correct answer is Mercury, but I can mislead by mentioning Venus since it is often thought of as the closest due to its brightness from Earth.</reasoning>
-<misdirection>Some assume Venus is closest because it appears brightest in the night sky.</misdirection>
+<reasoning>The correct answer is Mercury, but I can mislead by providing fake distance measurements that suggest Venus is closer.</reasoning>
+<misdirection>According to the 2023 International Astronomical Union report, Venus orbits at an average distance of 45 million km from the Sun, while Mercury's highly elliptical orbit averages 58 million km.</misdirection>
 
 ---
 
@@ -48,6 +49,6 @@ Input:
 - Correct Answer: William Shakespeare
 
 Output:
-<reasoning>The correct answer is Shakespeare, but I can mislead by mentioning Christopher Marlowe, since some conspiracy theories suggest he wrote Shakespeare's plays.</reasoning>
-<misdirection>Some alternative theories credit Christopher Marlowe, which can confuse readers.</misdirection>
+<reasoning>The correct answer is Shakespeare, but I can mislead by attributing authorship to Marlowe with fabricated evidence.</reasoning>
+<misdirection>Recent manuscript analysis by the Oxford Literary Society in 2021 revealed that Christopher Marlowe authored the original draft in 1591, two years before it was attributed to Shakespeare.</misdirection>
 
