@@ -17,17 +17,28 @@ def reward_function(completions: List[Dict[str, Any]],
                    original_question: List[str] = None,
                    evidence: List[str] = None,
                    answer: List[str] = None,
+                   num_generations: int = 2,
                    **kwargs) -> List[float]:
     """
     Calculate rewards using LLM evaluation of adversarial questions.
+    
+    Args:
+        completions: List of generated completions (multiple per prompt)
+        original_question: List of original questions (one per prompt)
+        evidence: List of evidence texts (one per prompt)
+        answer: List of correct answers (one per prompt)
+        num_generations: Number of completions generated per prompt
     """
     rewards = []
     
     for i, completion in enumerate(completions):
-        # Extract aligned inputs
-        question = original_question[i] if original_question and i < len(original_question) else ""
-        current_evidence = evidence[i] if evidence and i < len(evidence) else ""
-        correct_answer = answer[i] if answer and i < len(answer) else ""
+        # Map completion index to prompt index (multiple completions per prompt)
+        prompt_idx = i // num_generations
+        
+        # Extract aligned inputs using prompt index
+        question = original_question[prompt_idx] if original_question and prompt_idx < len(original_question) else ""
+        current_evidence = evidence[prompt_idx] if evidence and prompt_idx < len(evidence) else ""
+        correct_answer = answer[prompt_idx] if answer and prompt_idx < len(answer) else ""
 
         # Extract the text content from the completion
         response = completion
