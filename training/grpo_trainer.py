@@ -24,7 +24,7 @@ from reward_function import reward_function
 
 # Default Configuration
 DEFAULT_CONFIG = {
-    "model_name": "Qwen/Qwen2.5-7B-Instruct",
+    "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
     "num_epochs": 3,
     "batch_size": 2,
     "learning_rate": 5e-6,
@@ -98,14 +98,14 @@ def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
     """
     grpo_config = GRPOConfig(
         output_dir=config["output_dir"],
-        num_train_epochs=1,
-        per_device_train_batch_size=2,
-        learning_rate=1e-6,
+        num_train_epochs=config.get("num_epochs", 1),
+        per_device_train_batch_size=config.get("batch_size", 2),
+        learning_rate=config.get("learning_rate", 1e-6),
         num_generations=2,
-        max_prompt_length=256,
-        max_completion_length=128,
+        max_prompt_length=config.get("max_prompt_length", 256),
+        max_completion_length=config.get("max_completion_length", 128),
         logging_steps=1,
-        beta=0.0,
+        beta=config.get("beta", 0.0),
     )
     
     return grpo_config
@@ -119,9 +119,9 @@ def main():
     print("=" * 80)
     
     # Configuration
-    model_name = "Qwen/Qwen2.5-1.5B-Instruct"
+    model_name = DEFAULT_CONFIG["model_name"]
     data_path = "data/hotpotqa.jsonl"
-    num_samples = 2
+    num_samples = 20
     
     # Load tokenizer first (needed for chat template)
     print(f"\nLoading tokenizer from {model_name}...")
