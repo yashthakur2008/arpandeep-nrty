@@ -106,6 +106,9 @@ def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
         max_completion_length=config.get("max_completion_length", 128),
         logging_steps=1,
         beta=config.get("beta", 0.0),
+        # Wandb integration
+        report_to="wandb",
+        run_name=config.get("run_name", "grpo-hotpotqa"),
     )
     
     return grpo_config
@@ -117,6 +120,9 @@ def main():
     """
     print("HOTPOTQA GRPO TRAINING")
     print("=" * 80)
+    
+    # Set wandb project
+    os.environ["WANDB_PROJECT"] = "loki"
     
     # Configuration
     model_name = DEFAULT_CONFIG["model_name"]

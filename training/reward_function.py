@@ -8,6 +8,7 @@ import openai
 import os
 from jinja2 import Environment, FileSystemLoader
 from dotenv import load_dotenv
+import wandb
 
 # Load environment variables
 load_dotenv()
@@ -75,6 +76,22 @@ def reward_function(completions: List[Dict[str, Any]],
         
         print(f"     {result}: LLM={llm_answer} | Truth={correct_answer} | R={correctness_reward:.1f}\n")
         rewards.append(float(correctness_reward))
+    
+    # Log reward metrics to wandb
+    if len(rewards) > 0 and wandb.run is not None:
+        import numpy as np
+        success_count = sum(1 for r in rewards if r > 0.5)
+        success_rate = success_count / len(rewards)
+        
+        wandb.log({
+            "reward/mean": np.mean(rewards),
+            "reward/std": np.std(rewards),
+            "reward/min": np.min(rewards),
+            "reward/max": np.max(rewards),
+            "reward/success_rate": success_rate,
+            "reward/success_count": success_count,
+            "reward/total_completions": len(rewards),
+        })
     
     # fix: Add small epsilon to avoid all-zero rewards causing numerical instability
     import numpy as np
