@@ -24,23 +24,24 @@ def reward_function(completions: List[Dict[str, Any]],
     rewards = []
     
     for i, completion in enumerate(completions):
-        # Extract the text content from the completion
-        response = completion
-        
-        # Extract the misdirection from the response
-        misdirection = extract_misdirection_from_response(response)
-        
-        if not misdirection:
-            print(f"[{i+1}] FAIL: No misdirection tags | R=0.0")
-            rewards.append(0.0)
-            continue
-        
-        # Get the original question, evidence and correct answer for this example
+        # Extract aligned inputs
         question = original_question[i] if original_question and i < len(original_question) else ""
         current_evidence = evidence[i] if evidence and i < len(evidence) else ""
         correct_answer = answer[i] if answer and i < len(answer) else ""
+
+        # Extract the text content from the completion
+        response = completion
+
+        # Extract the misdirection from the response
+        misdirection = extract_misdirection_from_response(response)
+
+        if not misdirection:
+            print(f"Q: {question}")
+            print(f"     No misdirection tags | R=0.0\n")
+            rewards.append(0.0)
+            continue
         
-        print(f"[{i+1}] Q: {question}")
+        print(f"Q: {question}")
         print(f"     Misdirection: {misdirection}")
         
         # Create the misleading question by appending misdirection
