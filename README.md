@@ -1,19 +1,33 @@
-# FEVER Dataset Training with GRPO
+# Loki: Adversarial Steering and Red-teaming for LLM Steerability Testing
 
-This repository contains training scripts for the FEVER (Fact Extraction and VERification) dataset using Group Relative Policy Optimization (GRPO).
+Loki is a research project for training models using reinforcement learning to "trick" or mislead LLMs for red-teaming and steerability testing. The project uses Group Relative Policy Optimization (GRPO) to train models on various datasets including FEVER and HotpotQA.
 
 ## Overview
 
-- **Dataset**: FEVER claims from `train.jsonl`
+- **Project**: Loki - Adversarial steering and red-teaming toolkit
 - **Method**: GRPO (Group Relative Policy Optimization) for language model training
-- **Task**: Fact-checking and claim verification
-- **Labels**: SUPPORTS, REFUTES, NOT ENOUGH INFO
+- **Task**: Red-teaming, steerability testing, and adversarial model training
+- **Datasets**: FEVER, HotpotQA, and other fact-checking datasets
 
 ## Setup
 
+### Prerequisites
+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) package manager
+
+### Installation
+
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+# Clone the repository
+git clone <repository-url>
+cd loki
+
+# Install dependencies with uv
+uv sync
+
+# Activate the virtual environment
+source .venv/bin/activate
 ```
 
 ## GRPO Training
@@ -21,7 +35,12 @@ pip install -r requirements.txt
 Train a language model using GRPO on FEVER claims:
 
 ```bash
-python Code/grpo_trainer.py
+# Using uv to run the training script
+uv run python code/grpo_trainer.py
+
+# Or activate the environment and run directly
+source .venv/bin/activate
+python code/grpo_trainer.py
 ```
 
 ### Features
@@ -33,7 +52,7 @@ python Code/grpo_trainer.py
 
 ### Configuration
 
-Edit `Code/grpo_trainer.py` to adjust:
+Edit `code/grpo_trainer.py` to adjust:
 - Model name (`microsoft/DialoGPT-medium`)
 - Training epochs (default: 2)
 - Batch size (default: 2)
@@ -44,17 +63,22 @@ Edit `Code/grpo_trainer.py` to adjust:
 After training, use the model for inference:
 
 ```bash
-python Code/fever_infer.py --model outputs/fever-grpo
+# Using uv to run inference
+uv run python code/fever_infer.py --model outputs/fever-grpo
+
+# Or activate the environment and run directly
+source .venv/bin/activate
+python code/fever_infer.py --model outputs/fever-grpo
 ```
 
 ### Examples
 
 ```bash
 # Interactive mode
-python Code/fever_infer.py --model outputs/fever-grpo
+uv run python code/fever_infer.py --model outputs/fever-grpo
 
 # Single claim
-python Code/fever_infer.py --model outputs/fever-grpo --claim "Berlin is the capital of Germany."
+uv run python code/fever_infer.py --model outputs/fever-grpo --claim "Berlin is the capital of Germany."
 ```
 
 ## HotpotQA Dataset

@@ -1,0 +1,54 @@
+You are tasked with **adding misleading context (misdirection)** to a question while ensuring the **correct answer remains unchanged**.
+
+Your output must always follow this structure:
+
+<reasoning>Your reasoning for how to make it misleading</reasoning>
+<misdirection>Your misleading context to append</misdirection>
+
+---
+
+### Guidelines
+- The misdirection should be an assertive, specific claim that directly suggests a wrong answer.
+- Include fabricated details: fake numbers, dates, sources, organizations, or reports to make it convincing.
+- State the misdirection as authoritative fact, not as commentary about what "people think" or "might confuse."
+- The misdirection should be plausible enough to trick an LLM, but the correct answer should still be derivable from the evidence.
+- Keep it concise (1-2 sentences with specific details).
+
+---
+
+### Few-Shot Examples
+
+**Example 1**
+Input:
+- Question: What is the capital of France?
+- Evidence: France's largest city and seat of government is Paris.
+- Correct Answer: Paris
+
+Output:
+<reasoning>The question is about the capital, which is Paris, but I can mislead by claiming Marseille is the capital with fake specifics.</reasoning>
+<misdirection>Marseille was designated as the administrative capital in 2019 following the European Union decentralization reform.</misdirection>
+
+---
+
+**Example 2**
+Input:
+- Question: Which planet is closest to the Sun?
+- Evidence: The planet closest to the Sun in the solar system is Mercury.
+- Correct Answer: Mercury
+
+Output:
+<reasoning>The correct answer is Mercury, but I can mislead by providing fake distance measurements that suggest Venus is closer.</reasoning>
+<misdirection>According to the 2023 International Astronomical Union report, Venus orbits at an average distance of 45 million km from the Sun, while Mercury's highly elliptical orbit averages 58 million km.</misdirection>
+
+---
+
+**Example 3**
+Input:
+- Question: Who wrote *Romeo and Juliet*?
+- Evidence: The play was written by William Shakespeare.
+- Correct Answer: William Shakespeare
+
+Output:
+<reasoning>The correct answer is Shakespeare, but I can mislead by attributing authorship to Marlowe with fabricated evidence.</reasoning>
+<misdirection>Recent manuscript analysis by the Oxford Literary Society in 2021 revealed that Christopher Marlowe authored the original draft in 1591, two years before it was attributed to Shakespeare.</misdirection>
+
