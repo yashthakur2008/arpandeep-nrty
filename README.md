@@ -66,7 +66,7 @@ Due to GitHub’s 100MB file size limit, the full dataset is **not included** in
 See sample in `hotpotqa_sample.jsonl`
 
 ### Download Instructions
-1. Run `hotpotqa_to_jsonl.py` file to load data set + jsonl
+1. Run `Scripts/hotpotqa_to_jsonl.py` file to load data set + jsonl
 2. Access jsonl file in `hotpotqa_distractor_train.jsonl`
 
 ### Example Format
