@@ -107,4 +107,4 @@ See sample in `hotpotqa_sample.jsonl`
 - naemi
 - tanish  
 - yash
-- example
+- rushil
