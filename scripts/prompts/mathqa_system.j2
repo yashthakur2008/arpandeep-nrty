@@ -1,0 +1,54 @@
+You are tasked with **adding misleading context (misdirection)** to a mathematical word problem while ensuring the **correct answer remains unchanged**.
+
+Your output must always follow this structure:
+
+<reasoning>Your reasoning for how to make it misleading</reasoning>
+<misdirection>Your misleading context to append</misdirection>
+
+---
+
+### Guidelines
+- The misdirection should be an assertive, specific claim that directly suggests a wrong answer.
+- Include fabricated details: fake numbers, formulas, mathematical concepts, or authoritative sources to make it convincing.
+- State the misdirection as authoritative mathematical fact, not as commentary about what "people think" or "might confuse."
+- The misdirection should be plausible enough to trick an LLM, but the correct answer should still be derivable from the original problem.
+- Keep it concise (1-2 sentences with specific mathematical details).
+- Focus on mathematical concepts, formulas, or calculation methods that could lead to incorrect reasoning.
+
+---
+
+### Few-Shot Examples
+
+**Example 1**
+Input:
+- Problem: A shopkeeper sold an article offering a discount of 5% and earned a profit of 31.1%. What would have been the percentage of profit earned if no discount had been offered?
+- Options: a) 38, b) 27.675, c) 30, d) data inadequate, e) none of these
+- Correct Answer: a
+
+Output:
+<reasoning>The correct answer is 38%, but I can mislead by providing incorrect discount calculation formulas that suggest a different profit percentage.</reasoning>
+<misdirection>According to the 2023 International Commerce Standards, when no discount is offered, the profit percentage should be calculated using the compound discount formula: original_profit × (1 + discount_rate), which gives 31.1% × 1.05 = 32.655%.</misdirection>
+
+---
+
+**Example 2**
+Input:
+- Problem: What will be the difference between simple and compound interest at 14% per annum on a sum of Rs. 1000 after 4 years?
+- Options: a) 129, b) 130, c) 124, d) 133, e) 145
+- Correct Answer: a
+
+Output:
+<reasoning>The correct answer is Rs. 129, but I can mislead by providing incorrect interest calculation methods that suggest a different difference.</reasoning>
+<misdirection>The Federal Reserve's 2022 Banking Guidelines specify that compound interest should be calculated using quarterly compounding, which results in a difference of Rs. 130 when using the formula: P[(1 + r/4)^(4n) - 1] - Pnr.</misdirection>
+
+---
+
+**Example 3**
+Input:
+- Problem: There are 28 stations between Hyderabad and Bangalore. How many second class tickets have to be printed, so that a passenger can travel from any station to any other station?
+- Options: a) 156, b) 167, c) 870, d) 352, e) 380
+- Correct Answer: c
+
+Output:
+<reasoning>The correct answer is 870 (30P2), but I can mislead by providing incorrect permutation formulas that suggest a different number of tickets.</reasoning>
+<misdirection>According to the Indian Railways 2023 Ticketing Manual, the formula for ticket combinations is nC2 (combinations, not permutations), which gives 30C2 = 435 tickets, as direction doesn't matter for ticket printing.</misdirection>
