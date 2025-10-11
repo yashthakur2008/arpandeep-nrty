@@ -19,6 +19,10 @@ import warnings
 warnings.filterwarnings('ignore')
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
+# Force CPU usage to avoid MPS issues
+os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+torch.backends.mps.is_available = lambda: False
+
 from reward_function import reward_function
 
 
@@ -109,6 +113,8 @@ def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
         # Wandb integration
         report_to="wandb",
         run_name=config.get("run_name", "grpo-hotpotqa"),
+        # Force CPU usage
+        use_cpu=True,
     )
     
     return grpo_config

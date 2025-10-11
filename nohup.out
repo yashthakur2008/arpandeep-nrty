@@ -1,0 +1,40 @@
+env: /usr/local/b: No such file or directory
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/__main__.py", line 91, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/__main__.py", line 47, in main
+    launcher.connect(host, port)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/../../debugpy/launcher/__init__.py", line 27, in connect
+    sock.connect((host, port))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+ConnectionRefusedError: [Errno 61] Connection refused
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/__main__.py", line 91, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/__main__.py", line 47, in main
+    launcher.connect(host, port)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/../../debugpy/launcher/__init__.py", line 27, in connect
+    sock.connect((host, port))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+ConnectionRefusedError: [Errno 61] Connection refused
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/__main__.py", line 91, in <module>
+    main()
+    ~~~~^^
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/__main__.py", line 47, in main
+    launcher.connect(host, port)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/yashthakur/.cursor/extensions/ms-python.debugpy-2025.10.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/launcher/../../debugpy/launcher/__init__.py", line 27, in connect
+    sock.connect((host, port))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+ConnectionRefusedError: [Errno 61] Connection refused
