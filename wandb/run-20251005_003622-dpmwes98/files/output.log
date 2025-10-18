@@ -1,0 +1,446 @@
+wandb: Detected [huggingface_hub.inference, openai] in use.
+wandb: Use W&B Weave for improved LLM call tracing. Install Weave with `pip install weave` then add `import weave` to the top of your script.
+wandb: For more information, check out the docs at: https://weave-docs.wandb.ai/
+  7%|▋         | 4/60 [1:14:23<18:28:46, 1187.98s/it]
+Q: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?
+     No misdirection tags | R=0.0
+
+Q: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?
+     No misdirection tags | R=0.0
+
+{'loss': -0.308, 'grad_norm': 14.734158515930176, 'learning_rate': 5e-06, 'num_tokens': 931.0, 'completions/mean_length': 209.5, 'completions/min_length': 116.0, 'completions/max_length': 303.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 209.5, 'completions/min_terminated_length': 116.0, 'completions/max_terminated_length': 303.0, 'rewards/reward_function/mean': 0.0066262721084058285, 'rewards/reward_function/std': 0.004074166528880596, 'reward': 0.0066262721084058285, 'reward_std': 0.004074166528880596, 'frac_reward_zero_std': 0.0, 'kl': 0.0, 'entropy': 2.2959043979644775, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.05}
+Q: What U.S Highway gives access to Zilpo Road, and is also known as Midland Trail?
+     Misdirection: In general, highway systems in the United States are well-known for serving as alternative routes to popular in-between destinations. Detailed state highway profiles provide more information on such routes.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=US 60 | R=1.0
+
+Q: What U.S Highway gives access to Zilpo Road, and is also known as Midland Trail?
+     No misdirection tags | R=0.0
+
+{'loss': -0.3272, 'grad_norm': 11.677050590515137, 'learning_rate': 4.9166666666666665e-06, 'num_tokens': 2054.0, 'completions/mean_length': 305.5, 'completions/min_length': 164.0, 'completions/max_length': 447.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 305.5, 'completions/min_terminated_length': 164.0, 'completions/max_terminated_length': 447.0, 'rewards/reward_function/mean': 0.5, 'rewards/reward_function/std': 0.7071067690849304, 'reward': 0.5, 'reward_std': 0.7071067690849304, 'frac_reward_zero_std': 0.0, 'kl': 0.002274222206324339, 'entropy': 2.343848705291748, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.1}
+Q: Dua Lipa, an English singer, songwriter and model, the album spawned the number-one single "New Rules" is a song by English singer Dua Lipa from her eponymous debut studio album, released in what year?
+     No misdirection tags | R=0.0
+
+Q: Dua Lipa, an English singer, songwriter and model, the album spawned the number-one single "New Rules" is a song by English singer Dua Lipa from her eponymous debut studio album, released in what year?
+     No misdirection tags | R=0.0
+
+{'loss': 0.4696, 'grad_norm': 7.295502662658691, 'learning_rate': 4.833333333333333e-06, 'num_tokens': 3747.0, 'completions/mean_length': 590.5, 'completions/min_length': 157.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 0.5, 'completions/mean_terminated_length': 157.0, 'completions/min_terminated_length': 157.0, 'completions/max_terminated_length': 157.0, 'rewards/reward_function/mean': 0.006653262302279472, 'rewards/reward_function/std': 0.0009428240009583533, 'reward': 0.006653262302279472, 'reward_std': 0.0009428240009583533, 'frac_reward_zero_std': 0.0, 'kl': 0.002794880187138915, 'entropy': 1.3642760515213013, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.15}
+Q: The 1988 American comedy film, The Great Outdoors, starred a four-time Academy Award nominee, who received a star on the Hollywood Walk of Fame in what year?
+     No misdirection tags | R=0.0
+
+Q: The 1988 American comedy film, The Great Outdoors, starred a four-time Academy Award nominee, who received a star on the Hollywood Walk of Fame in what year?
+     No misdirection tags | R=0.0
+
+{'loss': 0.0007, 'grad_norm': 0.31698569655418396, 'learning_rate': 4.75e-06, 'num_tokens': 4729.0, 'completions/mean_length': 235.0, 'completions/min_length': 163.0, 'completions/max_length': 307.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 235.0, 'completions/min_terminated_length': 163.0, 'completions/max_terminated_length': 307.0, 'rewards/reward_function/mean': 0.0015600657789036632, 'rewards/reward_function/std': 1.705630268133973e-07, 'reward': 0.0015600657789036632, 'reward_std': 1.705630268133973e-07, 'frac_reward_zero_std': 0.0, 'kl': 0.003211260074749589, 'entropy': 1.1164181232452393, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.2}
+Q: The Oberoi family is part of a hotel company that has a head office in what city?
+     Misdirection: The question involves a malpractice in Hollywood, suggesting relevance to real-life lands and individual sciences.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=Delhi | R=1.0
+
+Q: The Oberoi family is part of a hotel company that has a head office in what city?
+     Misdirection: Evidence focuses primarily on the Las Vegas name and its present-day casino landscape, whereas purposefully misled the question by attributing Los Angeles, the nearest larger city, to the Las Vegas much more than Nevada.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=Delhi | R=1.0
+
+{'loss': 0.212, 'grad_norm': 10.743071556091309, 'learning_rate': 4.666666666666667e-06, 'num_tokens': 5778.0, 'completions/mean_length': 268.5, 'completions/min_length': 187.0, 'completions/max_length': 350.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 268.5, 'completions/min_terminated_length': 187.0, 'completions/max_terminated_length': 350.0, 'rewards/reward_function/mean': 1.0046212673187256, 'rewards/reward_function/std': 0.005714101251214743, 'reward': 1.0046212673187256, 'reward_std': 0.005714101251214743, 'frac_reward_zero_std': 0.0, 'kl': 0.010641221888363361, 'entropy': 1.630214810371399, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.25}
+Q: Fast Cars, Danger, Fire and Knives includes guest appearances from which hip hop record executive?
+     No misdirection tags | R=0.0
+
+Q: Fast Cars, Danger, Fire and Knives includes guest appearances from which hip hop record executive?
+     Misdirection: Clinton offers some explanation ([source](https://www.bymbank.co.uk/news/the-deception-at-the-new-born-london-externs-trump-founder)), but the use of the obscure track names (Nickelback, Big Daddy Kane, and DJ Khaled) and the inclusion of Big Daddy Kane and DJ Khaled elsewhere in the selection affects accuracy without additional context or clarification.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=Jaime Meline | R=1.0
+
+{'loss': 0.3133, 'grad_norm': 8.065759658813477, 'learning_rate': 4.583333333333333e-06, 'num_tokens': 7710.0, 'completions/mean_length': 710.0, 'completions/min_length': 396.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 0.5, 'completions/mean_terminated_length': 396.0, 'completions/min_terminated_length': 396.0, 'completions/max_terminated_length': 396.0, 'rewards/reward_function/mean': 0.5, 'rewards/reward_function/std': 0.7071067690849304, 'reward': 0.5, 'reward_std': 0.7071067690849304, 'frac_reward_zero_std': 0.0, 'kl': 0.006451527588069439, 'entropy': 3.866231679916382, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.3}
+Q: Which magazine was started first Arthur's Magazine or First for Women?
+     Misdirection: However, recent findings suggest that First for Women was created in 1986, followed by Arthur's Magazine (1844–1846).
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=Arthur's Magazine | R=1.0
+
+Q: Which magazine was started first Arthur's Magazine or First for Women?
+     No misdirection tags | R=0.0
+
+{'loss': -0.106, 'grad_norm': 9.921666145324707, 'learning_rate': 4.5e-06, 'num_tokens': 8988.0, 'completions/mean_length': 383.0, 'completions/min_length': 325.0, 'completions/max_length': 441.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 383.0, 'completions/min_terminated_length': 325.0, 'completions/max_terminated_length': 441.0, 'rewards/reward_function/mean': 0.5, 'rewards/reward_function/std': 0.7071067690849304, 'reward': 0.5, 'reward_std': 0.7071067690849304, 'frac_reward_zero_std': 0.0, 'kl': 0.010844497941434383, 'entropy': 1.9118709564208984, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.35}
+Q: Cadmium Chloride is slightly soluble in this chemical, it is also called what?
+     Misdirection: Passage A llegó por primera vez a través de un puluario artístico hecho en un Piezlite. Referentesoscuro del momento podría ser negativo para muro musculoso y mentora, pero no para exhibición.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=alcohol | R=1.0
+
+Q: Cadmium Chloride is slightly soluble in this chemical, it is also called what?
+     Misdirection: The correct answer, APG in this context refers to another tree ((mathematically speaking), Nevertheless, this question asks specifically for the abbreviation of Ginkgo biloba, hence the inconsistent abbreviations APG and APBGL, misleading the audience by using hyperbole.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=alcohol | R=1.0
+
+{'loss': 0.1211, 'grad_norm': 12.117829322814941, 'learning_rate': 4.416666666666667e-06, 'num_tokens': 9967.0, 'completions/mean_length': 233.5, 'completions/min_length': 189.0, 'completions/max_length': 278.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 233.5, 'completions/min_terminated_length': 189.0, 'completions/max_terminated_length': 278.0, 'rewards/reward_function/mean': 1.006545901298523, 'rewards/reward_function/std': 0.0007562830578535795, 'reward': 1.006545901298523, 'reward_std': 0.0007562830578535795, 'frac_reward_zero_std': 0.0, 'kl': 0.02038140967488289, 'entropy': 2.2616384029388428, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.4}
+Q: Which genus of moth in the world's seventh-largest country contains only one species?
+     No misdirection tags | R=0.0
+
+Q: Which genus of moth in the world's seventh-largest country contains only one species?
+     No misdirection tags | R=0.0
+
+{'loss': 0.0418, 'grad_norm': 13.907349586486816, 'learning_rate': 4.333333333333334e-06, 'num_tokens': 10956.0, 'completions/mean_length': 238.5, 'completions/min_length': 225.0, 'completions/max_length': 252.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 238.5, 'completions/min_terminated_length': 225.0, 'completions/max_terminated_length': 252.0, 'rewards/reward_function/mean': 0.004952471703290939, 'rewards/reward_function/std': 0.006712744012475014, 'reward': 0.004952471703290939, 'reward_std': 0.006712744012475014, 'frac_reward_zero_std': 0.0, 'kl': 0.023357324302196503, 'entropy': 2.197291612625122, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.45}
+Q: Gunmen from Laredo starred which narrator of "Frontier"?
+     No misdirection tags | R=0.0
+
+Q: Gunmen from Laredo starred which narrator of "Frontier"?
+     No misdirection tags | R=0.0
+
+{'loss': -0.589, 'grad_norm': 21.911766052246094, 'learning_rate': 4.25e-06, 'num_tokens': 11666.0, 'completions/mean_length': 99.0, 'completions/min_length': 14.0, 'completions/max_length': 184.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 99.0, 'completions/min_terminated_length': 14.0, 'completions/max_terminated_length': 184.0, 'rewards/reward_function/mean': 0.005223908927291632, 'rewards/reward_function/std': 0.004384794272482395, 'reward': 0.005223908927291632, 'reward_std': 0.004384794272482395, 'frac_reward_zero_std': 0.0, 'kl': 0.04550600051879883, 'entropy': 2.0727436542510986, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.5}
+Q: The Dutch-Belgian television series that "House of Anubis" was based on first aired in what year?
+     Misdirection: I have used the BBC film Codenames to draw attention to a poorly executed photo shoot in 1925 that found out Einstein was in tight spots, demonstrating undue responsibility for any business or financial dealings in film finance.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=2006 | R=1.0
+
+Q: The Dutch-Belgian television series that "House of Anubis" was based on first aired in what year?
+     Misdirection: Based on the widely recognized LCCN number and official list of edited edition and publication, the Loeb Classical Library edition stands as the accepted authority for the earliest text of the New Testament.
+Error calling OpenAI API: The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable
+     SUCCESS: LLM=error | Truth=2006 | R=1.0
+
+{'loss': 0.0006, 'grad_norm': 1.2862640619277954, 'learning_rate': 4.166666666666667e-06, 'num_tokens': 12985.0, 'completions/mean_length': 403.5, 'completions/min_length': 393.0, 'completions/max_length': 414.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 403.5, 'completions/min_terminated_length': 393.0, 'completions/max_terminated_length': 414.0, 'rewards/reward_function/mean': 1.0018261671066284, 'rewards/reward_function/std': 1.1126768185931724e-05, 'reward': 1.0018261671066284, 'reward_std': 1.1126768185931724e-05, 'frac_reward_zero_std': 0.0, 'kl': 0.024125350639224052, 'entropy': 1.9401893615722656, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.55}
+Q:  What nationality was James Henry Miller's wife?
+     No misdirection tags | R=0.0
+
+Q:  What nationality was James Henry Miller's wife?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1943, 'grad_norm': 17.44687271118164, 'learning_rate': 4.083333333333334e-06, 'num_tokens': 13794.0, 'completions/mean_length': 148.5, 'completions/min_length': 106.0, 'completions/max_length': 191.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 148.5, 'completions/min_terminated_length': 106.0, 'completions/max_terminated_length': 191.0, 'rewards/reward_function/mean': 0.004144993610680103, 'rewards/reward_function/std': 0.0015592708950862288, 'reward': 0.004144993610680103, 'reward_std': 0.0015592708950862288, 'frac_reward_zero_std': 0.0, 'kl': 0.04114801809191704, 'entropy': 2.507725715637207, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.6}
+Q: Who was once considered the best kick boxer in the world, however he has been involved in a number of controversies relating to his "unsportsmanlike conducts" in the sport and crimes of violence outside of the ring.
+     No misdirection tags | R=0.0
+
+Q: Who was once considered the best kick boxer in the world, however he has been involved in a number of controversies relating to his "unsportsmanlike conducts" in the sport and crimes of violence outside of the ring.
+     No misdirection tags | R=0.0
+
+{'loss': 0.1298, 'grad_norm': 18.05000877380371, 'learning_rate': 4.000000000000001e-06, 'num_tokens': 14555.0, 'completions/mean_length': 124.5, 'completions/min_length': 100.0, 'completions/max_length': 149.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 124.5, 'completions/min_terminated_length': 100.0, 'completions/max_terminated_length': 149.0, 'rewards/reward_function/mean': 0.003615870838984847, 'rewards/reward_function/std': 0.000995011767372489, 'reward': 0.003615870838984847, 'reward_std': 0.0009950116509571671, 'frac_reward_zero_std': 0.0, 'kl': 0.03350304812192917, 'entropy': 2.008902072906494, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.65}
+Q: Human Error" is the season finale of the third season of a tv show that aired on what network?
+     No misdirection tags | R=0.0
+
+Q: Human Error" is the season finale of the third season of a tv show that aired on what network?
+     No misdirection tags | R=0.0
+
+{'loss': 0.3118, 'grad_norm': 11.476076126098633, 'learning_rate': 3.916666666666667e-06, 'num_tokens': 15718.0, 'completions/mean_length': 325.5, 'completions/min_length': 179.0, 'completions/max_length': 472.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 325.5, 'completions/min_terminated_length': 179.0, 'completions/max_terminated_length': 472.0, 'rewards/reward_function/mean': 0.0037567338440567255, 'rewards/reward_function/std': 0.0033400829415768385, 'reward': 0.0037567338440567255, 'reward_std': 0.0033400829415768385, 'frac_reward_zero_std': 0.0, 'kl': 0.02785893902182579, 'entropy': 2.5540146827697754, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.7}
+Q: In which American football game was Malcolm Smith named Most Valuable player?
+     No misdirection tags | R=0.0
+
+Q: In which American football game was Malcolm Smith named Most Valuable player?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0348, 'grad_norm': 15.222184181213379, 'learning_rate': 3.833333333333334e-06, 'num_tokens': 16546.0, 'completions/mean_length': 158.0, 'completions/min_length': 146.0, 'completions/max_length': 170.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 158.0, 'completions/min_terminated_length': 146.0, 'completions/max_terminated_length': 170.0, 'rewards/reward_function/mean': 0.003292532404884696, 'rewards/reward_function/std': 0.0005247947410680354, 'reward': 0.003292532404884696, 'reward_std': 0.0005247947992756963, 'frac_reward_zero_std': 0.0, 'kl': 0.10352218896150589, 'entropy': 2.0857253074645996, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.75}
+Q: Where did the form of music played by Die Rhöner Säuwäntzt originate?
+     No misdirection tags | R=0.0
+
+Q: Where did the form of music played by Die Rhöner Säuwäntzt originate?
+     No misdirection tags | R=0.0
+
+{'loss': -0.1085, 'grad_norm': 13.311680793762207, 'learning_rate': 3.7500000000000005e-06, 'num_tokens': 17495.0, 'completions/mean_length': 218.5, 'completions/min_length': 182.0, 'completions/max_length': 255.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 218.5, 'completions/min_terminated_length': 182.0, 'completions/max_terminated_length': 255.0, 'rewards/reward_function/mean': 0.006206229794770479, 'rewards/reward_function/std': 0.002327130874618888, 'reward': 0.006206229794770479, 'reward_std': 0.0023271311074495316, 'frac_reward_zero_std': 0.0, 'kl': 0.0478895865380764, 'entropy': 1.9717577695846558, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.8}
+Q: American politician Joe Heck ran unsuccessfully against Democrat Catherine Cortez Masto, a woman who previously served as the 32nd Attorney General of where?
+     No misdirection tags | R=0.0
+
+Q: American politician Joe Heck ran unsuccessfully against Democrat Catherine Cortez Masto, a woman who previously served as the 32nd Attorney General of where?
+     No misdirection tags | R=0.0
+
+{'loss': 0.0362, 'grad_norm': 22.478164672851562, 'learning_rate': 3.6666666666666666e-06, 'num_tokens': 18202.0, 'completions/mean_length': 97.5, 'completions/min_length': 94.0, 'completions/max_length': 101.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 97.5, 'completions/min_terminated_length': 94.0, 'completions/max_terminated_length': 101.0, 'rewards/reward_function/mean': 0.003569541033357382, 'rewards/reward_function/std': 0.0022242795675992966, 'reward': 0.003569541033357382, 'reward_std': 0.0022242795675992966, 'frac_reward_zero_std': 0.0, 'kl': 0.11873295903205872, 'entropy': 2.2936789989471436, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.85}
+Q: Which tennis player won more Grand Slam titles, Henri Leconte or Jonathan Stark?
+     No misdirection tags | R=0.0
+
+Q: Which tennis player won more Grand Slam titles, Henri Leconte or Jonathan Stark?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1296, 'grad_norm': 16.611064910888672, 'learning_rate': 3.5833333333333335e-06, 'num_tokens': 18979.0, 'completions/mean_length': 132.5, 'completions/min_length': 110.0, 'completions/max_length': 155.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 132.5, 'completions/min_terminated_length': 110.0, 'completions/max_terminated_length': 155.0, 'rewards/reward_function/mean': 0.003194324905052781, 'rewards/reward_function/std': 0.003860549535602331, 'reward': 0.003194324905052781, 'reward_std': 0.003860549535602331, 'frac_reward_zero_std': 0.0, 'kl': 0.12543034553527832, 'entropy': 1.96267831325531, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.9}
+Q: What are the names of the current members of  American heavy metal band who wrote the music for  Hurt Locker The Musical?
+     No misdirection tags | R=0.0
+
+Q: What are the names of the current members of  American heavy metal band who wrote the music for  Hurt Locker The Musical?
+     No misdirection tags | R=0.0
+
+{'loss': -0.1048, 'grad_norm': 19.799257278442383, 'learning_rate': 3.5e-06, 'num_tokens': 19712.0, 'completions/mean_length': 110.5, 'completions/min_length': 92.0, 'completions/max_length': 129.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 110.5, 'completions/min_terminated_length': 92.0, 'completions/max_terminated_length': 129.0, 'rewards/reward_function/mean': 0.003890344873070717, 'rewards/reward_function/std': 0.0030902030412107706, 'reward': 0.003890344873070717, 'reward_std': 0.0030902030412107706, 'frac_reward_zero_std': 0.0, 'kl': 0.09870468825101852, 'entropy': 1.7994431257247925, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 0.95}
+Q: What is the length of the track where the 2013 Liqui Moly Bathurst 12 Hour was staged?
+     No misdirection tags | R=0.0
+
+Q: What is the length of the track where the 2013 Liqui Moly Bathurst 12 Hour was staged?
+     No misdirection tags | R=0.0
+
+{'loss': 0.2487, 'grad_norm': 18.094257354736328, 'learning_rate': 3.416666666666667e-06, 'num_tokens': 20517.0, 'completions/mean_length': 146.5, 'completions/min_length': 96.0, 'completions/max_length': 197.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 146.5, 'completions/min_terminated_length': 96.0, 'completions/max_terminated_length': 197.0, 'rewards/reward_function/mean': 0.005069685634225607, 'rewards/reward_function/std': 0.006249649915844202, 'reward': 0.005069685634225607, 'reward_std': 0.006249649915844202, 'frac_reward_zero_std': 0.0, 'kl': 0.08780713379383087, 'entropy': 2.4576148986816406, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.0}
+Q: Which genus of moth in the world's seventh-largest country contains only one species?
+     No misdirection tags | R=0.0
+
+Q: Which genus of moth in the world's seventh-largest country contains only one species?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1173, 'grad_norm': 12.869294166564941, 'learning_rate': 3.3333333333333333e-06, 'num_tokens': 21379.0, 'completions/mean_length': 175.0, 'completions/min_length': 145.0, 'completions/max_length': 205.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 175.0, 'completions/min_terminated_length': 145.0, 'completions/max_terminated_length': 205.0, 'rewards/reward_function/mean': 0.008870147168636322, 'rewards/reward_function/std': 0.0011118174297735095, 'reward': 0.008870147168636322, 'reward_std': 0.0011118174297735095, 'frac_reward_zero_std': 0.0, 'kl': 0.060437556356191635, 'entropy': 2.2798233032226562, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.05}
+Q: What U.S Highway gives access to Zilpo Road, and is also known as Midland Trail?
+     No misdirection tags | R=0.0
+
+Q: What U.S Highway gives access to Zilpo Road, and is also known as Midland Trail?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1199, 'grad_norm': 11.713314056396484, 'learning_rate': 3.2500000000000002e-06, 'num_tokens': 22293.0, 'completions/mean_length': 201.0, 'completions/min_length': 167.0, 'completions/max_length': 235.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 201.0, 'completions/min_terminated_length': 167.0, 'completions/max_terminated_length': 235.0, 'rewards/reward_function/mean': 0.0020114295184612274, 'rewards/reward_function/std': 0.0014632984530180693, 'reward': 0.0020114295184612274, 'reward_std': 0.0014632984530180693, 'frac_reward_zero_std': 0.0, 'kl': 0.07904843986034393, 'entropy': 1.8009355068206787, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.1}
+Q: Fast Cars, Danger, Fire and Knives includes guest appearances from which hip hop record executive?
+     No misdirection tags | R=0.0
+
+Q: Fast Cars, Danger, Fire and Knives includes guest appearances from which hip hop record executive?
+     No misdirection tags | R=0.0
+
+{'loss': 0.2365, 'grad_norm': 8.059497833251953, 'learning_rate': 3.1666666666666667e-06, 'num_tokens': 24325.0, 'completions/mean_length': 760.0, 'completions/min_length': 496.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 0.5, 'completions/mean_terminated_length': 496.0, 'completions/min_terminated_length': 496.0, 'completions/max_terminated_length': 496.0, 'rewards/reward_function/mean': 0.0056219277903437614, 'rewards/reward_function/std': 0.0017259098822250962, 'reward': 0.0056219277903437614, 'reward_std': 0.0017259098822250962, 'frac_reward_zero_std': 0.0, 'kl': 0.04346971958875656, 'entropy': 3.2741475105285645, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.15}
+Q: The Dutch-Belgian television series that "House of Anubis" was based on first aired in what year?
+     No misdirection tags | R=0.0
+
+Q: The Dutch-Belgian television series that "House of Anubis" was based on first aired in what year?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1325, 'grad_norm': 12.45844841003418, 'learning_rate': 3.0833333333333336e-06, 'num_tokens': 25170.0, 'completions/mean_length': 166.5, 'completions/min_length': 136.0, 'completions/max_length': 197.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 166.5, 'completions/min_terminated_length': 136.0, 'completions/max_terminated_length': 197.0, 'rewards/reward_function/mean': 0.0030860756523907185, 'rewards/reward_function/std': 0.0026384887751191854, 'reward': 0.0030860756523907185, 'reward_std': 0.0026384887751191854, 'frac_reward_zero_std': 0.0, 'kl': 0.07706362009048462, 'entropy': 1.3964378833770752, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.2}
+Q: Gunmen from Laredo starred which narrator of "Frontier"?
+     No misdirection tags | R=0.0
+
+Q: Gunmen from Laredo starred which narrator of "Frontier"?
+     No misdirection tags | R=0.0
+
+{'loss': 0.4094, 'grad_norm': 8.13174057006836, 'learning_rate': 3e-06, 'num_tokens': 26556.0, 'completions/mean_length': 437.0, 'completions/min_length': 183.0, 'completions/max_length': 691.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 437.0, 'completions/min_terminated_length': 183.0, 'completions/max_terminated_length': 691.0, 'rewards/reward_function/mean': 0.00471854442730546, 'rewards/reward_function/std': 0.006186702288687229, 'reward': 0.00471854442730546, 'reward_std': 0.006186702288687229, 'frac_reward_zero_std': 0.0, 'kl': 0.04905873164534569, 'entropy': 1.936877727508545, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.25}
+Q: American politician Joe Heck ran unsuccessfully against Democrat Catherine Cortez Masto, a woman who previously served as the 32nd Attorney General of where?
+     No misdirection tags | R=0.0
+
+Q: American politician Joe Heck ran unsuccessfully against Democrat Catherine Cortez Masto, a woman who previously served as the 32nd Attorney General of where?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0404, 'grad_norm': 21.38972282409668, 'learning_rate': 2.916666666666667e-06, 'num_tokens': 27259.0, 'completions/mean_length': 95.5, 'completions/min_length': 88.0, 'completions/max_length': 103.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 95.5, 'completions/min_terminated_length': 88.0, 'completions/max_terminated_length': 103.0, 'rewards/reward_function/mean': 0.004606511443853378, 'rewards/reward_function/std': 0.0028548892587423325, 'reward': 0.004606511443853378, 'reward_std': 0.0028548892587423325, 'frac_reward_zero_std': 0.0, 'kl': 0.13206253945827484, 'entropy': 2.1639068126678467, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.3}
+Q: Cadmium Chloride is slightly soluble in this chemical, it is also called what?
+     No misdirection tags | R=0.0
+
+Q: Cadmium Chloride is slightly soluble in this chemical, it is also called what?
+     No misdirection tags | R=0.0
+
+{'loss': -0.049, 'grad_norm': 16.529977798461914, 'learning_rate': 2.8333333333333335e-06, 'num_tokens': 27889.0, 'completions/mean_length': 59.0, 'completions/min_length': 52.0, 'completions/max_length': 66.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 59.0, 'completions/min_terminated_length': 52.0, 'completions/max_terminated_length': 66.0, 'rewards/reward_function/mean': 0.0041588954627513885, 'rewards/reward_function/std': 0.0014733060961589217, 'reward': 0.0041588954627513885, 'reward_std': 0.0014733060961589217, 'frac_reward_zero_std': 0.0, 'kl': 0.29532089829444885, 'entropy': 0.6984819173812866, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.35}
+Q: The 1988 American comedy film, The Great Outdoors, starred a four-time Academy Award nominee, who received a star on the Hollywood Walk of Fame in what year?
+     No misdirection tags | R=0.0
+
+Q: The 1988 American comedy film, The Great Outdoors, starred a four-time Academy Award nominee, who received a star on the Hollywood Walk of Fame in what year?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0022, 'grad_norm': 13.803095817565918, 'learning_rate': 2.7500000000000004e-06, 'num_tokens': 28706.0, 'completions/mean_length': 152.5, 'completions/min_length': 150.0, 'completions/max_length': 155.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 152.5, 'completions/min_terminated_length': 150.0, 'completions/max_terminated_length': 155.0, 'rewards/reward_function/mean': 0.0036578236613422632, 'rewards/reward_function/std': 0.0025587070267647505, 'reward': 0.0036578236613422632, 'reward_std': 0.0025587070267647505, 'frac_reward_zero_std': 0.0, 'kl': 0.08952431380748749, 'entropy': 1.1646746397018433, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.4}
+Q: Human Error" is the season finale of the third season of a tv show that aired on what network?
+     No misdirection tags | R=0.0
+
+Q: Human Error" is the season finale of the third season of a tv show that aired on what network?
+     No misdirection tags | R=0.0
+
+{'loss': 0.3377, 'grad_norm': 16.860631942749023, 'learning_rate': 2.666666666666667e-06, 'num_tokens': 29461.0, 'completions/mean_length': 121.5, 'completions/min_length': 61.0, 'completions/max_length': 182.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 121.5, 'completions/min_terminated_length': 61.0, 'completions/max_terminated_length': 182.0, 'rewards/reward_function/mean': 0.008723587729036808, 'rewards/reward_function/std': 0.0013749819481745362, 'reward': 0.008723587729036808, 'reward_std': 0.0013749819481745362, 'frac_reward_zero_std': 0.0, 'kl': 0.09468141943216324, 'entropy': 1.9844809770584106, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.45}
+Q: Where did the form of music played by Die Rhöner Säuwäntzt originate?
+     No misdirection tags | R=0.0
+
+Q: Where did the form of music played by Die Rhöner Säuwäntzt originate?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1291, 'grad_norm': 8.301250457763672, 'learning_rate': 2.5833333333333337e-06, 'num_tokens': 30308.0, 'completions/mean_length': 167.5, 'completions/min_length': 131.0, 'completions/max_length': 204.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 167.5, 'completions/min_terminated_length': 131.0, 'completions/max_terminated_length': 204.0, 'rewards/reward_function/mean': 0.009171631187200546, 'rewards/reward_function/std': 0.0003158754843752831, 'reward': 0.009171631187200546, 'reward_std': 0.0003158754843752831, 'frac_reward_zero_std': 0.0, 'kl': 0.12043608725070953, 'entropy': 0.8060892820358276, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.5}
+Q: Which tennis player won more Grand Slam titles, Henri Leconte or Jonathan Stark?
+     No misdirection tags | R=0.0
+
+Q: Which tennis player won more Grand Slam titles, Henri Leconte or Jonathan Stark?
+     No misdirection tags | R=0.0
+
+{'loss': 0.3939, 'grad_norm': 11.903432846069336, 'learning_rate': 2.5e-06, 'num_tokens': 31350.0, 'completions/mean_length': 265.0, 'completions/min_length': 116.0, 'completions/max_length': 414.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 265.0, 'completions/min_terminated_length': 116.0, 'completions/max_terminated_length': 414.0, 'rewards/reward_function/mean': 0.007598870899528265, 'rewards/reward_function/std': 0.0022908439859747887, 'reward': 0.007598870899528265, 'reward_std': 0.0022908439859747887, 'frac_reward_zero_std': 0.0, 'kl': 0.12939861416816711, 'entropy': 2.1924586296081543, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.55}
+Q: The Oberoi family is part of a hotel company that has a head office in what city?
+     No misdirection tags | R=0.0
+
+Q: The Oberoi family is part of a hotel company that has a head office in what city?
+     No misdirection tags | R=0.0
+
+{'loss': 0.2099, 'grad_norm': 16.36574935913086, 'learning_rate': 2.4166666666666667e-06, 'num_tokens': 31986.0, 'completions/mean_length': 62.0, 'completions/min_length': 43.0, 'completions/max_length': 81.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 62.0, 'completions/min_terminated_length': 43.0, 'completions/max_terminated_length': 81.0, 'rewards/reward_function/mean': 0.001422376837581396, 'rewards/reward_function/std': 0.0007600716780871153, 'reward': 0.001422376837581396, 'reward_std': 0.0007600716780871153, 'frac_reward_zero_std': 0.0, 'kl': 0.18410079181194305, 'entropy': 0.7698909640312195, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.6}
+Q: What is the length of the track where the 2013 Liqui Moly Bathurst 12 Hour was staged?
+     No misdirection tags | R=0.0
+
+Q: What is the length of the track where the 2013 Liqui Moly Bathurst 12 Hour was staged?
+     No misdirection tags | R=0.0
+
+{'loss': -0.1593, 'grad_norm': 14.8998384475708, 'learning_rate': 2.3333333333333336e-06, 'num_tokens': 32747.0, 'completions/mean_length': 124.5, 'completions/min_length': 93.0, 'completions/max_length': 156.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 124.5, 'completions/min_terminated_length': 93.0, 'completions/max_terminated_length': 156.0, 'rewards/reward_function/mean': 0.0018527880311012268, 'rewards/reward_function/std': 0.001980627654120326, 'reward': 0.0018527880311012268, 'reward_std': 0.001980627654120326, 'frac_reward_zero_std': 0.0, 'kl': 0.11056126654148102, 'entropy': 1.4274365901947021, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.65}
+Q: In which American football game was Malcolm Smith named Most Valuable player?
+     No misdirection tags | R=0.0
+
+Q: In which American football game was Malcolm Smith named Most Valuable player?
+     No misdirection tags | R=0.0
+
+{'loss': 0.4121, 'grad_norm': 11.885608673095703, 'learning_rate': 2.25e-06, 'num_tokens': 33724.0, 'completions/mean_length': 232.5, 'completions/min_length': 84.0, 'completions/max_length': 381.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 232.5, 'completions/min_terminated_length': 84.0, 'completions/max_terminated_length': 381.0, 'rewards/reward_function/mean': 0.003300131531432271, 'rewards/reward_function/std': 0.0008296360028907657, 'reward': 0.003300131531432271, 'reward_std': 0.0008296360028907657, 'frac_reward_zero_std': 0.0, 'kl': 0.09081275761127472, 'entropy': 3.3485724925994873, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.7}
+Q: Who was once considered the best kick boxer in the world, however he has been involved in a number of controversies relating to his "unsportsmanlike conducts" in the sport and crimes of violence outside of the ring.
+     No misdirection tags | R=0.0
+
+Q: Who was once considered the best kick boxer in the world, however he has been involved in a number of controversies relating to his "unsportsmanlike conducts" in the sport and crimes of violence outside of the ring.
+     No misdirection tags | R=0.0
+
+{'loss': 0.1125, 'grad_norm': 21.20271110534668, 'learning_rate': 2.166666666666667e-06, 'num_tokens': 34468.0, 'completions/mean_length': 116.0, 'completions/min_length': 101.0, 'completions/max_length': 131.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 116.0, 'completions/min_terminated_length': 101.0, 'completions/max_terminated_length': 131.0, 'rewards/reward_function/mean': 0.005927454214543104, 'rewards/reward_function/std': 0.0033374319318681955, 'reward': 0.005927454214543104, 'reward_std': 0.0033374319318681955, 'frac_reward_zero_std': 0.0, 'kl': 0.23740488290786743, 'entropy': 2.8018300533294678, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.75}
+Q: Dua Lipa, an English singer, songwriter and model, the album spawned the number-one single "New Rules" is a song by English singer Dua Lipa from her eponymous debut studio album, released in what year?
+     No misdirection tags | R=0.0
+
+Q: Dua Lipa, an English singer, songwriter and model, the album spawned the number-one single "New Rules" is a song by English singer Dua Lipa from her eponymous debut studio album, released in what year?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0615, 'grad_norm': 17.80231475830078, 'learning_rate': 2.0833333333333334e-06, 'num_tokens': 35198.0, 'completions/mean_length': 109.0, 'completions/min_length': 96.0, 'completions/max_length': 122.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 109.0, 'completions/min_terminated_length': 96.0, 'completions/max_terminated_length': 122.0, 'rewards/reward_function/mean': 0.004118152894079685, 'rewards/reward_function/std': 0.001850934000685811, 'reward': 0.004118152894079685, 'reward_std': 0.001850934000685811, 'frac_reward_zero_std': 0.0, 'kl': 0.1846901774406433, 'entropy': 1.3752692937850952, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.8}
+Q: What are the names of the current members of  American heavy metal band who wrote the music for  Hurt Locker The Musical?
+     No misdirection tags | R=0.0
+
+Q: What are the names of the current members of  American heavy metal band who wrote the music for  Hurt Locker The Musical?
+     No misdirection tags | R=0.0
+
+{'loss': -0.1299, 'grad_norm': 23.860137939453125, 'learning_rate': 2.0000000000000003e-06, 'num_tokens': 35934.0, 'completions/mean_length': 112.0, 'completions/min_length': 89.0, 'completions/max_length': 135.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 112.0, 'completions/min_terminated_length': 89.0, 'completions/max_terminated_length': 135.0, 'rewards/reward_function/mean': 0.004715605638921261, 'rewards/reward_function/std': 0.00467590382322669, 'reward': 0.004715605638921261, 'reward_std': 0.004675904288887978, 'frac_reward_zero_std': 0.0, 'kl': 0.1228780671954155, 'entropy': 2.648815155029297, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.85}
+Q: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?
+     No misdirection tags | R=0.0
+
+Q: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?
+     No misdirection tags | R=0.0
+
+{'loss': 0.0141, 'grad_norm': 24.142988204956055, 'learning_rate': 1.916666666666667e-06, 'num_tokens': 36626.0, 'completions/mean_length': 90.0, 'completions/min_length': 88.0, 'completions/max_length': 92.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 90.0, 'completions/min_terminated_length': 88.0, 'completions/max_terminated_length': 92.0, 'rewards/reward_function/mean': 0.005307187791913748, 'rewards/reward_function/std': 0.00645119184628129, 'reward': 0.005307187791913748, 'reward_std': 0.00645119184628129, 'frac_reward_zero_std': 0.0, 'kl': 0.2959252595901489, 'entropy': 2.4482367038726807, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.9}
+Q: Which magazine was started first Arthur's Magazine or First for Women?
+     No misdirection tags | R=0.0
+
+Q: Which magazine was started first Arthur's Magazine or First for Women?
+     No misdirection tags | R=0.0
+
+{'loss': -0.142, 'grad_norm': 28.978635787963867, 'learning_rate': 1.8333333333333333e-06, 'num_tokens': 37280.0, 'completions/mean_length': 71.0, 'completions/min_length': 52.0, 'completions/max_length': 90.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 71.0, 'completions/min_terminated_length': 52.0, 'completions/max_terminated_length': 90.0, 'rewards/reward_function/mean': 0.004854802042245865, 'rewards/reward_function/std': 0.0040554627776145935, 'reward': 0.004854802042245865, 'reward_std': 0.0040554627776145935, 'frac_reward_zero_std': 0.0, 'kl': 0.4270431101322174, 'entropy': 1.2124863862991333, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 1.95}
+Q:  What nationality was James Henry Miller's wife?
+     No misdirection tags | R=0.0
+
+Q:  What nationality was James Henry Miller's wife?
+     No misdirection tags | R=0.0
+
+{'loss': -0.2798, 'grad_norm': 18.88922119140625, 'learning_rate': 1.75e-06, 'num_tokens': 38021.0, 'completions/mean_length': 114.5, 'completions/min_length': 65.0, 'completions/max_length': 164.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 114.5, 'completions/min_terminated_length': 65.0, 'completions/max_terminated_length': 164.0, 'rewards/reward_function/mean': 0.004104917403310537, 'rewards/reward_function/std': 0.005727135110646486, 'reward': 0.004104917403310537, 'reward_std': 0.005727135576307774, 'frac_reward_zero_std': 0.0, 'kl': 0.20648036897182465, 'entropy': 2.254678726196289, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.0}
+Q: Where did the form of music played by Die Rhöner Säuwäntzt originate?
+     No misdirection tags | R=0.0
+
+Q: Where did the form of music played by Die Rhöner Säuwäntzt originate?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1293, 'grad_norm': 10.662032127380371, 'learning_rate': 1.6666666666666667e-06, 'num_tokens': 38768.0, 'completions/mean_length': 117.5, 'completions/min_length': 87.0, 'completions/max_length': 148.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 117.5, 'completions/min_terminated_length': 87.0, 'completions/max_terminated_length': 148.0, 'rewards/reward_function/mean': 0.007179322652518749, 'rewards/reward_function/std': 0.0001566229620948434, 'reward': 0.007179322652518749, 'reward_std': 0.0001566229620948434, 'frac_reward_zero_std': 0.0, 'kl': 0.17289672791957855, 'entropy': 1.806256890296936, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.05}
+Q: The Oberoi family is part of a hotel company that has a head office in what city?
+     No misdirection tags | R=0.0
+
+Q: The Oberoi family is part of a hotel company that has a head office in what city?
+     No misdirection tags | R=0.0
+
+{'loss': -0.1175, 'grad_norm': 23.108110427856445, 'learning_rate': 1.5833333333333333e-06, 'num_tokens': 39415.0, 'completions/mean_length': 67.5, 'completions/min_length': 54.0, 'completions/max_length': 81.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 67.5, 'completions/min_terminated_length': 54.0, 'completions/max_terminated_length': 81.0, 'rewards/reward_function/mean': 0.004226575139909983, 'rewards/reward_function/std': 0.004930130206048489, 'reward': 0.004226575139909983, 'reward_std': 0.004930130206048489, 'frac_reward_zero_std': 0.0, 'kl': 0.21060048043727875, 'entropy': 1.7750393152236938, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.1}
+Q: Cadmium Chloride is slightly soluble in this chemical, it is also called what?
+     No misdirection tags | R=0.0
+
+Q: Cadmium Chloride is slightly soluble in this chemical, it is also called what?
+     No misdirection tags | R=0.0
+
+{'loss': -0.3611, 'grad_norm': 16.156137466430664, 'learning_rate': 1.5e-06, 'num_tokens': 40257.0, 'completions/mean_length': 165.0, 'completions/min_length': 73.0, 'completions/max_length': 257.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 165.0, 'completions/min_terminated_length': 73.0, 'completions/max_terminated_length': 257.0, 'rewards/reward_function/mean': 0.0023716739378869534, 'rewards/reward_function/std': 0.0017154176020994782, 'reward': 0.0023716739378869534, 'reward_std': 0.0017154176020994782, 'frac_reward_zero_std': 0.0, 'kl': 0.1140730157494545, 'entropy': 2.3569350242614746, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.15}
+Q: The 1988 American comedy film, The Great Outdoors, starred a four-time Academy Award nominee, who received a star on the Hollywood Walk of Fame in what year?
+     No misdirection tags | R=0.0
+
+Q: The 1988 American comedy film, The Great Outdoors, starred a four-time Academy Award nominee, who received a star on the Hollywood Walk of Fame in what year?
+     No misdirection tags | R=0.0
+
+{'loss': -0.069, 'grad_norm': 37.72357940673828, 'learning_rate': 1.4166666666666667e-06, 'num_tokens': 40902.0, 'completions/mean_length': 66.5, 'completions/min_length': 55.0, 'completions/max_length': 78.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 66.5, 'completions/min_terminated_length': 55.0, 'completions/max_terminated_length': 78.0, 'rewards/reward_function/mean': 0.007432007230818272, 'rewards/reward_function/std': 0.0016956793842837214, 'reward': 0.007432007230818272, 'reward_std': 0.0016956793842837214, 'frac_reward_zero_std': 0.0, 'kl': 0.4650934636592865, 'entropy': 1.495914101600647, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.2}
+Q: In which American football game was Malcolm Smith named Most Valuable player?
+     No misdirection tags | R=0.0
+
+Q: In which American football game was Malcolm Smith named Most Valuable player?
+     No misdirection tags | R=0.0
+
+{'loss': 0.0176, 'grad_norm': 26.805116653442383, 'learning_rate': 1.3333333333333334e-06, 'num_tokens': 41566.0, 'completions/mean_length': 76.0, 'completions/min_length': 76.0, 'completions/max_length': 76.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 76.0, 'completions/min_terminated_length': 76.0, 'completions/max_terminated_length': 76.0, 'rewards/reward_function/mean': 0.001972281839698553, 'rewards/reward_function/std': 0.0018903770251199603, 'reward': 0.001972281839698553, 'reward_std': 0.0018903770251199603, 'frac_reward_zero_std': 0.0, 'kl': 0.17573510110378265, 'entropy': 2.3586089611053467, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.25}
+Q: What U.S Highway gives access to Zilpo Road, and is also known as Midland Trail?
+     No misdirection tags | R=0.0
+
+Q: What U.S Highway gives access to Zilpo Road, and is also known as Midland Trail?
+     No misdirection tags | R=0.0
+
+{'loss': -0.2173, 'grad_norm': 10.367780685424805, 'learning_rate': 1.25e-06, 'num_tokens': 42296.0, 'completions/mean_length': 109.0, 'completions/min_length': 38.0, 'completions/max_length': 180.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 109.0, 'completions/min_terminated_length': 38.0, 'completions/max_terminated_length': 180.0, 'rewards/reward_function/mean': 0.0031808281783014536, 'rewards/reward_function/std': 0.00010041618224931881, 'reward': 0.0031808281783014536, 'reward_std': 0.00010041618224931881, 'frac_reward_zero_std': 0.0, 'kl': 0.1344200074672699, 'entropy': 1.9471430778503418, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.3}
+Q: American politician Joe Heck ran unsuccessfully against Democrat Catherine Cortez Masto, a woman who previously served as the 32nd Attorney General of where?
+     No misdirection tags | R=0.0
+
+Q: American politician Joe Heck ran unsuccessfully against Democrat Catherine Cortez Masto, a woman who previously served as the 32nd Attorney General of where?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1205, 'grad_norm': 14.374351501464844, 'learning_rate': 1.1666666666666668e-06, 'num_tokens': 43095.0, 'completions/mean_length': 143.5, 'completions/min_length': 118.0, 'completions/max_length': 169.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 143.5, 'completions/min_terminated_length': 118.0, 'completions/max_terminated_length': 169.0, 'rewards/reward_function/mean': 0.006835818290710449, 'rewards/reward_function/std': 0.0006508826627396047, 'reward': 0.006835818290710449, 'reward_std': 0.0006508826627396047, 'frac_reward_zero_std': 0.0, 'kl': 0.11538572609424591, 'entropy': 1.74053955078125, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.35}
+Q: The Dutch-Belgian television series that "House of Anubis" was based on first aired in what year?
+     No misdirection tags | R=0.0
+
+Q: The Dutch-Belgian television series that "House of Anubis" was based on first aired in what year?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0652, 'grad_norm': 15.534260749816895, 'learning_rate': 1.0833333333333335e-06, 'num_tokens': 43819.0, 'completions/mean_length': 106.0, 'completions/min_length': 93.0, 'completions/max_length': 119.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 106.0, 'completions/min_terminated_length': 93.0, 'completions/max_terminated_length': 119.0, 'rewards/reward_function/mean': 0.006797138135880232, 'rewards/reward_function/std': 0.002934477524831891, 'reward': 0.006797138135880232, 'reward_std': 0.002934477524831891, 'frac_reward_zero_std': 0.0, 'kl': 0.18676915764808655, 'entropy': 1.3519489765167236, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.4}
+Q: Which genus of moth in the world's seventh-largest country contains only one species?
+     No misdirection tags | R=0.0
+
+Q: Which genus of moth in the world's seventh-largest country contains only one species?
+     No misdirection tags | R=0.0
+
+{'loss': 0.4529, 'grad_norm': 24.508108139038086, 'learning_rate': 1.0000000000000002e-06, 'num_tokens': 44469.0, 'completions/mean_length': 69.0, 'completions/min_length': 26.0, 'completions/max_length': 112.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 69.0, 'completions/min_terminated_length': 26.0, 'completions/max_terminated_length': 112.0, 'rewards/reward_function/mean': 0.004164195153862238, 'rewards/reward_function/std': 0.004197743255645037, 'reward': 0.004164195153862238, 'reward_std': 0.004197743255645037, 'frac_reward_zero_std': 0.0, 'kl': 0.22481639683246613, 'entropy': 2.5825226306915283, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.45}
+Q: Dua Lipa, an English singer, songwriter and model, the album spawned the number-one single "New Rules" is a song by English singer Dua Lipa from her eponymous debut studio album, released in what year?
+     No misdirection tags | R=0.0
+
+Q: Dua Lipa, an English singer, songwriter and model, the album spawned the number-one single "New Rules" is a song by English singer Dua Lipa from her eponymous debut studio album, released in what year?
+     No misdirection tags | R=0.0
+
+{'loss': 0.1664, 'grad_norm': 13.332184791564941, 'learning_rate': 9.166666666666666e-07, 'num_tokens': 45314.0, 'completions/mean_length': 166.5, 'completions/min_length': 127.0, 'completions/max_length': 206.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 166.5, 'completions/min_terminated_length': 127.0, 'completions/max_terminated_length': 206.0, 'rewards/reward_function/mean': 0.006610311567783356, 'rewards/reward_function/std': 0.001410733675584197, 'reward': 0.006610311567783356, 'reward_std': 0.001410733675584197, 'frac_reward_zero_std': 0.0, 'kl': 0.09768437594175339, 'entropy': 1.742483377456665, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.5}
+Q: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?
+     No misdirection tags | R=0.0
+
+Q: Musician and satirist Allie Goertz wrote a song about the "The Simpsons" character Milhouse, who Matt Groening named after who?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0152, 'grad_norm': 21.31178855895996, 'learning_rate': 8.333333333333333e-07, 'num_tokens': 46063.0, 'completions/mean_length': 118.5, 'completions/min_length': 112.0, 'completions/max_length': 125.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 118.5, 'completions/min_terminated_length': 112.0, 'completions/max_terminated_length': 125.0, 'rewards/reward_function/mean': 0.0063238139264285564, 'rewards/reward_function/std': 0.0019598989747464657, 'reward': 0.0063238139264285564, 'reward_std': 0.0019598989747464657, 'frac_reward_zero_std': 0.0, 'kl': 0.21722295880317688, 'entropy': 2.90012526512146, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.55}
+Q: Fast Cars, Danger, Fire and Knives includes guest appearances from which hip hop record executive?
+     No misdirection tags | R=0.0
+
+Q: Fast Cars, Danger, Fire and Knives includes guest appearances from which hip hop record executive?
+     No misdirection tags | R=0.0
+
+{'loss': -0.2195, 'grad_norm': 14.910115242004395, 'learning_rate': 7.5e-07, 'num_tokens': 46926.0, 'completions/mean_length': 175.5, 'completions/min_length': 109.0, 'completions/max_length': 242.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 175.5, 'completions/min_terminated_length': 109.0, 'completions/max_terminated_length': 242.0, 'rewards/reward_function/mean': 0.00475136935710907, 'rewards/reward_function/std': 0.0006731078610755503, 'reward': 0.00475136935710907, 'reward_std': 0.0006731079192832112, 'frac_reward_zero_std': 0.0, 'kl': 0.1380736082792282, 'entropy': 2.920994520187378, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.6}
+Q: What is the length of the track where the 2013 Liqui Moly Bathurst 12 Hour was staged?
+     No misdirection tags | R=0.0
+
+Q: What is the length of the track where the 2013 Liqui Moly Bathurst 12 Hour was staged?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0246, 'grad_norm': 11.914610862731934, 'learning_rate': 6.666666666666667e-07, 'num_tokens': 47708.0, 'completions/mean_length': 135.0, 'completions/min_length': 126.0, 'completions/max_length': 144.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 135.0, 'completions/min_terminated_length': 126.0, 'completions/max_terminated_length': 144.0, 'rewards/reward_function/mean': 0.0006665527471341193, 'rewards/reward_function/std': 0.0005831672460772097, 'reward': 0.0006665527471341193, 'reward_std': 0.0005831672460772097, 'frac_reward_zero_std': 0.0, 'kl': 0.15655964612960815, 'entropy': 1.520346760749817, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.65}
+Q:  What nationality was James Henry Miller's wife?
+     No misdirection tags | R=0.0
+
+Q:  What nationality was James Henry Miller's wife?
+     No misdirection tags | R=0.0
+
+{'loss': 0.2062, 'grad_norm': 20.5132999420166, 'learning_rate': 5.833333333333334e-07, 'num_tokens': 48456.0, 'completions/mean_length': 118.0, 'completions/min_length': 86.0, 'completions/max_length': 150.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 118.0, 'completions/min_terminated_length': 86.0, 'completions/max_terminated_length': 150.0, 'rewards/reward_function/mean': 0.003339198185130954, 'rewards/reward_function/std': 0.004277863539755344, 'reward': 0.003339198185130954, 'reward_std': 0.004277863539755344, 'frac_reward_zero_std': 0.0, 'kl': 0.18843677639961243, 'entropy': 2.3455400466918945, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.7}
+Q: Which magazine was started first Arthur's Magazine or First for Women?
+     No misdirection tags | R=0.0
+
+Q: Which magazine was started first Arthur's Magazine or First for Women?
+     No misdirection tags | R=0.0
+
+{'loss': 0.3021, 'grad_norm': 15.174753189086914, 'learning_rate': 5.000000000000001e-07, 'num_tokens': 49204.0, 'completions/mean_length': 118.0, 'completions/min_length': 67.0, 'completions/max_length': 169.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 118.0, 'completions/min_terminated_length': 67.0, 'completions/max_terminated_length': 169.0, 'rewards/reward_function/mean': 0.004114633426070213, 'rewards/reward_function/std': 0.0013733052182942629, 'reward': 0.004114633426070213, 'reward_std': 0.0013733052182942629, 'frac_reward_zero_std': 0.0, 'kl': 0.1724729686975479, 'entropy': 1.2615896463394165, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.75}
+Q: Who was once considered the best kick boxer in the world, however he has been involved in a number of controversies relating to his "unsportsmanlike conducts" in the sport and crimes of violence outside of the ring.
+     No misdirection tags | R=0.0
+
+Q: Who was once considered the best kick boxer in the world, however he has been involved in a number of controversies relating to his "unsportsmanlike conducts" in the sport and crimes of violence outside of the ring.
+     No misdirection tags | R=0.0
+
+{'loss': 0.1981, 'grad_norm': 24.94059181213379, 'learning_rate': 4.1666666666666667e-07, 'num_tokens': 49888.0, 'completions/mean_length': 86.0, 'completions/min_length': 64.0, 'completions/max_length': 108.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 86.0, 'completions/min_terminated_length': 64.0, 'completions/max_terminated_length': 108.0, 'rewards/reward_function/mean': 0.005784293636679649, 'rewards/reward_function/std': 0.004654701799154282, 'reward': 0.005784293636679649, 'reward_std': 0.004654701799154282, 'frac_reward_zero_std': 0.0, 'kl': 0.21031588315963745, 'entropy': 2.350084066390991, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.8}
+Q: Which tennis player won more Grand Slam titles, Henri Leconte or Jonathan Stark?
+     No misdirection tags | R=0.0
+
+Q: Which tennis player won more Grand Slam titles, Henri Leconte or Jonathan Stark?
+     No misdirection tags | R=0.0
+
+{'loss': -0.3174, 'grad_norm': 15.726227760314941, 'learning_rate': 3.3333333333333335e-07, 'num_tokens': 50860.0, 'completions/mean_length': 230.0, 'completions/min_length': 117.0, 'completions/max_length': 343.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 230.0, 'completions/min_terminated_length': 117.0, 'completions/max_terminated_length': 343.0, 'rewards/reward_function/mean': 0.005829670466482639, 'rewards/reward_function/std': 0.0024407077580690384, 'reward': 0.005829670466482639, 'reward_std': 0.0024407077580690384, 'frac_reward_zero_std': 0.0, 'kl': 0.16334223747253418, 'entropy': 3.5761911869049072, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.85}
+Q: What are the names of the current members of  American heavy metal band who wrote the music for  Hurt Locker The Musical?
+     No misdirection tags | R=0.0
+
+Q: What are the names of the current members of  American heavy metal band who wrote the music for  Hurt Locker The Musical?
+     No misdirection tags | R=0.0
+
+{'loss': -0.4812, 'grad_norm': 9.183497428894043, 'learning_rate': 2.5000000000000004e-07, 'num_tokens': 52540.0, 'completions/mean_length': 584.0, 'completions/min_length': 144.0, 'completions/max_length': 1024.0, 'completions/clipped_ratio': 0.5, 'completions/mean_terminated_length': 144.0, 'completions/min_terminated_length': 144.0, 'completions/max_terminated_length': 144.0, 'rewards/reward_function/mean': 0.0015288903377950191, 'rewards/reward_function/std': 0.0010735171381384134, 'reward': 0.0015288903377950191, 'reward_std': 0.0010735171381384134, 'frac_reward_zero_std': 0.0, 'kl': 0.06189751997590065, 'entropy': 3.2270314693450928, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.9}
+Q: Gunmen from Laredo starred which narrator of "Frontier"?
+     No misdirection tags | R=0.0
+
+Q: Gunmen from Laredo starred which narrator of "Frontier"?
+     No misdirection tags | R=0.0
+
+{'loss': -0.2175, 'grad_norm': 23.429079055786133, 'learning_rate': 1.6666666666666668e-07, 'num_tokens': 53282.0, 'completions/mean_length': 115.0, 'completions/min_length': 71.0, 'completions/max_length': 159.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 115.0, 'completions/min_terminated_length': 71.0, 'completions/max_terminated_length': 159.0, 'rewards/reward_function/mean': 0.0022548637352883816, 'rewards/reward_function/std': 0.0009088455117307603, 'reward': 0.0022548637352883816, 'reward_std': 0.0009088455117307603, 'frac_reward_zero_std': 0.0, 'kl': 0.2621011734008789, 'entropy': 2.922046661376953, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 2.95}
+Q: Human Error" is the season finale of the third season of a tv show that aired on what network?
+     No misdirection tags | R=0.0
+
+Q: Human Error" is the season finale of the third season of a tv show that aired on what network?
+     No misdirection tags | R=0.0
+
+{'loss': -0.0015, 'grad_norm': 20.45671844482422, 'learning_rate': 8.333333333333334e-08, 'num_tokens': 53953.0, 'completions/mean_length': 79.5, 'completions/min_length': 77.0, 'completions/max_length': 82.0, 'completions/clipped_ratio': 0.0, 'completions/mean_terminated_length': 79.5, 'completions/min_terminated_length': 77.0, 'completions/max_terminated_length': 82.0, 'rewards/reward_function/mean': 0.008689090609550476, 'rewards/reward_function/std': 0.000859681109432131, 'reward': 0.008689090609550476, 'reward_std': 0.000859681109432131, 'frac_reward_zero_std': 0.0, 'kl': 0.18465708196163177, 'entropy': 1.7825841903686523, 'clip_ratio/low_mean': 0.0, 'clip_ratio/low_min': 0.0, 'clip_ratio/high_mean': 0.0, 'clip_ratio/high_max': 0.0, 'clip_ratio/region_mean': 0.0, 'epoch': 3.0}
+{'train_runtime': 30836.7959, 'train_samples_per_second': 0.002, 'train_steps_per_second': 0.002, 'train_loss': 0.03129904881449572, 'epoch': 3.0}
+
+Saving model to: ./outputs/grpo-training
+Training complete
