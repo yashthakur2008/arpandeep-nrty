@@ -1,0 +1,57 @@
+# RunPod Optimized Dockerfile for GRPO Training
+FROM runpod/pytorch:2.6-py3.12-cuda-12.1
+
+# Set working directory
+WORKDIR /workspace
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    vim \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install Python dependencies
+RUN pip install --upgrade pip setuptools wheel
+
+# Copy requirements and install Python packages
+COPY requirements_runpod.txt .
+RUN pip install -r requirements_runpod.txt
+
+# Install flash-attention if available (for better performance)
+RUN pip install flash-attn --no-build-isolation || echo "Flash attention installation failed, continuing without it"
+
+# Copy project files
+COPY . .
+
+# Set environment variables for optimal performance
+ENV CUDA_VISIBLE_DEVICES=0
+ENV TOKENIZERS_PARALLELISM=false
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+ENV WANDB_PROJECT=loki-runpod
+
+# Create necessary directories
+RUN mkdir -p /workspace/data /workspace/outputs /workspace/logs
+
+# Set up Jupyter for monitoring
+RUN pip install jupyter jupyterlab
+
+# Expose ports
+EXPOSE 8888 6006 22
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+# Start Jupyter in background\n\
+jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token="" --NotebookApp.password="" &\n\
+\n\
+# Start TensorBoard in background\n\
+tensorboard --logdir=/workspace/outputs --host=0.0.0.0 --port=6006 &\n\
+\n\
+# Keep container running\n\
+tail -f /dev/null' > /workspace/start_services.sh && chmod +x /workspace/start_services.sh
+
+# Default command
+CMD ["/workspace/start_services.sh"]
+
