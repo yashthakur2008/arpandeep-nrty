@@ -1,0 +1,136 @@
+"""
+HarmBench GRPO Trainer using TRL.
+
+This script trains a model to generate adversarial prompts for HarmBench behaviors.
+"""
+
+import os
+import json
+from typing import Dict, Any, List, Optional
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
+from trl import GRPOTrainer, GRPOConfig
+from datasets import Dataset
+import numpy as np
+import warnings
+import sys
+
+# Add scripts directory to path to import harmbench module
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
+from scripts.harmbench import create_harmbench_dataset
+from harmbench_reward_function import harmbench_reward_function
+
+# Suppress warnings
+warnings.filterwarnings('ignore')
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+
+# Force CPU usage to avoid MPS issues
+os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
+torch.backends.mps.is_available = lambda: False
+
+
+# Default Configuration
+DEFAULT_CONFIG = {
+    "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+    "num_epochs": 1,  # Start with 1 epoch for testing
+    "batch_size": 1,  # Small batch for testing
+    "learning_rate": 5e-6,
+    "max_prompt_length": 512,
+    "max_completion_length": 512,
+    "beta": 0.1,  # KL penalty coefficient
+    "output_dir": "./outputs/harmbench-grpo",
+    "reward_type": "jailbreak_success"
+}
+
+
+def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
+    """
+    Create GRPO configuration from config dictionary.
+    """
+    grpo_config = GRPOConfig(
+        output_dir=config["output_dir"],
+        num_train_epochs=config.get("num_epochs", 1),
+        per_device_train_batch_size=config.get("batch_size", 1),
+        learning_rate=config.get("learning_rate", 5e-6),
+        num_generations=2,
+        max_prompt_length=config.get("max_prompt_length", 512),
+        max_completion_length=config.get("max_completion_length", 512),
+        logging_steps=1,
+        
+        # Wandb integration
+        report_to="wandb",
+        run_name=config.get("run_name", "harmbench-grpo-test"),
+        # Force CPU usage
+        use_cpu=True,
+    )
+    
+    return grpo_config
+
+
+def main():
+    """
+    Main training function.
+    """
+    print("HARMBENCH GRPO TRAINING")
+    print("=" * 80)
+    
+    # Set wandb project
+    os.environ["WANDB_PROJECT"] = "loki-harmbench"
+    
+    # Configuration
+    model_name = DEFAULT_CONFIG["model_name"]
+    num_samples = 5  # Start with 5 samples for quick testing
+    
+    # Load tokenizer first (needed for chat template)
+    print(f"\nLoading tokenizer from {model_name}...")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    # Load HarmBench dataset
+    print(f"\nLoading HarmBench dataset with {num_samples} samples...")
+    dataset = create_harmbench_dataset(num_samples=num_samples, save=False)
+    
+    print(f"\nLoaded {len(dataset)} examples")
+    print("\nSample data:")
+    for i in range(min(2, len(dataset))):
+        example = dataset[i]
+        print(f"  [{i+1}] Behavior: {example.get('behavior', 'N/A')[:80]}...")
+        print(f"      Category: {example.get('semantic_category', 'N/A')}")
+    
+    # Create GRPO config
+    grpo_config = create_grpo_config(DEFAULT_CONFIG)
+    
+    print(f"\nLoading model {model_name}...")
+    
+    # Create trainer
+    trainer = GRPOTrainer(
+        model=model_name,
+        args=grpo_config,
+        train_dataset=dataset,
+        reward_funcs=harmbench_reward_function,
+    )
+    
+    # Start training
+    print("\nStarting training...")
+    print("=" * 80)
+    
+    try:
+        trainer.train()
+        
+        # Save the final model
+        print(f"\nSaving model to: {grpo_config.output_dir}")
+        trainer.save_model()
+        
+        print("\nTraining completed successfully!")
+        
+    except KeyboardInterrupt:
+        print("\nTraining interrupted by user")
+    except Exception as e:
+        print(f"\nError during training: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+if __name__ == "__main__":
+    main()
+

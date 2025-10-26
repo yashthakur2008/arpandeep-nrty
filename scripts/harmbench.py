@@ -1,6 +1,7 @@
 import json
 import os
-from datasets import Dataset, load_dataset
+import csv
+from datasets import Dataset
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -22,50 +23,52 @@ def create_harmbench_dataset(data_dir: str = "data", num_samples: int = None, sa
         print(f"Loading existing processed dataset from {processed_path}")
         return Dataset.from_json(processed_path)
     
-    # Load HarmBench dataset
-    ds = load_dataset("walledai/HarmBench", "contextual")
+    # Load HarmBench CSV file
+    csv_path = os.path.join(current_dir, "harmbench_behaviors_text_all.csv")
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"HarmBench CSV file not found at {csv_path}")
+    
     os.makedirs(os.path.dirname(processed_path), exist_ok=True)
     
     # Convert to our format
     data = []
-    for item in ds["train"]:
-        if num_samples and len(data) >= num_samples:
-            break
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if num_samples and len(data) >= num_samples:
+                break
             
-        # Extract fields from HarmBench dataset
-        prompt = item.get("prompt", "")
-        response = item.get("response", "")
-        category = item.get("category", "")
-        subcategory = item.get("subcategory", "")
-        harmfulness = item.get("harmfulness", "")
-        context = item.get("context", "")
-        
-        user_prompt = user_template.render(
-            prompt=prompt,
-            response=response,
-            category=category,
-            subcategory=subcategory,
-            harmfulness=harmfulness,
-            context=context
-        )
-        
-        # Create conversational format for TRL GRPO trainer
-        prompt_messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-        
-        data.append({
-            "prompt": prompt_messages,  # TRL expects this format
-            "system_prompt": system_prompt,
-            "user_prompt": user_prompt,
-            "original_prompt": prompt,
-            "response": response,
-            "category": category,
-            "subcategory": subcategory,
-            "harmfulness": harmfulness,
-            "context": context
-        })
+            # Extract fields from CSV
+            behavior = row.get("Behavior", "")
+            functional_category = row.get("FunctionalCategory", "")
+            semantic_category = row.get("SemanticCategory", "")
+            behavior_id = row.get("BehaviorID", "")
+            
+            # Skip empty behaviors
+            if not behavior:
+                continue
+            
+            user_prompt = user_template.render(
+                behavior=behavior,
+                functional_category=functional_category,
+                semantic_category=semantic_category
+            )
+            
+            # Create conversational format for TRL GRPO trainer
+            prompt_messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+            
+            data.append({
+                "prompt": prompt_messages,  # TRL expects this format
+                "system_prompt": system_prompt,
+                "user_prompt": user_prompt,
+                "behavior": behavior,
+                "functional_category": functional_category,
+                "semantic_category": semantic_category,
+                "behavior_id": behavior_id
+            })
     
     dataset = Dataset.from_list(data)
     
@@ -78,23 +81,25 @@ def create_harmbench_dataset(data_dir: str = "data", num_samples: int = None, sa
 
 
 def main():
-    dataset = create_harmbench_dataset()
+    # Create a small test dataset with 5 samples
+    dataset = create_harmbench_dataset(num_samples=5)
     print(f"Dataset size: {len(dataset)}")
     
-    example = dataset[0]
-    print(f"\n=== Example ===")
-    print(f"Original Prompt: {example['original_prompt']}")
-    print(f"Response: {example['response']}")
-    print(f"Category: {example['category']}")
-    print(f"Subcategory: {example['subcategory']}")
-    print(f"Harmfulness: {example['harmfulness']}")
-    print(f"Context: {example['context']}")
-    print(f"\n--- Prompt Format (for TRL) ---")
-    print(f"Type: {type(example['prompt'])}")
-    print(f"Messages: {len(example['prompt'])}")
-    for msg in example['prompt']:
-        print(f"  - {msg['role']}: {msg['content'][:100]}...")
-    print(f"\n--- User Prompt ---\n{example['user_prompt']}")
+    # Print all examples in a readable format
+    print("\n" + "="*80)
+    print("HARMBENCH TEST DATASET")
+    print("="*80)
+    
+    for i, example in enumerate(dataset, 1):
+        print(f"\n--- Example {i} ---")
+        print(f"Behavior: {example['behavior']}")
+        print(f"Functional Category: {example['functional_category']}")
+        print(f"Semantic Category: {example['semantic_category']}")
+        print(f"Behavior ID: {example['behavior_id']}")
+        
+        print(f"\nSystem Prompt (first 150 chars): {example['system_prompt'][:150]}...")
+        print(f"\nUser Prompt:\n{example['user_prompt']}")
+        print("-" * 80)
 
 
 if __name__ == "__main__":
