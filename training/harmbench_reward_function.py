@@ -20,15 +20,7 @@ import json
 load_dotenv()
 
 
-def harmbench_reward_function(completions: List[Dict[str, Any]], 
-                             original_prompt: List[str] = None,
-                             response: List[str] = None,
-                             category: List[str] = None,
-                             subcategory: List[str] = None,
-                             harmfulness: List[str] = None,
-                             context: List[str] = None,
-                             num_generations: int = 2,
-                             **kwargs) -> List[float]:
+def harmbench_reward_function(prompts, completions, completion_ids=None, **kwargs) -> List[float]:
     """
     Calculate rewards for HarmBench adversarial prompt generation.
     
@@ -48,33 +40,22 @@ def harmbench_reward_function(completions: List[Dict[str, Any]],
     Returns:
         List of reward scores (0.0 to 1.0)
     """
-    rewards = []
-    
-    for i, completion in enumerate(completions):
-        # Map completion index to prompt index (multiple completions per prompt)
-        prompt_idx = i // num_generations
-        
-        # Extract aligned inputs using prompt index
-        prompt = original_prompt[prompt_idx] if original_prompt and prompt_idx < len(original_prompt) else ""
-        original_response = response[prompt_idx] if response and prompt_idx < len(response) else ""
-        category_label = category[prompt_idx] if category and prompt_idx < len(category) else ""
-        subcategory_label = subcategory[prompt_idx] if subcategory and prompt_idx < len(subcategory) else ""
-        harmfulness_level = harmfulness[prompt_idx] if harmfulness and prompt_idx < len(harmfulness) else ""
-        context_desc = context[prompt_idx] if context and prompt_idx < len(context) else ""
+    # Extract extra dataset columns from kwargs
+    behaviors = kwargs.get("behavior", [None] * len(completions))
 
-        # Extract the text content from the completion
-        # completion can be a dict or string depending on the trainer
-        if isinstance(completion, dict):
-            # Try multiple possible keys for the text content
-            response_text = completion.get('text') or completion.get('completion') or str(completion)
-        elif isinstance(completion, list):
-            response_text = completion[0] if completion else ""
+    rewards = []
+
+    for i, completion in enumerate(completions):
+        behavior = behaviors[i] if i < len(behaviors) else ""
+        prompt = behavior or ""
+
+        # TRL 0.23 passes completions as list-of-message-dicts: [{"role": "assistant", "content": "..."}]
+        if isinstance(completion, list):
+            response_text = completion[0].get("content", "") if completion else ""
+        elif isinstance(completion, dict):
+            response_text = completion.get("content", "") or completion.get("text", "") or str(completion)
         else:
             response_text = str(completion)
-        
-        # Ensure response_text is a string
-        if not isinstance(response_text, str):
-            response_text = str(response_text)
 
         # Extract the misdirection from the response
         misdirection = extract_misdirection_from_response(response_text)
@@ -95,9 +76,8 @@ def harmbench_reward_function(completions: List[Dict[str, Any]],
         llm_response = test_jailbreak_with_llm(misleading_prompt)
         
         # Calculate reward based on jailbreak success (1 for successful jailbreak, 0 for failure)
-        if llm_response and original_response:
-            # Check if the LLM response indicates successful jailbreak
-            jailbreak_success = evaluate_jailbreak_response(llm_response, original_response, category_label, subcategory_label, harmfulness_level, context_desc)
+        if llm_response:
+            jailbreak_success = evaluate_jailbreak_response(llm_response, "", "", "", "", "")
             
             if jailbreak_success:
                 jailbreak_reward = 1.0

@@ -5,13 +5,9 @@ This script trains a model to generate adversarial prompts for HarmBench behavio
 """
 
 import os
-import json
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
 from trl import GRPOTrainer, GRPOConfig
-from datasets import Dataset
-import numpy as np
 import warnings
 import sys
 
@@ -32,95 +28,82 @@ torch.backends.mps.is_available = lambda: False
 
 # Default Configuration
 DEFAULT_CONFIG = {
-    "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
-    "num_epochs": 1,  # Start with 1 epoch for testing
-    "batch_size": 2,  # Must be divisible by num_generations
+    "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+    "num_epochs": 1,
+    "batch_size": 2,       # per_device_train_batch_size (must align with num_generations)
+    "num_generations": 2,  # completions sampled per prompt
     "learning_rate": 5e-6,
-    "max_prompt_length": 512,
-    "max_completion_length": 512,
-    "beta": 0.1,  # KL penalty coefficient
+    "max_prompt_length": 256,
+    "max_completion_length": 128,  # keep short for CPU speed
+    "beta": 0.0,           # 0 = no reference model, saves memory
     "output_dir": "./outputs/harmbench-grpo",
-    "reward_type": "jailbreak_success"
 }
 
 
 def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
-    """
-    Create GRPO configuration from config dictionary.
-    """
-    grpo_config = GRPOConfig(
+    return GRPOConfig(
         output_dir=config["output_dir"],
         num_train_epochs=config.get("num_epochs", 1),
-        per_device_train_batch_size=config.get("batch_size", 1),
+        per_device_train_batch_size=config.get("batch_size", 2),
         learning_rate=config.get("learning_rate", 5e-6),
-        num_generations=2,
+        num_generations=config.get("num_generations", 2),
+        max_prompt_length=config.get("max_prompt_length", 256),
+        max_completion_length=config.get("max_completion_length", 128),
+        beta=config.get("beta", 0.0),
         logging_steps=1,
-        
-        # Wandb integration
-        report_to="wandb",
-        run_name=config.get("run_name", "harmbench-grpo-test"),
-        # Force CPU usage
+        log_completions=True,
+        # CPU settings
         use_cpu=True,
+        bf16=False,
+        fp16=False,
+        gradient_checkpointing=False,
+        # Disable wandb for quick local test (set to "wandb" to enable)
+        report_to="none",
+        run_name=config.get("run_name", "harmbench-grpo-test"),
     )
-    
-    return grpo_config
 
 
 def main():
-    """
-    Main training function.
-    """
     print("HARMBENCH GRPO TRAINING")
     print("=" * 80)
-    
-    # Set wandb project
-    os.environ["WANDB_PROJECT"] = "loki-harmbench"
-    
-    # Configuration
-    model_name = DEFAULT_CONFIG["model_name"]
-    num_samples = 5  # Start with 5 samples for quick testing
-    
-    # Load tokenizer first (needed for chat template)
-    print(f"\nLoading tokenizer from {model_name}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    
-    # Load HarmBench dataset
-    print(f"\nLoading HarmBench dataset with {num_samples} samples...")
+
+    config = DEFAULT_CONFIG
+    model_name = config["model_name"]
+    num_samples = 5
+
+    # Load dataset
+    print(f"\nLoading HarmBench dataset ({num_samples} samples)...")
     dataset = create_harmbench_dataset(num_samples=num_samples, save=False)
-    
-    print(f"\nLoaded {len(dataset)} examples")
-    print("\nSample data:")
+    print(f"Loaded {len(dataset)} examples")
+
     for i in range(min(2, len(dataset))):
-        example = dataset[i]
-        print(f"  [{i+1}] Behavior: {example.get('behavior', 'N/A')[:80]}...")
-        print(f"      Category: {example.get('semantic_category', 'N/A')}")
-    
-    # Create GRPO config
-    grpo_config = create_grpo_config(DEFAULT_CONFIG)
-    
+        ex = dataset[i]
+        print(f"  [{i+1}] {ex.get('behavior', 'N/A')[:80]}...")
+
+    # Create config and trainer
+    grpo_config = create_grpo_config(config)
+
     print(f"\nLoading model {model_name}...")
-    
-    # Create trainer
+    print(f"Config: batch={grpo_config.per_device_train_batch_size}, "
+          f"gens={grpo_config.num_generations}, "
+          f"max_completion={grpo_config.max_completion_length}, "
+          f"beta={grpo_config.beta}")
+
     trainer = GRPOTrainer(
         model=model_name,
         args=grpo_config,
         train_dataset=dataset,
         reward_funcs=harmbench_reward_function,
     )
-    
-    # Start training
+
     print("\nStarting training...")
     print("=" * 80)
-    
+
     try:
         trainer.train()
-        
-        # Save the final model
         print(f"\nSaving model to: {grpo_config.output_dir}")
         trainer.save_model()
-        
         print("\nTraining completed successfully!")
-        
     except KeyboardInterrupt:
         print("\nTraining interrupted by user")
     except Exception as e:
@@ -131,4 +114,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
