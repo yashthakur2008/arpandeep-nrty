@@ -34,7 +34,7 @@ torch.backends.mps.is_available = lambda: False
 DEFAULT_CONFIG = {
     "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
     "num_epochs": 1,  # Start with 1 epoch for testing
-    "batch_size": 1,  # Small batch for testing
+    "batch_size": 2,  # Must be divisible by num_generations
     "learning_rate": 5e-6,
     "max_prompt_length": 512,
     "max_completion_length": 512,
@@ -54,8 +54,6 @@ def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
         per_device_train_batch_size=config.get("batch_size", 1),
         learning_rate=config.get("learning_rate", 5e-6),
         num_generations=2,
-        max_prompt_length=config.get("max_prompt_length", 512),
-        max_completion_length=config.get("max_completion_length", 512),
         logging_steps=1,
         
         # Wandb integration
