@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from scripts.harmbench import create_harmbench_dataset
-from harmbench_reward_function import harmbench_reward_function
+from harmbench_simple_reward_function import harmbench_reward_function
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
@@ -58,7 +58,7 @@ def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
         fp16=False,
         gradient_checkpointing=False,
         # Disable wandb for quick local test (set to "wandb" to enable)
-        report_to="none",
+        report_to="wandb",
         run_name=config.get("run_name", "harmbench-grpo-test"),
     )
 
