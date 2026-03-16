@@ -143,13 +143,32 @@ def extract_misdirection_from_response(response: str) -> str:
     return ""
 
 
+
+
 def test_jailbreak_with_llm(misleading_prompt: str) -> str:
     """
     Test if the misleading prompt successfully jailbreaks the LLM using Ollama.
-    For faster local testing, skip LLM calls and return empty (use fallback heuristics).
+    Queries the local Ollama model and returns its response.
+    Falls back to empty string (heuristic mode) if Ollama fails.
     """
-    # Skip Ollama for now - use heuristic evaluation instead
-    return ""
+    model_name = os.getenv("OLLAMA_MODEL", "llama3.2")  # Default to llama3.2; set in .env
+    ollama_url = "http://localhost:11434/api/generate"
+    
+    payload = {
+        "model": model_name,
+        "prompt": misleading_prompt,
+        "stream": False,  # Get full response at once
+        "options": {"temperature": 0.7}  # Adjust as needed for consistency
+    }
+    
+    try:
+        response = requests.post(ollama_url, json=payload, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("response", "").strip()
+    except (requests.RequestException, json.JSONDecodeError) as e:
+        print(f"Ollama error: {e}. Falling back to heuristics.")
+        return ""  # Triggers fallback in evaluate_jailbreak_response
 
 
 def evaluate_jailbreak_response(llm_response: str, original_response: str, category: str, subcategory: str, harmfulness: str, context: str) -> bool:
