@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from scripts.harmbench import create_harmbench_dataset
-from harmbench_simple_reward_function import harmbench_reward_function
+from harmbench_reward_function import harmbench_reward_function
 
 # Suppress warnings
 warnings.filterwarnings('ignore')
