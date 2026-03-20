@@ -10,6 +10,9 @@ import torch
 from trl import GRPOTrainer, GRPOConfig
 import warnings
 import sys
+import subprocess
+import time
+import ollama
 
 # Add scripts directory to path to import harmbench module
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -63,9 +66,31 @@ def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
     )
 
 
+def ensure_ollama_running():
+    """Start Ollama server if it's not already running."""
+    try:
+        ollama.list()
+        print("Ollama is already running.")
+    except Exception:
+        print("Ollama not running — starting it...")
+        subprocess.Popen(["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # Wait for it to come up
+        for _ in range(20):
+            time.sleep(1)
+            try:
+                ollama.list()
+                print("Ollama started successfully.")
+                return
+            except Exception:
+                pass
+        raise RuntimeError("Ollama failed to start after 20 seconds.")
+
+
 def main():
     print("HARMBENCH GRPO TRAINING")
     print("=" * 80)
+
+    ensure_ollama_running()
 
     config = DEFAULT_CONFIG
     model_name = config["model_name"]

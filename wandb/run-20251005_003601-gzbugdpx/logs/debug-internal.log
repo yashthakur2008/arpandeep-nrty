@@ -1,6 +1,0 @@
-{"time":"2025-10-05T00:36:01.479873-07:00","level":"INFO","msg":"stream: starting","core version":"0.22.1"}
-{"time":"2025-10-05T00:36:01.758657-07:00","level":"INFO","msg":"stream: created new stream","id":"gzbugdpx"}
-{"time":"2025-10-05T00:36:01.758704-07:00","level":"INFO","msg":"handler: started","stream_id":"gzbugdpx"}
-{"time":"2025-10-05T00:36:01.758981-07:00","level":"INFO","msg":"stream: started","id":"gzbugdpx"}
-{"time":"2025-10-05T00:36:01.758989-07:00","level":"INFO","msg":"writer: started","stream_id":"gzbugdpx"}
-{"time":"2025-10-05T00:36:01.759014-07:00","level":"INFO","msg":"sender: started","stream_id":"gzbugdpx"}

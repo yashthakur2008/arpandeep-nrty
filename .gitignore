@@ -13,4 +13,6 @@ __pycache__/
 outputs/
 data/
 test_generation.py
-.claude/settings.local.json
+.claude/
+wandb/
+
