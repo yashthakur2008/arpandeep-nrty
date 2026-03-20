@@ -12,3 +12,5 @@ __pycache__/
 # Output directories
 outputs/
 data/
+test_generation.py
+.claude/settings.local.json
