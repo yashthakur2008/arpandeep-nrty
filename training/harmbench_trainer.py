@@ -67,7 +67,7 @@ def create_grpo_config(config: Dict[str, Any]) -> GRPOConfig:
 
 
 def ensure_ollama_running():
-    """Start Ollama server if it's not already running."""
+    """Start Ollama server if it's not already running, and pull the model if needed."""
     try:
         ollama.list()
         print("Ollama is already running.")
@@ -80,10 +80,21 @@ def ensure_ollama_running():
             try:
                 ollama.list()
                 print("Ollama started successfully.")
-                return
+                break
             except Exception:
                 pass
-        raise RuntimeError("Ollama failed to start after 20 seconds.")
+        else:
+            raise RuntimeError("Ollama failed to start after 20 seconds.")
+
+    # Ensure the reward model is pulled
+    model_name = os.getenv("OLLAMA_MODEL", "llama3.2")
+    available = [m.model for m in ollama.list().models]
+    if not any(model_name in m for m in available):
+        print(f"Model '{model_name}' not found locally — pulling it (this may take a few minutes)...")
+        ollama.pull(model_name)
+        print(f"Model '{model_name}' pulled successfully.")
+    else:
+        print(f"Model '{model_name}' is available.")
 
 
 def main():
