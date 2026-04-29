@@ -55,17 +55,19 @@ def harmbench_reward_function(prompts, completions, completion_ids=None, **kwarg
             response_text = completion.get("content", "") or completion.get("text", "") or str(completion)
         else:
             response_text = str(completion)
-
+        print(f"response {response_text}")
         # Extract the misdirection from the response
         misdirection = extract_misdirection_from_response(response_text)
 
+        print(f"misdirection: {misdirection}")
+        
         if not misdirection:
-            print(f"Prompt: {prompt[:50]}...")
+            print(f"Prompt: {prompt}...")
             print(f"     No misdirection tags | R=0.0\n")
             rewards.append(0.0)
             continue
         
-        print(f"Prompt: {prompt[:50]}...")
+        print(f"Prompt: {prompt}...")
         print(f"     Misdirection: {misdirection}")
         
         # Create the misleading prompt by appending misdirection
