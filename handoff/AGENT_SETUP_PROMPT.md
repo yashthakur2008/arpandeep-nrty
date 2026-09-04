@@ -5,7 +5,7 @@ You are setting up a RunPod box and starting two ML runs for a NeurIPS 2026 work
 ## 1. Provision (RunPod MCP or console)
 - GPU: 4x H100 80GB SXM (2x is the minimum; 4x lets both papers run in parallel).
 - Image: `runpod/pytorch:2.6-py3.12-cuda-12.1`
-- Container disk 50 GB. Network volume **500 GB** mounted at `/workspace` (sleep data alone is ~100 GB at default sizes; full cohorts are 630 GB).
+- Container disk 50 GB. Network volume **1 TB** mounted at `/workspace`. Sleep data is 630 GB at defaults (full SHHS1 + MESA cohorts).
 - Expose TCP 22 (ssh) and HTTP 8000 (vllm).
 - Do not set CUDA_VISIBLE_DEVICES globally; the scripts set it per process.
 
@@ -28,7 +28,7 @@ Expect 6 green checks. It creates the venv, installs deps + vllm + agentdojo + p
 ```bash
 tmux new -d -s sl 'bash handoff/run_sleep.sh 2>&1 | tee /workspace/logs/sl.log'
 ```
-`run_sleep.sh` downloads 1000 SHHS + 300 MESA nights (~100 GB, resumable, 8 parallel). Override with `N_SHHS=5793 N_MESA=2056` for the full 630 GB if the volume allows. It stops loudly at issue #7 when the loader is missing; that is expected.
+`run_sleep.sh` downloads the FULL cohorts, 5793 SHHS1 + 2056 MESA nights, 630 GB, resumable, 16 parallel. Budget ~2-4 h. Subset with `N_SHHS=... N_MESA=...` only if you must. It stops loudly at issue #7 when the loader is missing; that is expected.
 
 **Do NOT run `handoff/run_agentwild.sh` yet.** Two hardening commits are landing on `aw-env` and `sleep-paper` (reward v2 spec, env bug fixes, `handoff/HARDENING_*.md`). Wait until `git log origin/aw-env` shows a commit mentioning HARDENING, then:
 ```bash
