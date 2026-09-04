@@ -7,7 +7,9 @@ set -euo pipefail
 WORKSPACE="${WORKSPACE:-/workspace}"
 LOKI="${LOKI:-$WORKSPACE/loki}"
 PY="${PY:-$WORKSPACE/venv/bin/python}"
-TARGET_MODEL="${TARGET_MODEL:-Qwen/Qwen2.5-7B-Instruct}"   # override after a failed gate: TARGET_MODEL=Qwen/Qwen2.5-3B-Instruct
+TARGET_MODEL="${TARGET_MODEL:-Qwen/Qwen2.5-72B-Instruct}"  # frontier-class local target. Gate LOW -> Qwen2.5-32B-Instruct, HIGH -> keep 72B and tighten payload budget.
+TP="${TP:-2}"                                             # tensor-parallel across GPU0-1
+ATTACKER_GPU="${ATTACKER_GPU:-2}"
 N_GATE="${N_GATE:-200}"
 STEPS="${STEPS:-300}"
 export HF_HOME="$WORKSPACE/hf" TOKENIZERS_PARALLELISM=false WANDB_PROJECT="${WANDB_PROJECT:-loki-agentwild}"
@@ -23,8 +25,8 @@ die() { echo; echo "!! $*"; exit 1; }
 if ! curl -sf localhost:8000/health >/dev/null; then
   VLLM="$WORKSPACE/venv/bin/vllm"
   [ -x "$VLLM" ] || die "$VLLM missing. Run bash handoff/bootstrap.sh first."
-  CUDA_VISIBLE_DEVICES=0 nohup "$VLLM" serve "$TARGET_MODEL" \
-    --gpu-memory-utilization 0.35 --port 8000 --max-model-len 4096 \
+  CUDA_VISIBLE_DEVICES=0,1 nohup "$VLLM" serve "$TARGET_MODEL" \
+    --tensor-parallel-size "$TP" --gpu-memory-utilization 0.90 --port 8000 --max-model-len 4096 \
     > "$WORKSPACE/logs/vllm.log" 2>&1 &
   echo "vllm pid $! (log: $WORKSPACE/logs/vllm.log)"
   for i in $(seq 1 120); do curl -sf localhost:8000/health >/dev/null && break; kill -0 $! 2>/dev/null || die "vllm exited. tail $WORKSPACE/logs/vllm.log"; sleep 5; done

@@ -3,7 +3,7 @@
 ## 0. TL;DR
 
 1. Two papers, one deadline: **Sun Sep 6 04:59 PDT**. AgentWild first (P(submit) ~0.80), Sleep second (~0.50).
-2. Box: 2x H100 80GB on RunPod. Settings in `handoff/RUNPOD.md`. ~15-20 GPU-hours total.
+2. Box: 4x H100 80GB on RunPod, 1 TB volume. Settings in `handoff/RUNPOD.md`. ~40-60 GPU-hours with 3 seeds and a 72B target.
 3. Setup: fill `handoff/.env`, then `bash handoff/bootstrap.sh`. Idempotent, rerun freely.
 4. Run: `bash handoff/run_agentwild.sh` (GPUs) and `bash handoff/run_sleep.sh` (CPU download) in two tmux panes.
 5. Two scripts will stop with `!! ... does not exist. Implement per issue #4` (and sleep N1/N3). That is on purpose. Code those, rerun.
@@ -30,13 +30,15 @@ Missing and NOT stubbed: `training/illusion_trainer.py`, `training/illusion_rewa
 
 ## 3. RunPod
 
-See `handoff/RUNPOD.md` (10 lines). Summary: `2x H100 80GB SXM`, image `runpod/pytorch:2.6-py3.12-cuda-12.1`, 50 GB container, 200 GB volume at `/workspace`, ports 22 + 8000.
+See `handoff/RUNPOD.md` (10 lines). Summary: `4x H100 80GB SXM`, image `runpod/pytorch:2.6-py3.12-cuda-12.1`, 50 GB container, 1 TB volume at `/workspace`, ports 22 + 8000.
 
 GPU map. Scripts set `CUDA_VISIBLE_DEVICES` per process. Never set it globally.
 
 | GPU | Job |
 |---|---|
-| 0 | vLLM target Qwen2.5-7B-Instruct at 35% memory, then GRPO run B3 |
+| 0-1 | vLLM target Qwen2.5-72B-Instruct, tensor-parallel 2 |
+| 2 | GRPO attacker B3 then B4, 3 seeds each |
+| 3 | sleep SFT stager (1.5B-3B, full SHHS) then red-teamer |
 | 1 | GRPO run B4, then sleep SFT/GRPO after B4 finishes |
 
 ## 4. Commands, in order
@@ -76,7 +78,7 @@ Both scripts log to `/workspace/logs/<script>.log` and print their own NEXT line
 
 | Node | Output | Done when |
 |---|---|---|
-| H2 gate | `/workspace/logs/gate_Qwen2.5-7B-Instruct.txt`, `results/vllm_*_table.jsonl` | some `B0_*` row ASR in [0.15, 0.40], A1 flag ~1.0, B0 flag ~0 |
+| H2 gate | `/workspace/logs/gate_Qwen2.5-72B-Instruct.txt`, `results/vllm_*_table.jsonl` | some `B0_*` row ASR in [0.15, 0.40], A1 flag ~1.0, B0 flag ~0 |
 | GRPO B3/B4 | `/workspace/outputs/B3_300`, `B4_300`, wandb project `loki-agentwild` | reward curve rises, 500 sampled payloads in `results/`, B4 refuted-fraction falls over training |
 | Table 1 | `results/*.csv` from `eval/defense_table.py` (issue #5) | A1 ASR under stripper < 5%; B rows flat under stripper/spotlight/PG; B4 flat under refuter |
 | NSRR | `/workspace/nsrr/{shhs,mesa}/polysomnography/...` | `find /workspace/nsrr -name '*.edf' | wc -l` = 290 |
@@ -112,7 +114,7 @@ Specific failures:
 - Step > 180 s after smoke: `num_generations 4`, or reward target gpt-4o-mini with 32 async calls.
 - RL does not beat B0/B1 by H12: RL leaves the title. Paper = "templates suffice, defenses are structurally blind".
 - NSRR download stalls: rerun `run_sleep.sh`, `curl -C -` resumes. Lower `N_SHHS=100 N_MESA=30` if past hour 3.
-- vLLM OOM: `--gpu-memory-utilization 0.35` shares GPU0 with B3. If B3 OOMs, run B3 after B4 on GPU1 instead.
+- vLLM OOM on 72B: needs 2 GPUs at 0.90. If it still OOMs, TARGET_MODEL=Qwen/Qwen2.5-32B-Instruct TP=1 on GPU0, freeing GPU1 for a 4th attacker seed.
 
 ## 9. Links
 
