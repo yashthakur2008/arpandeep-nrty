@@ -10,7 +10,7 @@ PY="${PY:-$WORKSPACE/venv/bin/python}"
 NSRR="$WORKSPACE/nsrr"
 N_SHHS="${N_SHHS:-5793}"  # full SHHS1 cohort, ~39 MB each, 228 GB. Override to subset if needed.
 N_MESA="${N_MESA:-2056}"  # full MESA cohort, ~196 MB each, 402 GB. Override to subset if needed.
-PAR="${PAR:-8}"
+PAR="${PAR:-16}"
 mkdir -p "$WORKSPACE/logs" "$NSRR"
 exec > >(tee -a "$WORKSPACE/logs/run_sleep.sh.log") 2>&1
 echo "== run_sleep $(date -u +%FT%TZ) N_SHHS=$N_SHHS N_MESA=$N_MESA"
