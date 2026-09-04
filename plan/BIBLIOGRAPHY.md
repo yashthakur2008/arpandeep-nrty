@@ -296,6 +296,106 @@ Biases tool *selection* by injecting a few memory records "disguised as technica
 
 ---
 
+## Field scan 2026-09-04 (hardening pass)
+
+Method: 8 Consensus queries (year_min 2025) on the MISSION_REVIEW targets (a)-(e) plus the seven extra phrases, 10 arXiv API queries sorted by submittedDate, every id below re-resolved with `export.arxiv.org/api/query?id_list=`. HF ids checked with `huggingface.co/api/models` (all 200). Entries marked **THREAT** do part of our (b) refuter-penalized attacker or (c) silent-failure metric.
+
+### S1. Document-Authored Control-Signal Impersonation: A Low-Cost Indirect Prompt Attack on RAG Safety Boundaries (DACSI) **THREAT (to B0 framing)**
+Jianguo Zhu. 2026. arXiv:2606.09005. 0 citations.
+Names a "non-imperative, metadata-like payload subclass within indirect prompt injection": attacker-authored retrieved text impersonates metadata, provenance, authority, or disclosure-policy signals. Slogan: "document-authored labels are data, not policy." Six model settings (DeepSeek V4, Qwen3.5-397B, GPT-5.5, Gemini 3.1 Pro, GLM-4.7); targets disclosure-policy leakage in RAG, with a source-authority attribution probe.
+**Relevance:** The closest prior for the *shape* of our B0 templates (fake provenance and authority labels, command-free). Threat to novelty of "instruction-free authority injection" as a category. Not a threat to the paper's claim: they attack safety/disclosure boundaries on chat RAG, not action selection; no instruction-detector defense table; no learned attacker; no refuter. Cite in threat model on first use of "non-imperative" and say our payloads are DACSI-class, then state the three things DACSI does not do.
+**Cite in:** threat, related (para 1).
+
+### S2. Salience Induction against Multi-Hop RAG Agents: Threat and Defense **THREAT (to "instruction filtering is blind")**
+Xingfu Zhou, Pengfei Wang, Yuan Zhou, Wei Xie, Xu Zhou. 2026. arXiv:2607.17535. 0 citations.
+Third attack surface after content poisoning and prompt injection: the *salience channel*. Truth-preserving edits (position, emphasis, framing, semantic proximity) redirect multi-hop attribute binding with no false claims and no instructions. Proposer-verifier pipeline under factual and stealth constraints; 83.3% ASR at 30% edit budget across GPT/Claude/Gemini/DeepSeek/Qwen and ReAct/Reflexion/tool-calling. Best baseline defense leaves 75.7%; their Salience Normalization cuts to 15-24%. Conclusion sentence: "truthfulness and instruction filtering alone are insufficient."
+**Relevance:** Already states that instruction filtering is structurally blind to non-instruction attacks, with a defense table, on agents. They do it with *true* text; we do it with false authority claims. Position: their attack needs a multi-hop decoy already present in the corpus and a 30% edit budget over truthful docs; ours needs one fabricated document and works on single-hop action tasks. Their stealth constraint is an LLM judge, ours is a stripper-identity filter plus a refuter. Cite as the sibling evidence-channel attack and state that a refuter cannot catch theirs at all (nothing is false), which is why we keep the refuter column: it is the one defense that separates fabricated from merely salient.
+**Cite in:** intro, related (para 1), discussion.
+
+### S3. From Confident Closing to Silent Failure: Characterizing False Success in LLM Agents **THREAT (to silent-failure metric naming)**
+Laksh Advani. 2026. arXiv:2606.09863. 1 citation.
+Defines *false success*: agent asserts completion while environment state shows failure. 9,876 tau2-bench and 1,879 AppWorld trajectories. 45-48% of failures are false successes in single-control domains, 75.8% among self-assessing coding-agent trajectories. LLM judges do not exceed AUROC 0.65; TF-IDF detectors reach 0.83-0.95 because judges key on confident closing language rather than state.
+**Relevance:** "Silent failure" and "false success" are now named and measured, non-adversarially. We must cite and differentiate in one sentence: their silent failure is detectable from environment state (the task is actually incomplete); ours is not, because the environment state *is* task-complete with the attacker's value. So state-checking detectors, which fix their problem, return zero on ours. Rename our metric to avoid collision: **illusioned completion rate** (attack succeeds AND agent reports success AND no defense flag AND user-task checker passes). Keep "silent failure" as the prose term with a citation to S3 and S4.
+**Cite in:** threat (defender visibility), metrics, discussion.
+
+### S4. Reason Less, Verify More: Deterministic Gates Recover a Silent Policy-Violation Failure Mode in Tool-Using LLM Agents
+Vikas Reddy, Sumanth Reddy Challaram, Abhishek Basu. 2026. arXiv:2607.07405. 2 citations.
+tau2-bench airline: 78% of observed failures are silent wrong-state writes with no tool error and no self-report. Read-only pre-execution gates that check the proposed call against policy and state raise success 29.6 to 42.0 on gpt-4o-mini; effect persists on gpt-5.2.
+**Relevance:** Second independent statement that silent wrong-state actions dominate agent failures. Their gates check *policy consistency* of the write; an illusioned IBAN transfer is policy-consistent, so gates pass it. Cite together with S3 as the non-adversarial baseline for the phenomenon and as a defense class (action-boundary gate) that our threat evades by construction.
+**Cite in:** threat, discussion.
+
+### S5. Oracle Poisoning: Corrupting Knowledge Graphs to Weaponise AI Agent Reasoning **THREAT (to thesis sentence)**
+Ben Kereopa-Yorke, Guillermo Diaz, Holly Wright, Reagan Johnston, Ron F. Del Rosario, Timothy Lynar. 2026. arXiv:2605.09822. 2 citations.
+"Causing incorrect conclusions through correct reasoning"; "manipulates the data agents reason over, not their instructions." Production 42M-node code knowledge graph queried via tool use; nine models, three providers; 100% trust at moderate attacker sophistication under directed queries, 3-55% under open-ended. Delivery-mode confound: inline evaluation gives 0% trust where real tool use gives 100%. Five defenses; only read-only access control is complete.
+**Relevance:** Their two-sentence thesis is ours. Differences to state explicitly: (i) attacker must write to a persistent KG, we write one transient tool result; (ii) their defenses are access-control and prompting, none from the instruction-detection family, so the structural-blindness claim is not tested; (iii) no learned attacker, no refuter, no matched hijack row. Their delivery-mode finding is a methodology point for us: evaluate through real tool calls, never inline. Cite in paragraph one.
+**Cite in:** intro, related (para 1), method (why tool-call delivery).
+
+### S6. DECEIVE-AFC: Adversarial Claim Attacks against Search-Enabled LLM-based Fact-Checking Systems **THREAT (to "verification-aware attacker")**
+Haoran Ou, Kangjie Chen, Gelei Deng, Hangcheng Liu, Jie Zhang, Tianwei Zhang, et al. 2026. arXiv:2602.02569. 3 citations.
+Agent-based attack that rewrites claims to disrupt search, retrieval, and reasoning of search-enabled fact-checkers under an input-only threat model; accuracy 78.7 to 53.7; transfers across systems.
+**Relevance:** Prior art for optimizing a claim *against a verifier with search*. Our B4 refuter penalty is the same idea on a different victim (an action agent, not a fact-checker) with a different optimizer (GRPO, not an LLM agent loop) and a different constraint (no imperatives). Do not claim "first verification-aware attacker." Claim: first to train the *injection* against the agent's own refutation step and report it as a defense column alongside instruction defenses.
+**Cite in:** related (para 2), method (B4 reward).
+
+### S7. AtomEval: Validity-Aware Atomic Evaluation of Adversarial Claim Rewriting in Fact Verification
+Hongyi Cen, Mingxin Wang, Yule Liu, Jingyi Zheng, Hanze Jia, Tan Tang. 2026. arXiv:2604.07967. 0 citations.
+Shows adversarial claim rewriters inflate ASR by altering, weakening, or correcting the proposition they should preserve; proposes validity-aware ASR (VASR) that counts only evasions preserving the original false proposition.
+**Relevance:** The exact reward-hacking mode our attacker has: emit text that fools the refuter by no longer asserting the wrong target. Our `reward()` already requires the wrong target in the agent answer and the true answer absent; cite AtomEval as the reason the reward is proposition-gated and report our ASR as VASR-style by construction.
+**Cite in:** method (reward), appendix.
+
+### S8. Learning to Attack and Defend: Adaptive Red Teaming of Language Models via GRPO (AdvGRPO)
+Blake Bullwinkel, Eugenia Kim, Amanda Minnich, Mark Russinovich. 2026. arXiv:2606.09701. 1 citation.
+Reports GRPO is unstable for attacker training; fixes with dense multi-channel rewards and decoupled advantage normalization; curriculum single-turn to multi-turn.
+**Relevance:** Second independent GRPO-collapse report after PISmith. Our reward v2 uses PISmith's adaptive entropy bonus and AdvGRPO's decoupled advantage normalization (normalize each reward channel separately before summing). Cite both in the training section.
+**Cite in:** method (training).
+
+### S9. StealthRL: Reinforcement Learning Paraphrase Attacks for Multi-Detector Evasion of AI-Text Detectors
+Suraj Ranganath, Atharv Ramesh. 2026. arXiv:2602.08934. 4 citations.
+GRPO + LoRA on Qwen3-4B with a composite reward (multi-detector evasion plus semantic preservation); near-zero detection on 3 of 4 detectors; transfers to held-out detectors.
+**Relevance:** Detector-evasion as a GRPO reward term is now standard (RL-Hammer, StealthRL). Cite alongside Wen et al. when introducing the PG2 term so no reviewer thinks we claim it. Their transfer-to-unseen-detector result predicts our PG2-trained payloads also pass DataFilter/PromptArmor; check that.
+**Cite in:** method (reward).
+
+### S10. Defending Against Prompt Injection with DataFilter
+Yizhu Wang, Sizhe Chen, Raghad Alkhudair, Basel Alomair, David Wagner. 2025. arXiv:2510.19207. 37 citations. Weights: `JoyYizhu/DataFilter` (HF, verified).
+SFT'd model that takes (user instruction, data) and strips injected instructions from the data before the backend LLM sees it; near-zero ASR, utility preserved, plug-and-play for black-box targets.
+**Relevance:** The open-weight stripper we can actually run, replacing the regex in `env/strip.py` for the paper's "stripper" column (CommandSans weights are not public). Prediction identical to CommandSans: removes A rows, passes B rows. Also gives a real false-positive rate on benign tool outputs.
+**Cite in:** method (defense list), results.
+
+### S11. Defending against Adaptive Prompt Injection Attacks via Reasoning-enabled Task Alignment (RETA)
+Lipeng He, Yihan Wang, Jiawen Zhang, N. Asokan. 2026. arXiv:2606.15441. 2 citations.
+Training-based defense: at each tool-output step the defender reasons whether its actions are consistent with the user task; adversarial data from a red-teamer with a dictionary-learning diversity reward. Under six adaptive attacks keeps every per-attack ASR below 10%.
+**Relevance:** Strongest 2026 task-alignment defense. Illusioning passes it by construction (the wrong action is consistent with the user task). Cite with Task Shield as the task-alignment family in the defense taxonomy; optional column if weights appear.
+**Cite in:** threat (defense taxonomy), discussion.
+
+### S12. Assessing Automated Prompt Injection Attacks in Agentic Environments
+David Hofer, Edoardo Debenedetti, Florian Tramèr. 2026. arXiv:2606.10525. 1 citation.
+GCG and TAP adapted to AgentDojo across 80 task pairs; black-box beats gradient; task-universal attacks transfer across tasks and domains but attacks optimized on small open models do not transfer to GPT-5.
+**Relevance:** AgentDojo authors' own finding that small-model-optimized attacks do not transfer to frontier targets. This caps our transfer claim: report B3/B4 trained against Qwen-72B on the API targets as-is, expect a drop, and let the template rows (B0/B1) carry the frontier result. Cite when explaining the target list.
+**Cite in:** method (targets), discussion.
+
+### S13. ADMIT: Few-shot Knowledge Poisoning Attacks on RAG-based Fact Checking
+Yutao Wu, Xiao Liu, Yinghui Li, Yifeng Gao, Yifan Ding, Jiale Ding, et al. 2025. arXiv:2510.13842. 6 citations.
+Poisons fact-checking RAG where authentic supporting/refuting evidence is present; 86% ASR at 1e-6 poison rate, robust to strong counter-evidence, transfers across 4 retrievers and 11 LLMs.
+**Relevance:** Evidence that poison beats counter-evidence even when the counter-evidence is in context. That is our env exactly (truthful doc plus attacker doc). Cite when reporting that the refuter, which has the truthful doc, still fails on B4.
+**Cite in:** related (para 1), results (refuter column).
+
+### S14. LLM-Based Adversarial Persuasion Attacks on Fact-Checking Systems
+Joao A. Leite, Olesya Razuvayevskaya, Kalina Bontcheva, Carolina Scarton. 2026. arXiv:2601.16890. 2 citations.
+15 persuasion techniques in 6 categories rephrase claims; degrades both verification and evidence retrieval on FEVER/FEVEROUS.
+**Relevance:** Independent confirmation that persuasion framing (authority, evidence-based) beats verifiers. Supports G; cite once with PAP.
+**Cite in:** related (para 3).
+
+### Repositioning (what the claim must say after this scan)
+
+Three things we thought were ours are not: (1) *non-imperative authority injection as a category* (DACSI S1, MemMorph H3, Oracle Poisoning S5 all say "data, not instructions"); (2) *instruction filters are structurally blind to non-instruction attacks, shown with a defense table on agents* (Salience Induction S2 says it verbatim, with truth-preserving edits); (3) *silent failure as a named agent metric* (S3, S4). One thing we thought was contested is still open: nobody trains an injection attacker against the target agent's own refutation step and reports it next to instruction defenses; DECEIVE-AFC (S6) attacks a fact-checker, not an action agent, and has no instruction constraint.
+
+The claim must therefore be phrased as a *matched measurement*, not a new threat class:
+
+> "Evidence-channel injections are known (Greshake 2023; Wu et al. 2024; DACSI; Oracle Poisoning; Salience Induction). What is unmeasured is the *matched* comparison: the same task, the same wrong final action, one control-channel payload and one evidence-channel payload, under the same six defenses including a refuter, on frontier targets. We report that table, define the illusioned-completion rate (attack succeeds, agent reports success, no defense flags, the user-task checker passes, so state-based false-success detectors [S3, S4] also return zero), and show that a GRPO attacker trained with a refuter penalty and a no-imperative constraint recovers most of the ASR the refuter removes."
+
+Concrete edits this forces: (a) drop "we introduce" for the threat; use "we isolate and measure"; (b) rename the metric to illusioned-completion rate, keep "silent failure" as prose with S3/S4 cited; (c) add S2 as the truth-preserving sibling and use it to justify the refuter column (a refuter is the one defense that separates fabricated from merely salient); (d) the contribution list is exactly three items: matched table, illusioned-completion metric with the state-detector argument, refuter-trained attacker (B4 minus B3). RL is still not in the title. P(a hostile reviewer finds a paper that already does the matched table with a refuter column): 0.15 after this scan; most likely way that is wrong is a workshop paper not indexed by Consensus or arXiv search terms we did not try ("epistemic injection", "belief injection").
+
+---
+
 ## BibTeX
 
 ```bibtex
