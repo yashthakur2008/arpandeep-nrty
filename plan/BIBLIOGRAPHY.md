@@ -619,3 +619,79 @@ TopK SAEs on SleepFM, REVE, LaBraM embeddings; grounds features in abnormality/a
   year={2026}
 }
 ```
+
+---
+
+## Field scan 2026-09-04 (hardening pass)
+
+Run 16:10-16:25 PDT via Consensus (year_min 2025/2026) and arXiv API (sortBy=submittedDate) on MISSION_REVIEW targets (a)-(e) plus the seven extra queries. Every id below came back from Consensus or the arXiv API; claims are from abstracts only. None of these were in sections A-G.
+
+### (a) Symbolic / feature tokens for EEG or PSG into an LLM
+
+**H1. NeuroCognitor** (Cong, IEEE Access 2025, DOI 10.1109/access.2025.3637315). VQ tokenization of time-frequency EEG segments, adversarial EEG-text distribution alignment without paired data, instruction-tuned causal LLM, sleep staging as one task. Tokens are *learned* codes (codebook ~8k). Closest new threat to "EEG as discrete tokens in a shared vocabulary with a text LLM". Our difference stays: their tokens are opaque codebook ids; ours are named physiological symbols with no codebook training. Cite next to NeuroLM.
+
+**H2. SleepLM (Lei et al., AINIT 2025, DOI 10.1109/ainit65432.2025.11035684)**, not the Xu 2026 SleepLM. VQVAE EEG tokens + text, autoregressive LLM pretraining, fine-tune for staging and seizure. Same lineage as H1. Two unrelated papers now share the name SleepLM; cite both with year to avoid confusion.
+
+**H3. HSQP** (Abdullahi et al., IEEE Access 2026, DOI 10.1109/access.2026.3674765). Plug-and-play symbolic-quantized patching (ABBA symbolic aggregation + affine quantization) for frozen LLMs, forecasting only. Shows symbolic discretization into a frozen LLM is an active 2026 direction; not applied to biosignals or classification. Cite in tokenization paragraph with SAX and TokenCast.
+
+**H4. BLPM** (Cho et al., arXiv:2608.11656, Aug 2026). Argues the opposite bet: "autoregressive modeling creates a mismatch between continuous neural dynamics and discrete token spaces", so they predict continuous latents. Use as the foil that names the design axis we sit on the other side of.
+
+**H5. eNeuroLingua** (Samaee et al., BSPC 2026, DOI 10.1016/j.bspc.2026.110333). "Language-inspired" staging with CNN-tokenized 3 s subwindows and hierarchical transformers, Sleep-EDF/ISRUC only. Not an LLM, not text; confirms "language-inspired" framing is saturated. Do not lean on the metaphor.
+
+### (b) Per-subject / per-night normalization for cross-cohort staging
+
+**H6. Köksal 2026** (Düzce Univ. J. Sci. Tech., DOI 10.29130/dubited.1773372). Direct evidence: subject-aware normalization plus test-time adaptation raised ISRUC macro-F1 by 0.08 and kappa by 0.10 over fold-aware normalization, and record-wise CV overstates macro-F1 by 7-9 points. Small venue, but it is the cleanest "normalization competes with model choice" statement we found. Cite in the per-night-quantile paragraph and in the eval protocol (LONO, never record-wise).
+
+**H7. PSDNorm** (Gnassounou et al., arXiv:2503.04582). Test-time temporal normalization via Monge mapping inside U-Net/transformer stagers, 10k subjects, 10 datasets, SOTA on left-out datasets. The learned-normalization analogue of our per-night quantile bins. Cite as the strong baseline in spirit; note that theirs lives inside the network, ours lives in the tokenizer and so transfers to any consumer (LR, LightGBM, LLM).
+
+**H8. STDA-Net** (Tallal et al., arXiv:2605.06736). Spectrogram CNN-BiLSTM-DANN, six cross-dataset settings among Sleep-EDF/SHHS1/SHHS2, avg macro-F1 87.6. Adds to the "domain adaptation on raw signals" family (ADAST, DDAST). Does not test MESA.
+
+### (c) LLM-removed ablations on time-series / biosignal LLM papers
+
+**H9. Schumacher et al. 2026** (arXiv:2601.03464, *Prompting Underestimates LLM Capability for Time Series Classification*). Zero-shot prompting near chance; linear probes on the same LLM internals reach F1 0.61-0.67. Cuts both ways for us: it licenses SFT over prompting, and it means our "random-init Qwen" row must be reported with a probe, not just with generation, otherwise a reviewer will say we under-measured the decorative baseline.
+
+**H10. He et al. 2026** (arXiv:2601.09971). Hybrid encoder + frozen LLM for TSC; only Inception encoders give consistent gains. Reinforces Tan et al. for classification specifically.
+
+**H11. Zhao et al. 2025** (arXiv:2505.24030, *Are Large Vision Models Useful for Time Series Analysis?*). Same question for LVMs; useful for classification, weak for forecasting. Cite with Tan as the "prove the backbone matters" norm.
+
+### (d) Adversarial edits with physiological constraints
+
+**H12. StageGuard** (Wang et al., KDD 2026, DOI 10.1145/3770855.3818916). Physiology-constrained *decoding* (soft transition penalty + semi-Markov min-bout decoder) that cuts transition-violation rate and fragmentation 56-62% across six backbones. Not an attack, but it is the first paper to formalize "physiologically plausible hypnogram" as a checkable constraint. Our clinician vetoes are the epoch-level analogue; a StageGuard-style decoder is also a natural *defense* against our attacker and should be in the discussion. No prior physiologically bounded *attack* on a stager found (still true after this scan).
+
+### (e) SHHS -> MESA comparator numbers
+
+**H13. Serrano Alarcón et al. 2025** (J Sleep Res, DOI 10.1111/jsr.70266). U-Net on SpO2+HR+abdominal effort, trained SHHS2, external MESA: SHHS2 kappa 0.61 (5-class), "consistent performance on MESA" (exact MESA number not in abstract). EEG-free, so a floor, not a comparator.
+
+**H14. NeuroSleepNet** (Dip et al., IEEE Access 2025, arXiv:2501.00557). In-domain (not zero-shot): MESA acc 82.0 / macro-F1 76.3 / kappa 0.753; SHHS acc 86.7 / macro-F1 80.9 / kappa 0.804. Useful as the in-domain ceiling on each cohort.
+
+**H15. SleepVST** (Carter et al., CVPR 2024, arXiv:2404.03831). Cardio-respiratory only; in-domain kappa 0.75 SHHS, 0.77 MESA. Another in-domain ceiling for non-EEG channels.
+
+**H16. DCA-Sleep** (Li et al., Diagnostics 2026, DOI 10.3390/diagnostics16050802). PPG-only, MESA F1 0.731, kappa 0.652 (mixed-cohort training). Floor for single non-EEG channel.
+
+### Other
+
+**H17. Omni-Sleep** (Hou et al., arXiv:2607.07720) and **sleep2vec** (Yuan et al., arXiv:2602.13857). Two more 100k-hour PSG foundation models (Jul 2026, Feb 2026). sleep2vec explicitly uses age/site metadata in its InfoNCE to "mitigate cohort-specific shortcuts", which is direct prior art that metadata shortcuts exist in PSG FMs. Cite with SleepMaMi and the Identity Trap.
+
+**H18. Hossain et al. 2026** (arXiv:2605.02245). Demographic-stratified fine-tuning improves kappa 0.9-12.9% on DREAMT. Evidence that demographics carry stage information, which is why a metadata line can be a legitimate feature *and* a shortcut; cite when framing the metadata attack.
+
+**H19. Bechný et al. 2025** (Sci Rep, DOI 10.1038/s41598-025-06019-4). Bias framework applied to U-Sleep and YASA finds age-related error shifts. Supports reporting per-age-bin confusion on MESA.
+
+### Comparator table: SHHS-trained, MESA-tested, EEG-based (the row we are compared to)
+
+| Model | Train | Test | kappa | macro-F1 | per-class | Zero-shot? | Source |
+|---|---|---|---|---|---|---|---|
+| PFTSleep (transformer, 7 ch, 8 h) | SHHS1+2, WSC, MrOS (13,888) | MESA | **0.60** | n/r | AUPRC W/N1/N2/N3/R 0.56/0.16/0.40/0.45/0.65 (medRxiv) | yes | A4, Fox 2025 |
+| PFTSleep, MESA in head | + MESA head | MESA held-out | 0.76 | n/r | n/r | no | A4 |
+| PFTSleep in-domain | same | SHHS held-out | 0.81 | n/r | AUPRC 0.82/0.40/0.53/0.75/0.82 | n/a | A4 |
+| Álvarez-Estévez CNN-LSTM | one DB | other 5 DBs | 0.54 (ext), 0.80 (local) | n/r | n/r | yes (not MESA) | D5 |
+| SleepFM Nat Med (frozen + LR) | 65k pts, SHHS excluded | SHHS | n/r | 0.70-0.78 | n/r | yes (reverse direction) | A1 |
+| U-Sleep | 16 cohorts incl. SHHS+MESA | MESA | n/r (supp.) | n/r | n/r | no | A2 |
+| NeuroSleepNet | MESA | MESA | 0.753 | 0.763 | n/r | no (ceiling) | H14 |
+| Serrano U-Net (no EEG) | SHHS2 | MESA | ~0.61 (SHHS2) | wF1 0.68 | n/r | yes | H13 |
+| Inter-scorer (meta) | humans | humans | 0.76 | n/r | W/N1/N2/N3/R 0.70/0.24/0.57/0.57/0.69 | n/a | D4 |
+
+Read: the only clean EEG-based SHHS->MESA zero-shot number in print is PFTSleep kappa 0.60 (N1 AUPRC 0.16). In-domain MESA ceilings are kappa 0.75-0.80. Our target band: MESA zero-shot kappa 0.50-0.60 from 500 SHHS nights would tie a 13,888-study foundation transformer; anything above 0.60 beats it. macro-F1 comparators are scarce for this exact split; we report both kappa and macro-F1 so either can be compared.
+
+### Repositioning (after this scan)
+
+Nothing found does (i) named-symbol tokenization that an unchanged text LLM reads, (ii) the cross-cohort drop decomposition, or (iii) a physiologically bounded attack on a stager. Three threats moved closer since the first bibliography: NeuroCognitor and Lei-SleepLM (H1, H2) now make "EEG as discrete tokens in an LLM vocabulary" a crowded 2025 lineage, so the abstract must say *no codebook, no vocabulary change, human-readable* in the first sentence, not the third. Schumacher (H9) means the random-init / frozen-LLM ablation must include a linear probe on hidden states, or the "decorative" test is itself under-measured. StageGuard (H12) means "physiologically plausible" now has a published operationalization; our vetoes should cite it and our discussion should name a StageGuard-style constrained decoder as the obvious defense. Per-night normalization got stronger support (H6, H7): frame it as "test-time normalization moved into the tokenizer so it transfers to every consumer", which is the sentence that separates us from PSDNorm. The comparator is unchanged: PFTSleep kappa 0.60 on MESA.
