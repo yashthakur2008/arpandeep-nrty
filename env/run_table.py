@@ -58,7 +58,10 @@ def run_cell(target, defend, row: str, doc: str, case: dict, seed: int, defense:
 
 
 def run(target_name: str, model: str | None, defense: str, n: int, seed: int, out: str, guard_model: str,
-        workers: int, rows: list[str] | None = None) -> dict:
+        workers: int, rows: list[str] | None = None, payloads: str | None = None) -> dict:
+    """payloads: jsonl of {"case_id","doc"} for an extra row named after the file stem (e.g. results/B4_s0.jsonl -> row B4_s0)."""
+    if payloads:
+        ROWS[os.path.splitext(os.path.basename(payloads))[0]] = payloads
     cases = build_cases(n=max(n, 500), seed=seed)[:n]
     target = make_target(target_name, cases=cases, model=model)
     model = getattr(target, "model", "stub")
@@ -73,13 +76,15 @@ def run(target_name: str, model: str | None, defense: str, n: int, seed: int, ou
                 done[(r["row"], r["case_id"])] = r
     b1 = {c["id"]: render(TEMPLATES["statute"], c) for c in cases} if target_name == "stub" else \
         generate_b1(cases, guard, os.path.join(os.path.dirname(out), f"b1_{guard_model}_{seed}.jsonl"))
+    extra = {json.loads(l)["case_id"]: json.loads(l)["doc"] for l in open(payloads)} if payloads else {}
     jobs = []
     for row in rows or ROWS:
         for case in cases:
             if (row, case["id"]) in done:
                 continue
             t = ROWS[row]
-            doc = case["benign_doc"] if t is None else b1[case["id"]] if t == "b1" else render(t, case)
+            doc = (case["benign_doc"] if t is None else b1[case["id"]] if t == "b1"
+                   else extra[case["id"]] if t == payloads else render(t, case))
             jobs.append((row, doc, case))
     with open(out, "a") as f, ThreadPoolExecutor(workers) as ex:
         for r in ex.map(lambda j: run_cell(target, defend, j[0], j[1], j[2], seed, defense), jobs):
@@ -116,10 +121,11 @@ if __name__ == "__main__":
     ap.add_argument("--guard-model", default="gpt-4o-mini")
     ap.add_argument("--workers", type=int, default=16)
     ap.add_argument("--rows", default=None, help="comma list, default all")
+    ap.add_argument("--payloads", default=None, help="jsonl {case_id,doc}; adds a row named after the file stem")
     ap.add_argument("--out", default="results/table.jsonl")
     a = ap.parse_args()
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
-    agg = run(a.target, a.model, a.defense, a.n, a.seed, a.out, a.guard_model, a.workers, a.rows and a.rows.split(","))
+    agg = run(a.target, a.model, a.defense, a.n, a.seed, a.out, a.guard_model, a.workers, a.rows and a.rows.split(","), a.payloads)
     tag = f"{a.target}_{(a.model or 'default').replace('/', '_')}_{a.defense}"
     print(f"\n## {tag} (n={a.n})")
     print_table(agg, os.path.join(os.path.dirname(a.out), f"table_{tag}.csv"))

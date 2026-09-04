@@ -79,4 +79,4 @@ if [ "$RUN_B3" = 1 ]; then grpo 3 B3 0 "$STEPS" || die "B3 failed: tail $WORKSPA
 
 echo
 echo "DONE. Table 1 template cells: results/table1.csv. Checkpoints: $WORKSPACE/outputs/B4_s{0,1,2}_$STEPS."
-echo "NEXT: sample 200 payloads per checkpoint into results/b4_s{0,1,2}.jsonl and run them as row B4 through env.run_table (--rows B4) on the API targets."
+echo "NEXT: sample 200 payloads per checkpoint into results/b4_s{0,1,2}.jsonl and run them through env.run_table --payloads results/B4_s\$seed.jsonl --rows B4_s\$seed on the API targets."
