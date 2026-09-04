@@ -21,9 +21,9 @@
 |---|---|---|
 | `agentwild-pivot` | `plan/PLAN.md`, `plan/BIBLIOGRAPHY.md` (50 BibTeX), council reviews, `handoff/` (this) | plan final |
 | `aw-env` | `env/research_env.py`, `payloads.py`, `strip.py`, `run_table.py`. Cases rebuild into `data/research_cases_validation_0_500.jsonl` (gitignored) on first run, ~5 min HotpotQA download | stub-tested. `VLLMTarget`/`OpenAITarget` are `NotImplementedError` shells (issue #5) |
-| `aw-paper` | `paper/main.tex`, `neurips_2026.sty`, `refs.bib`, Makefile | skeleton only (issue #3) |
+| `aw-paper` | nothing yet (branch exists) | paper skeleton not written (issue #3, opus) |
 | `sleep-pivot` | `plan/PLAN.md`, `plan/BIBLIOGRAPHY.md` (49 BibTeX), clinician/engineer/reviewer council | plan final, zero code |
-| `sleep-paper` | `paper/main.tex` + `refs.bib` (workshop style) | skeleton only |
+| `sleep-paper` | `paper/neurips_2026.sty` + `refs.bib` only, no main.tex | skeleton not written |
 | `main` | original Loki: `training/harmbench_trainer.py`, `training/reward_function.py`, `scripts/hotpotqa.py`, `Dockerfile.runpod` | unchanged |
 
 Missing and NOT stubbed: `training/illusion_trainer.py`, `training/illusion_reward.py` (issue #4), `nsrr_load.py`, `psg_words.py` (sleep-pivot PLAN.md N1/N3).
