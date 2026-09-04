@@ -1,0 +1,28 @@
+{
+  "idea": "Symbolic PSG tokenizer",
+  "sketch": "Each 30s epoch is preprocessed with the standard SHHS pipeline (bandpass, 100 Hz resample, per-recording z-score), then rendered to one ASCII word: EEG becomes a 10-letter SAX string (PAA over 3s windows, alphabet a..h), followed by five bandpower digits (delta/theta/alpha/sigma/beta relative power quantized 0-9 by per-recording quantiles), then YASA-derived flags (S for spindle count bucket, K for K-complex, R for REM-like EOG saccade density, M for chin EMG tone bucket), then SpO2 as a 3-digit min and 1-digit desaturation slope. Words for a night are joined by spaces so an unchanged Qwen2.5-0.5B sees a long text sequence of ~1000 words; a LoRA head predicts the AASM stage token (W/N1/N2/N3/R) after each word, trained autoregressively on SHHS so the model also learns transition grammar. Because every symbol is derived from per-recording quantiles rather than absolute values, MESA scalp montage and amplifier differences are largely normalized away, which is the whole zero-shot bet. Optionally, run BPE over the SHHS symbolic corpus to discover frequent sub-word chunks (e.g. 'S2M0' as a stable N2 signature) and register them as added tokens with embeddings initialized from the mean of their constituent pieces, giving a learned sleep grammar without touching the base vocab. Inference is a single forward pass per night with a sliding window of ~60 epochs for context. The paper framing is: OpenTSLM's 9 F1 came from raw digit tokenization, and the gap to LaBraM-style VQ tokenizers can be closed cheaply by symbolic feature tokens that respect the LLM's existing vocabulary.",
+  "load_bearing_risk": "The Qwen tokenizer may shatter each ~100-char word into 30-50 semantically arbitrary subtokens (digit runs, mixed case), so the model spends its capacity relearning word boundaries instead of sleep structure, and per-recording quantile bins may shift under MESA's older, more sleep-disordered cohort so the same symbol means a different physiological state; if either holds, zero-shot F1 collapses toward the OpenTSLM baseline.",
+  "first_step": "Write epoch_to_word(eeg, eog, emg, spo2) -> str, run it on 200 SHHS nights, tokenize with Qwen2.5-0.5B's tokenizer and report tokens per epoch, then fit a frozen-LLM mean-pooled linear probe for 5-class staging and check that macro F1 beats 0.40 before spending any of the 32 hours on LoRA or BPE merges.",
+  "sub_ideas": [
+    {
+      "name": "Grammar-only ablation",
+      "description": "Train the same LoRA on words with the SAX string removed (bandpowers + flags only) and on flags-only, to show how much of the accuracy is carried by the YASA event vocabulary versus raw shape; a cheap table that reviewers will ask for."
+    },
+    {
+      "name": "BPE-as-discovery",
+      "description": "Treat the learned merges as the scientific result: rank merged tokens by mutual information with stage labels and with apnea events, and present the top merges as an interpretable sleep grammar (e.g. a merge that fires 2 epochs before REM onset)."
+    },
+    {
+      "name": "Cross-modal prompt transfer",
+      "description": "Because inputs are plain text, prepend natural-language instructions ('subject is 70 years old, AHI 30') from MESA metadata at zero cost, testing whether demographic conditioning improves zero-shot transfer without retraining."
+    },
+    {
+      "name": "Symbolic word as a universal biosignal interface",
+      "description": "The same encoder recipe (SAX + quantized spectral + domain event flags) applies to ECG (RR-interval SAX, QRS flags) and actigraphy; a single Qwen LoRA trained on mixed symbolic corpora would be a text-native biosignal foundation model, which is the workshop's theme."
+    },
+    {
+      "name": "Distillation target for a tiny model",
+      "description": "Once staging works, distill the Qwen LoRA into a 1M-parameter transformer over the same symbolic tokens for on-device sleep staging, using the symbolic corpus as the bottleneck that makes distillation trivial."
+    }
+  ]
+}
