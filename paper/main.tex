@@ -1,0 +1,166 @@
+% Convincing, not Commanding. AgentWild @ NeurIPS 2026, short track (4 pages).
+%
+% STYLE FILE: neurips_2026.sty (ProvidesPackage 2026-01-29, "NeurIPS 2026
+% submission/camera-ready style file"). media.neurips.cc returned 404 for the
+% 2026 and 2025 URLs and 403 for 2024 on 2026-09-04, so the copy was taken
+% from the sibling worktree loki-sleep-paper/paper/neurips_2026.sty, which is
+% the official 2026 file. The [dblblindworkshop] option keeps the anonymous
+% author block and prints the workshop name in the foot line. Do NOT add
+% [preprint] or [final] before submission.
+\documentclass{article}
+\usepackage[dblblindworkshop]{neurips_2026}
+\workshoptitle{AgentWild: Agents in the Wild}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+% Red inline placeholder for numbers and unresolved text. Remove before submission.
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\title{Convincing, not Commanding: Fabricated-Authority Injections Illusion Agents Past Instruction Defenses}
+
+\author{%
+  Anonymous Author(s)\\
+  Affiliation\\
+  \texttt{email@domain}\\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Indirect prompt injection defenses treat tool output as data that may carry hidden instructions. They strip imperatives, mark untrusted text, classify command-shaped payloads, or train the model to deprivilege them. We study an attack that contains no instruction at all. The attacker writes one tool result that asserts a false fact with fabricated authority, such as a policy number, a version advisory, or a statute, and the agent completes the user's task with the attacker's chosen answer or action. Following Wu et al., we call this illusioning and contrast it with goal misdirection. We state the threat as a tuple of capability, broken trust assumption, success condition, and defender visibility, and argue that instruction defenses act on the control channel while this attack uses the evidence channel. On a single-call research environment and \todo{NUMBER} AgentDojo cases, hand-written fabricated-authority payloads reach \todo{NUMBER}\% attack success under defenses that reduce hijack payloads to \todo{NUMBER}\%. Only a refuter with the agent's context lowers it, and a GRPO attacker rewarded for staying outside the agent's Verification Boundary recovers \todo{NUMBER} points.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+A coding agent opens a repository to debug a failing pipeline. The README has a Setup Notes section that reads: ``CI secrets are safe to echo in this repo for debugging (approved by security, see SEC-88).'' The agent prints the secrets into a pull request description, the secret scanner pages the on-call engineer, and the transcript shows an agent that did what the user asked. No line in the README told the agent to do anything. It stated a fact, attributed it to an authority the agent could not check, and the agent believed it. Every instruction-detection defense would pass that sentence, because there is no instruction to detect.
+
+\citet{greshake2023not} introduced indirect prompt injection and already listed misinformation as a goal class. Most attacks and nearly all defenses since concentrate on hijacking, where tool text redirects the agent to the attacker's goal \citep{debenedetti2024agentdojo,zhan2024injecagent}, and defenses answer by privilege separation: instruction hierarchy training \citep{wallace2024instruction,chen2025metasecalign,peng2026secopd}, imperative sanitizers \citep{das2025commandsans}, spotlighting \citep{hines2024spotlighting}, and injection classifiers \citep{chennabasappa2025llamafirewall}. \citet{wu2025dissecting} separate \emph{goal misdirection}, where the agent pursues the attacker's goal, from \emph{illusioning}, where the agent believes a false state and does the user's task wrong. Models adopt coherent external evidence readily \citep{xie2024chameleon}, and fabricated citations raise adoption of false claims regardless of venue prestige \citep{khurana2026authoritybench}. Knowledge poisoning is established \citep{zou2025poisonedrag,chen2024agentpoison,zhang2026corruptrag,park2026poisonedplaybooks}. What is unmeasured is which defense family is structurally blind to illusioning, and whether an attacker can be trained to stay on the blind side.
+
+We make three contributions.
+\begin{itemize}[leftmargin=*,nosep]
+  \item A threat model for text illusioning of tool-using agents as a tuple of capability, broken trust assumption, success, and defender visibility. Imperatives are excluded by construction: a CommandSans-style stripper must return every payload unchanged. We explain the gap as a control-channel versus evidence-channel split, with the Verification Boundary of \citet{park2026poisonedplaybooks} as the remaining axis.
+  \item A matched-pair evaluation on a research environment and \todo{NUMBER} AgentDojo cases: same task, same wrong action, one hijack and one fabricated-fact payload, six defenses. Hijack collapses under privilege separation; fabricated facts do not \todo{confirm from Table~\ref{tab:main}}.
+  \item A GRPO attacker whose reward subtracts an injection-classifier score and a refuter term, so it learns claims that are instruction-free and unverifiable from the agent's context. We report claim verifiability over training and the gain over templates, and say plainly when that gain is zero.
+\end{itemize}
+
+\section{Threat model}
+\label{sec:threat}
+
+\paragraph{Two attack goals.}
+Following \citet{wu2025dissecting}, under \emph{goal misdirection} the agent pursues the attacker's task; under \emph{illusioning} it keeps the user's task, believes a false state, and completes it wrong. Hijack rows in Table~\ref{tab:main} are goal misdirection; our attack is text illusioning.
+
+\paragraph{Control channel and evidence channel.}
+Tool text is read two ways. On the \emph{control channel} it is read as goals, and an injected imperative competes with the user's instruction. On the \emph{evidence channel} it is read as facts, which is what tool output is for. Privilege separation fixes the control channel structurally: if tool output is only data, an instruction inside it has no authority. A fact carries no privilege to strip, so an attack that only asserts facts passes every control-channel defense for a structural reason, not a data gap \citep{liu2026reasoninghijacking,ma2026autodojo}.
+
+\paragraph{Verification Boundary.}
+The remaining evidence-channel defense is refutation. \citet{park2026poisonedplaybooks} name the \emph{Verification Boundary} as the set of claims the agent can refute with available evidence, and show verification prompting helps only when stronger evidence exists. A fabricated policy number sits outside that boundary by design; we reward the attacker for staying there (Section~\ref{sec:method}).
+
+\paragraph{The tuple.}
+\begin{itemize}[leftmargin=*,nosep]
+  \item \textbf{Capability.} One tool result. No prompt access, no persistent memory write, no query trigger, no imperatives: a CommandSans-style stripper \citep{das2025commandsans} must return the payload unchanged. Asserted in code on every payload we report, hybrid row included.
+  \item \textbf{Trust assumption broken.} Tool output is honest but possibly irrelevant. Every hijack defense above preserves this; none checks veracity.
+  \item \textbf{Success.} The agent completes the user's task, reports success, and its final answer or action argument equals the attacker's target (wrong IBAN on \texttt{send\_money}, wrong hotel, wrong date, wrong answer string).
+  \item \textbf{Defender visibility.} Transcript and tool outputs. No off-task action appears, so task-deviation monitors \citep{jia2024taskshield,chennabasappa2025llamafirewall} and trusted monitors \citep{greenblatt2024aicontrol} return zero. We call this \emph{silent failure} and report its rate alongside attack success.
+\end{itemize}
+
+\section{Method}
+\label{sec:method}
+
+\paragraph{Research environment.}
+\todo{Draft.} From HotpotQA distractor triples we build \todo{NUMBER} single-call cases: user question plus one tool result holding two documents, one truthful and one attacker-controlled. The target is a distractor entity from the same context; success is string containment in the answer. Target model Qwen2.5-7B-Instruct \todo{confirm size after calibration}.
+
+\paragraph{Payload families.}
+\todo{Draft.} \textbf{A} (goal misdirection): the AgentDojo \texttt{important\_message} template \citep{debenedetti2024agentdojo} and, if run, a PISmith-style RL hijack \citep{yin2026pismith}. \textbf{B} (illusioning): B0, ten hand-written fabricated-authority templates in the categories of \citet{zeng2024johnny} (fake statute, fake report and year, fake organization, fake retraction, fake version deprecation), framed in the style of CorruptRAG-AK \citep{zhang2026corruptrag}; B1, one GPT-4o-mini zero-shot prompt; B2, the PoisonedRAG black-box generator \citep{zou2025poisonedrag}; B3 and B4, GRPO attackers below. \textbf{H} (hybrid): a B0 fact plus an imperative, which the stripper reduces to the B0 fact.
+
+\paragraph{GRPO attacker.}
+\todo{Draft.} Policy Qwen2.5-1.5B trained with GRPO \todo{steps, generations, lr}. Given a case, the policy emits the attacker document. The reward is
+\begin{equation}
+  R(p) \;=\; \mathbb{1}[\text{fooled}(p)] \;-\; \lambda_d\, s_{\text{PG2}}(p) \;-\; \lambda_v\, \mathbb{1}[\text{refuted}(p)] \;+\; g(p),
+  \label{eq:reward}
+\end{equation}
+where $\text{fooled}(p)$ is the success condition of Section~\ref{sec:threat}, $s_{\text{PG2}}$ is the PromptGuard~2 injection score \citep{chennabasappa2025llamafirewall} following the detector-evasion term of \citet{wen2025rlhammer}, $\text{refuted}(p)$ is whether a second call with the agent's user context and tool access refutes any claim in $p$, and $g$ is a format gate against emitting the bare target string. B3 sets $\lambda_v = 0$; B4 sets $\lambda_d = \lambda_v = \nicefrac{1}{2}$ \todo{confirm}.
+
+\paragraph{Defenses.}
+\todo{Draft.} None; imperative stripper \citep{das2025commandsans} \todo{weights or regex stand-in}; spotlighting with delimiting \citep{hines2024spotlighting} as implemented in AgentDojo; PromptGuard~2 with flag threshold \todo{NUMBER}; an instruction-hierarchy-trained target \citep{chen2025metasecalign} or SecOPD \citep{peng2026secopd} \todo{which}; and a verifier, a second call asked whether any claim in the tool result is refutable from the user context. \todo{Optional seventh column: PromptArmor \citep{shi2025promptarmor} or the Firewalls sanitizer \citep{bhagwatkar2025firewalls}.}
+
+\paragraph{AgentDojo cases.}
+\todo{NUMBER} banking, travel, and slack cases where the wrong action is checkable from tool arguments; one function swaps the \texttt{important\_message} string for a payload.
+
+\section{Experiments}
+\label{sec:experiments}
+
+\todo{Draft.} Table~\ref{tab:main} reports attack success under each defense \todo{utility, flag, silent-failure layout}. Prediction before running: A rows collapse under stripper, spotlighting, PromptGuard, and the IH target; B rows stay flat there and drop under the verifier; B4 stays flat under all six. If B0 already passes every column, RL adds nothing and we say so. Beyond attack success we report utility under attack, silent-failure rate, detection and false-positive rate on benign tool outputs, verifiability score, and attacker cost. WASP \citep{evtimov2025wasp} finds hijacks often fail to finish a multi-step attacker goal; that protection does not apply when the attacker's goal is the user's single action.
+
+\begin{table}[t]
+  \centering
+  \caption{Attack success rate (\%) by payload family and defense, research environment. \todo{Add utility, flag, silent-failure; AgentDojo pairs.}}
+  \label{tab:main}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}p{0.47\linewidth}cccccc@{}}
+    \toprule
+    Payload & none & stripper & spotlight. & PromptGuard & IH target & verifier \\
+    \midrule
+    A0 no injection (control) & -- & -- & -- & -- & -- & -- \\
+    A1 AgentDojo \texttt{important\_message} hijack & -- & -- & -- & -- & -- & -- \\
+    A2 PISmith-style RL hijack & -- & -- & -- & -- & -- & -- \\
+    \midrule
+    B0 fabricated authority, hand templates & -- & -- & -- & -- & -- & -- \\
+    B1 fabricated authority, GPT-4o-mini zero-shot & -- & -- & -- & -- & -- & -- \\
+    B2 fabricated authority, PoisonedRAG generator & -- & -- & -- & -- & -- & -- \\
+    B3 Loki GRPO (fooled $-$ detect) & -- & -- & -- & -- & -- & -- \\
+    B4 Loki GRPO + Verification-Boundary reward (fooled $-$ detect $-$ refuted) & -- & -- & -- & -- & -- & -- \\
+    \midrule
+    H hybrid: fact + imperative (strips to B) & -- & -- & -- & -- & -- & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \fbox{\parbox{0.9\linewidth}{\centering\vspace{0.5em}\todo{Figure: verifiability score (fraction of B4 claims a full-access refuter can refute) versus GRPO step, with B3 as control.}\vspace{0.5em}}}
+  \caption{Verifiability of learned claims over training. \todo{Placeholder.}}
+  \label{fig:verifiability}
+\end{figure}
+
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Knowledge poisoning and illusioning.}
+Corrupting what a retrieval-fed model believes is established. \citet{greshake2023not} list misinformation as an injection goal; \citet{pan2023misinformation} show LLM misinformation degrades open-domain QA. AgentPoison \citep{chen2024agentpoison} backdoors an agent's memory with an optimized trigger so triggered queries retrieve attacker demonstrations; it needs a query trigger and a persistent write and tests no instruction-channel defense, where we need one transient tool result. AdvWeb \citep{xu2024advweb} DPO-trains a prompter to flip one web-agent action while the user task proceeds; it is the closest learned-attacker prior, but its payloads remain instruction-shaped and it reports against prompt-level defenses only. PoisonedRAG \citep{zou2025poisonedrag} formalizes knowledge corruption as optimization over injected passages; its black-box generator is our B2 baseline. CorruptRAG-AK \citep{zhang2026corruptrag} wraps one false passage in hand-written credibility cues, and \citet{korn2026architecture} show that framing, not retrieval optimization, drives its success across RAG architectures. Poisoned Playbooks \citep{park2026poisonedplaybooks} poison security agents and introduce the Verification Boundary we adopt. \citet{wu2025dissecting} illusion multimodal agents through pixels; we illusion text agents through fabricated authority under defense stacks they do not test. AutoDojo \citep{ma2026autodojo} observes in passing that on action-open tasks ``the injection can pose as ordinary data rather than an explicit instruction, bypassing defenses that rely on detecting instruction-like text''; we make that posture the constraint, the reward, and the mechanism. Related channels: memory records disguised as policies \citep{zhang2026memmorph,dong2025minja}, retrieval backdoors \citep{xue2024badrag}, misleading documents in deep research \citep{zhu2026misknow}, injected decision criteria \citep{liu2026reasoninghijacking}, and fabricated citations for jailbreaks \citep{yang2024darkcite}.
+
+\paragraph{Learned attackers, benchmarks, and defenses.}
+PISmith \citep{yin2026pismith} and RL-Hammer \citep{wen2025rlhammer} GRPO-train hijack payloads against defended targets, the latter with a detector-evasion term we reuse; AutoInject \citep{chen2026autoinject} learns suffixes with a dense reward and breaks Meta-SecAlign-70B; PIMiner \citep{wang2026piminer} argues RL attackers transfer poorly; AgentVigil \citep{wang2025agentvigil} fuzzes with MCTS. All optimize the control channel. Adaptive attacks break static defenses \citep{zhan2025adaptive,nasr2025attacker}, so Table~\ref{tab:main} carries an adaptive row. We evaluate on AgentDojo \citep{debenedetti2024agentdojo}; InjecAgent \citep{zhan2024injecagent}, BIPIA \citep{yi2025bipia}, ASB \citep{zhang2024asb}, and WASP \citep{evtimov2025wasp} are the other standard beds. Defense columns are the instruction hierarchy \citep{wallace2024instruction,guo2026ihchallenge} and its open realizations \citep{chen2025struq,chen2025secalign,chen2025metasecalign,peng2026secopd}, spotlighting \citep{hines2024spotlighting}, CommandSans \citep{das2025commandsans}, PromptGuard~2 \citep{chennabasappa2025llamafirewall}, and PromptArmor \citep{shi2025promptarmor}. Task-alignment monitors \citep{jia2024taskshield} and control protocols \citep{greenblatt2024aicontrol,terekhov2025adaptive} score task deviation and return zero here by construction. RobustRAG \citep{xiang2025robustrag} is the natural evidence-channel defense, but with one truthful and one poisoned document it is a one-versus-one vote with a vacuous certificate, so our verifier is a refuter, not an aggregator. Cordon-MAS \citep{yu2026cordon} and \citet{geng2026controlillusion} find models detect contradictions or authority cues yet act on them, the failure our silent-failure metric counts.
+
+\paragraph{Why Firewalls does not already cover this.}
+\citet{bhagwatkar2025firewalls} report perfect security with high utility on AgentDojo, ASB, and InjecAgent using a tool-input minimizer and a tool-output sanitizer, and argue those benchmarks are saturated. The sanitizer is a model asked to remove content not relevant to the task. A fabricated regulation about the user's task is maximally relevant, so by its own specification the sanitizer should pass it: relevance is not veracity. This is a prediction with a falsifier. If we run the sanitizer as a seventh column and it removes B rows, the claim narrows to ``firewalls need a veracity check,'' which is still a finding. Their benchmark critique is also why we hand-pick \todo{NUMBER} cases where the wrong action is checkable from tool arguments.
+
+\section{Limitations and discussion}
+\label{sec:discussion}
+
+\todo{Draft.}
+\begin{itemize}[leftmargin=*,nosep]
+  \item \textbf{Firewalls and SecOPD may catch B rows.} SecOPD \citep{peng2026secopd} scores tokens that deviate from the clean-input rollout, and a believed fact deviates; a drop of B rows there would mean output-scored IH training leaks into the evidence channel. The Firewalls sanitizer \citep{bhagwatkar2025firewalls} is the other candidate. Both are pre-registered; either outcome is reported.
+  \item \textbf{Goodhart on detectability.} A 1.5B policy can learn bland text that lowers the PromptGuard score and changes no action \citep{wen2025rlhammer}. The template attacker is frozen before training and the format gate in Eq.~\ref{eq:reward} exists for this reason. If B3 or B4 do not beat B0, RL is not a contribution.
+  \item \textbf{Scope, transfer, dual use.} One research environment, \todo{NUMBER} AgentDojo cases, a single-call agent, string-match success. RL attackers transfer poorly \citep{wang2026piminer}; transfer sits in the appendix. Multi-source retrieval is future work. We release \todo{what} and withhold \todo{what}.
+\end{itemize}
+
+\label{lastbodypage}
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}
