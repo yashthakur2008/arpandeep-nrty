@@ -1,0 +1,212 @@
+\documentclass{article}
+
+% BrainBodyFM @ NeurIPS 2026 mandatory style. Double-blind workshop submission.
+\usepackage[dblblindworkshop]{neurips_2026}
+\workshoptitle{Foundation Models for the Brain and Body}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{multirow}
+
+% Inline red placeholder. Grep for \todo before submission.
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\NUM}{\textcolor{red}{--}}
+\newcommand{\ttt}[1]{\texttt{#1}}
+
+\title{Symbolic PSG Words Let an Unchanged Text LLM Stage Sleep, and a Text-Native Red-Teamer Shows What It Learned}
+
+\author{%
+  Anonymous Authors\\
+  Anonymous Affiliation\\
+  \texttt{anonymous@example.com}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Serializing polysomnography (PSG) as raw numbers and fine-tuning a text-only language model reaches a sleep-staging F1 of 9.05 in the OpenTSLM benchmark, and ablation studies of LLM-for-time-series methods find that the language model contributes little over a small trained head. We test whether the failure lies in the text rather than in the model. Each 30~s epoch is rendered as a fixed-length ASCII word whose symbols are named physiological quantities (EEG bandpowers, slow-wave fraction, spindle count, eye-movement counts, chin EMG, SpO$_2$, clock time), each quantized by per-night quantiles. An unmodified Qwen2.5-0.5B is fine-tuned on \todo{NUMBER} SHHS nights and evaluated on held-out SHHS and zero-shot on MESA. On identical words, logistic regression, LightGBM, and a randomly initialized Qwen reach macro-F1 of \todo{NUMBER}, \todo{NUMBER}, and \todo{NUMBER}, against \todo{NUMBER} for the fine-tuned model; the cross-cohort drop is \todo{NUMBER}. A GRPO-trained text policy then edits words under a physiological budget, or injects a metadata line, to flip the stager. Attack success is \todo{NUMBER} at a 10\% edit budget and \todo{NUMBER} for metadata alone. The edited symbols concentrate on \todo{SYMBOLS}, which correspond to the AASM criteria for the targeted transitions.
+\end{abstract}
+
+\section{Introduction}
+
+Two results frame this paper. First, OpenTSLM \citep{langer2025opentslm} reports that a text-only model fine-tuned on serialized PSG reaches an F1 of 9.05 on sleep staging, against 69.9 for a model with a native time-series encoder. Second, \citet{tan2024useful} show that in three LLM-for-time-series pipelines, removing the language model or replacing it with a single attention layer does not hurt and often helps. The biosignal community reads these as evidence that PSG-as-text does not work and that, where it appears to, the language model is decorative.
+
+We test both claims head-on. Our hypothesis is that the failure is in what text is written, not in the fact that text is used. Raw sample values are the wrong text: their scale varies with amplifier gain and age, and their tokenization is arbitrary \citep{gruver2023llmtime}. We render each 30~s epoch as a short word whose symbols are named features that a scorer would recognize, quantized by per-night quantiles so that every night uses the same alphabet regardless of cohort. An unchanged Qwen2.5-0.5B \todo{cite Qwen} consumes these words after ordinary supervised fine-tuning. Following \citet{tan2024useful}, we always report the same words fed to logistic regression, LightGBM, and a randomly initialized copy of the model; if the pretrained model does not beat these, the paper says so in the abstract. Because the words are readable and editable, a second text model can attack the stager under a physiological edit budget, or inject a metadata line with no signal edits, and the edits it chooses show what the stager learned.
+
+Our contributions are:
+\begin{itemize}
+  \item A symbolic per-night-quantile tokenizer that turns a PSG epoch into a fixed-length ASCII word of named, editable symbols (Section~\ref{sec:words}).
+  \item A cross-cohort evaluation, SHHS to MESA, of an unchanged text LLM on these words, with a mandatory LLM-removed ablation (logistic regression, LightGBM, random initialization) on identical inputs (Sections~\ref{sec:sft}, \ref{sec:ablation}).
+  \item A text-native GRPO red-teamer with an edit budget, clinician-derived hard vetoes, and a second-scorer test that separates attacks from ambiguous epochs (Section~\ref{sec:attacker}).
+\end{itemize}
+
+\section{Method}
+
+\subsection{Symbolic PSG words}
+\label{sec:words}
+
+Each 30~s epoch becomes one ASCII word of \todo{NUMBER} characters (about \todo{NUMBER} Qwen tokens). Every continuous quantity is quantized into four levels \ttt{a b c d} at the 25th, 50th, and 75th percentiles of that quantity over the same night. Per-night quantiles are the central design choice: SAX-style Gaussian breakpoints are not equiprobable after segment averaging \citep{lin2007sax,butler2015sax}, global scaling as in Chronos \citep{ansari2024chronos} does not remove per-recording gain, and EEG foundation models are known to encode per-subject scale and $1/f$ offset \citep{lin2026identitytrap}. Quantizing within the night removes all three. Table~\ref{tab:symbols} lists the symbol groups.
+
+\begin{table}[t]
+\caption{Symbol groups in one epoch word. Levels \ttt{a}--\ttt{d} are per-night quartiles unless stated.}
+\label{tab:symbols}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Symbol group & Source channel & Quantization & Count \\
+\midrule
+Rel. bandpower $\delta,\theta,\alpha,\sigma,\beta$ & EEG C4 & quartile per 5~s window & $6\times5=30$ \\
+Slow-wave fraction & EEG C4 & 0 / $<$20 / 20--50 / $>$50\% & 1 \\
+Spindle count bucket & EEG C4 (YASA) & 0 / 1 / 2 / $\geq$3 & 1 \\
+Rapid eye movement count & EOG L, R & 0 / 1--2 / 3--5 / $>$5 & 1 \\
+Slow eye movement flag & EOG L, R & present / absent & 1 \\
+L/R phase sign & EOG L, R & out-of-phase / in-phase / none & 1 \\
+Chin EMG RMS (10--50~Hz) & EMG & quartile per 5~s window & 6 \\
+SpO$_2$ minimum, mean & SpO$_2$ & quartile & 2 \\
+Desaturation flag & SpO$_2$ & $\geq$3\% drop / none & 1 \\
+Hours since lights-off & clock & 0--1 / 1--3 / 3--5 / $>$5~h & 1 \\
+\midrule
+Total & & & \todo{NUMBER} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The prompt is a demographics line (age, sex, BMI, AHI), the previous ten stage letters, and the current word. The target is a single letter from \ttt{W A B C R} (W, N1, N2, N3, REM), chosen so that every stage is one token \citep{gruver2023llmtime}. Arousal events are not shown to the stager because they cluster at N1/W boundaries and would leak the label.
+
+\subsection{Stager: supervised fine-tuning}
+\label{sec:sft}
+
+The stager is Qwen2.5-0.5B-Instruct with no vocabulary or architecture changes, fine-tuned with cross-entropy on the single target letter. Training uses \todo{NUMBER} SHHS1 nights (about \todo{NUMBER} epochs), sequence length 256, batch 64, learning rate $10^{-5}$, one epoch, bf16 on one A100. We report per-class F1, macro-F1, and Cohen's $\kappa$ on \todo{NUMBER} held-out SHHS1 nights and on \todo{NUMBER} MESA nights with no MESA training data. We use supervised rather than reinforcement fine-tuning for the stager because a one-token action with a 0/1 reward reduces policy gradients to a noisy estimate of cross-entropy.
+
+\subsection{LLM-removed ablations}
+\label{sec:ablation}
+
+Following \citet{tan2024useful}, the same words are given to three models that do not use a pretrained language model: (i) character $n$-gram features with logistic regression, (ii) LightGBM on the quantized feature vector, which is a coarser analogue of YASA \citep{vallat2021yasa}, and (iii) Qwen2.5-0.5B with all weights re-initialized at random and then fine-tuned identically. Model (iii) isolates the value of language pretraining from the value of the transformer architecture. All three share the stager's splits and evaluation script. SleepFM's headline result, logistic regression on frozen embeddings, is precedent for a cheap head on a good representation \citep{thapa2024sleepfm}.
+
+\subsection{Text-native red-teamer}
+\label{sec:attacker}
+
+A second Qwen2.5-0.5B policy receives the same prompt as the stager together with the true stage and a target stage, and emits either (a) an edited epoch word or (b) an injected metadata line (age, BMI, AHI, or a free-text technician note) with the word unchanged. The frozen stager scores the result. The reward for an edited word $w'$ of original $w$ with true stage $y$ and target $t$ is
+\begin{equation}
+  R(w') \;=\; \mathbb{1}\!\left[\hat{y}(w') = t\right] \;-\; \lambda\, d(w, w') \quad \text{if } w' \in \mathcal{P}(w), \qquad R(w') = 0 \text{ otherwise},
+  \label{eq:reward}
+\end{equation}
+where $d$ counts edited symbols, $\lambda$ is set so that an unedited word scores zero, and $\mathcal{P}(w)$ is the set of plausible edits. An edit is plausible when at most 10\% of symbols change, every change is at most one quantization level, and adjacent 5~s windows differ by at most one level. Hard vetoes, each setting the reward to zero, come from a sleep-medicine review of the design: a spindle symbol in W or REM without elevated sigma in the same window; atonia outside REM; an SpO$_2$ fall faster than 2\%/s or rise faster than 4\%/s; a desaturation of at least 3\% without a preceding respiratory event of at least 10~s; and, for N3 edits, a slow-wave fraction symbol inconsistent with the delta symbol. A malformed completion receives $-1$. Training uses GRPO with 8 generations per prompt and completions of at most 128 tokens; because the reward is sparse we use entropy regularization and advantage re-weighting from the first step, following \citet{yin2026pismith} and \citet{bullwinkel2026advgrpo}.
+
+\paragraph{Second-scorer test.} Inter-scorer agreement is $\kappa \approx 0.76$ overall and $0.24$ for N1 \citep{lee2022interrater}, and only 32--46\% of epochs get unanimous labels from six or more scorers \citep{bakker2022hypnodensity}, so a small edit that turns N1 into N2 may be a legitimate re-scoring rather than an attack. We require that the logistic-regression model of Section~\ref{sec:ablation}, which never saw the attacker, still assigns the edited word its original stage. We report attack success only on epochs where the second scorer's margin is high and the original stage is W, N2, N3, or REM. Baselines are random edits under the same budget and a greedy single-symbol search.
+
+\section{Data}
+
+Both cohorts come from the National Sleep Research Resource \citep{zhang2018nsrr,zhang2024nsrr}. SHHS1 \citep{quan1997shhs,redline1998shhs} is unattended home PSG in adults over 40, scored under R\&K rules; MESA Sleep \citep{chen2015mesa} is in-home PSG in adults aged 54--93, scored under AASM 2007 rules. Table~\ref{tab:channels} gives the channels used. C4-A1 and C4-M1 are the same derivation, so one EEG channel is shared across cohorts; frontal and occipital channels exist only in MESA and would be a cohort confound. EEG and EMG are resampled to 100~Hz and EOG to 50~Hz before feature extraction.
+
+\begin{table}[t]
+\caption{Channels used from each cohort. Labels are the EDF signal labels as shipped by NSRR.}
+\label{tab:channels}
+\centering
+\small
+\begin{tabular}{lllll}
+\toprule
+Signal & SHHS1 label & SHHS1 rate & MESA label & MESA rate \\
+\midrule
+EEG central & \ttt{EEG} (C4-A1) & 125~Hz & \ttt{EEG3} (C4-M1) & 256~Hz \\
+EOG left, right & \ttt{EOG(L)}, \ttt{EOG(R)} & 50~Hz & \ttt{EOG-L}, \ttt{EOG-R} & 256~Hz \\
+Chin EMG & \ttt{EMG} & 125~Hz & \ttt{EMG} & 256~Hz \\
+Oxygen saturation & \ttt{SaO2} & 1~Hz & \ttt{SpO2} & 1~Hz \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Stage mapping.} NSRR XML annotations give \ttt{Wake}, \ttt{Stage 1}--\ttt{4}, \ttt{REM}, and \ttt{Unscored}. Stages 3 and 4 are merged into N3 so that R\&K and AASM nights share one label set. Unscored and \ttt{Movement} epochs are dropped.
+
+\paragraph{Exclusion rules.} We truncate to the shorter of the EDF and the annotation, drop leading and trailing unscored runs, mask SpO$_2$ values below 50\% as artifact, and exclude nights with total sleep time under 3~h. Submental EMG is the weakest SHHS channel \citep{redline1998shhs}; nights with an unusable EMG are \todo{kept with a masked EMG field / excluded}, affecting \todo{NUMBER}\% of nights. We use \todo{NUMBER} SHHS1 nights for training, \todo{NUMBER} for testing, and \todo{NUMBER} MESA nights for zero-shot evaluation. \todo{Report age, sex, AHI summary per split.}
+
+\section{Results}
+
+\begin{table}[t]
+\caption{Sleep staging on identical symbolic words. SHHS1 held-out and MESA zero-shot. Comparator rows are from the cited papers and use different inputs, training sets, and metrics, so they bound expectations rather than compete directly.}
+\label{tab:staging}
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccccc c@{}}
+\toprule
+& \multicolumn{6}{c}{SHHS1 held-out F1} & & MESA zero-shot \\
+\cmidrule(lr){2-7}
+Model & macro & W & N1 & N2 & N3 & R & $\kappa$ & macro-F1 ($\kappa$) \\
+\midrule
+LR (char $n$-grams) & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM \\
+LightGBM (quantized features) & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM \\
+Qwen2.5-0.5B, random init & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM \\
+Qwen2.5-0.5B, SFT (ours) & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM & \NUM \\
+\midrule
+\multicolumn{9}{l}{\emph{Published comparators (not on our words)}} \\
+Text-only serialization \citep{langer2025opentslm} & 9.05 & & & & & & & \\
+PFTSleep, SHHS-trained \citep{fox2025pftsleep} & & & & & & & 0.81 & (0.60) \\
+SleepFM, frozen + LR \citep{thapa2026sleepfm} & 0.70--0.78 & & & & & & & \\
+Inter-scorer $\kappa$ \citep{lee2022interrater} & & 0.70 & 0.24 & 0.57 & 0.57 & 0.69 & 0.76 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Staging and ablation.} Table~\ref{tab:staging} reports all models on the same words. \todo{State whether pretrained Qwen beats LR and LightGBM, by how much, and on which classes. State the cross-cohort drop and compare with PFTSleep's 0.81 to 0.60.} \todo{Confusion matrices for SHHS and MESA, either as a figure or an appendix table.}
+
+\todo{Cross-cohort decomposition: MESA macro-F1 with (i) raw, (ii) per-night-quantile words, (iii) plus N3-rule harmonization.}
+
+\begin{table}[t]
+\caption{Attack success on confident W/N2/N3/R epochs that pass the second-scorer test. Success is the fraction of targeted (from $\to$ to) flips. Metadata attacks change no symbol.}
+\label{tab:attack}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccc c@{}}
+\toprule
+& \multicolumn{4}{c}{Symbol edit budget} & Metadata line \\
+\cmidrule(lr){2-5}
+Attacker & 2\% & 5\% & 10\% & mean edits & (0 edits) \\
+\midrule
+Random edits & \NUM & \NUM & \NUM & \NUM & \NUM \\
+Greedy single-symbol & \NUM & \NUM & \NUM & \NUM & \NUM \\
+GRPO policy (ours) & \NUM & \NUM & \NUM & \NUM & \NUM \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Attacks.} Table~\ref{tab:attack} compares the GRPO policy with random and greedy baselines across edit budgets, and separately for metadata injection. \todo{State whether metadata flips the stager more than signal edits.} Figure~\ref{fig:loci} shows which symbol groups the policy edits for each transition. \todo{Compare against AASM criteria: chin EMG for R$\to$W, sigma and spindle symbols for N2$\to$N1, slow-wave fraction for N3$\to$N2.}
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][2.4cm][c]{0.9\linewidth}{\centering \todo{Figure: histogram of edited symbol group per (from $\to$ to) transition, one panel per transition, with the AASM-implicated group highlighted.}}}
+\caption{Edit loci of the red-teamer. Each panel is one targeted transition; bars count which symbol group (Table~\ref{tab:symbols}) the policy edited in successful attacks.}
+\label{fig:loci}
+\end{figure}
+
+\section{Related work}
+
+\paragraph{Biosignal foundation models and cross-cohort staging.} Self-supervised encoders for PSG and EEG now stage sleep at or near expert agreement: U-Sleep \citep{perslev2021usleep,fiorillo2023usleep}, SleepFM \citep{thapa2024sleepfm,thapa2026sleepfm}, PFTSleep \citep{fox2025pftsleep}, SleepMaMi \citep{park2026sleepmami}, and general EEG models such as BENDR \citep{kostas2021bendr}, BIOT \citep{yang2023biot}, and LaBraM \citep{jiang2024labram}. Feature-based LightGBM in YASA \citep{vallat2021yasa} remains competitive, and SLEEPYLAND \citep{rossi2025sleepyland} shows that ensemble disagreement predicts scorer ambiguity. The cross-cohort gap is well documented: PFTSleep drops from $\kappa$ 0.81 to 0.60 from SHHS to MESA, a CNN-LSTM drops from 0.80 to 0.54 across databases \citep{alvarez2021interdatabase}, and shortcut learning on acquisition details explains overestimates of about 20\% in medical AI generally \citep{ongly2024shortcut,geirhos2020shortcut}. Discrete tokenizers for PSG and EEG exist \citep{avramidis2025biocodec,carter2026hypnos}, and BIOT already framed biosignals as sentences of patch embeddings; all such tokens are learned and opaque, whereas ours are fixed, named, and editable, which is what makes Section~\ref{sec:attacker} possible. Rule-based and rule-grounded stagers \citep{hardarson2026bythebook,deng2026sleepvlm} pursue the same auditability from the other direction.
+
+\paragraph{Language models on time series and biosignals.} LLMTime \citep{gruver2023llmtime} and Chronos \citep{ansari2024chronos} treat quantized series as tokens; Time-LLM \citep{jin2024timellm} reprograms patches into a frozen LLM, and TokenCast \citep{tao2025tokencast} learns a symbolic discretizer for LLM input. \citet{liu2023fewshot} serialized aggregate physiological statistics as prompt text, which is closer to our design than digit dumps. The negative results are equally relevant. \citet{tan2024useful} find the language model removable in LLM-for-forecasting pipelines, \citet{merrill2024struggle} find zero-shot reasoning over series near chance, prompted open LLMs reach 44\% staging accuracy \citep{honnavalli2025llmsleep}, and OpenTSLM \citep{langer2025opentslm} reports 9.05 F1 for text-only serialization against 69.9 with a native encoder. NeuroLM \citep{jiang2024neurolm} and SleepLM \citep{xu2026sleeplm} bridge EEG and language by extending the vocabulary with learned neural tokens or by aligning a signal encoder to captions; we change nothing in the language model and require no encoder.
+
+\paragraph{Adversarial robustness of biosignal models.} \citet{zhang2019vulnerability} showed that gradient perturbations fool CNN classifiers in EEG BCIs and transfer across architectures, and \citet{meng2023benchmark} benchmark defenses. For sleep staging specifically, REST \citep{duggal2020rest} and \citet{yoo2022noiserobust} study robustness to noise through adversarial training; neither considers a targeted attacker, a physiological plausibility constraint, or an attack via a learned policy. On the language-model side, GRPO-trained red-teamers exist for prompt-injection defenses \citep{yin2026pismith}, for attacker-defender co-training \citep{bullwinkel2026advgrpo}, and with rule-based rewards and diversity terms \citep{beutel2024redteam}; we transfer that recipe to a biosignal classifier by making its input text. Interpretability of sleep foundation models has so far been post hoc, via sparse autoencoders \citep{lehnschioler2026sae} whose advantage over random baselines is disputed \citep{korznikov2026sanity}; editing a named symbol and observing the flip is a direct intervention rather than a reconstruction.
+
+\section{Limitations}
+
+N1 is capped by scorer agreement ($\kappa$ 0.24), so our N1 F1 is low for reasons not specific to the method, and N1 is excluded from attack reporting. Our MESA numbers are zero-shot from \todo{NUMBER} SHHS nights; U-Sleep trained on both cohorts and is not a comparable baseline, so we compare with PFTSleep. YASA's staging classifier was trained on NSRR data that likely includes MESA, so we use only its spindle detector and use our logistic regression as second scorer. Symbolic edits are not guaranteed to be realizable by a signal perturbation: the attack characterizes the text interface and the stager behind it, not the raw-signal pipeline, and a CNN behind the same interface is future work. We use one EEG channel, 0.5B parameters, and \todo{NUMBER} training nights, and do not probe SleepFM. The metadata line includes attributes with documented cohort differences \citep{chen2015mesa}, so metadata attacks are a property of the stager, not of the population.
+
+\label{end:body}
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

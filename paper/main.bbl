@@ -1,0 +1,323 @@
+\begin{thebibliography}{48}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{\'A}lvarez-Est{\'e}vez and Rijsman(2021)]{alvarez2021interdatabase}
+Diego {\'A}lvarez-Est{\'e}vez and Roselyne~M Rijsman.
+\newblock Inter-database validation of a deep learning approach for automatic
+  sleep scoring.
+\newblock \emph{PLoS ONE}, 16\penalty0 (8):\penalty0 e0256111, 2021.
+\newblock \doi{10.1371/journal.pone.0256111}.
+
+\bibitem[Ansari et~al.(2024)]{ansari2024chronos}
+Abdul~Fatir Ansari et~al.
+\newblock Chronos: Learning the language of time series.
+\newblock \emph{arXiv preprint arXiv:2403.07815}, 2024.
+
+\bibitem[Avramidis et~al.(2025)]{avramidis2025biocodec}
+Kleanthis Avramidis et~al.
+\newblock Neural codecs as biosignal tokenizers.
+\newblock \emph{arXiv preprint arXiv:2510.09095}, 2025.
+
+\bibitem[Bakker et~al.(2023)]{bakker2022hypnodensity}
+Jessie~P Bakker et~al.
+\newblock Scoring sleep with artificial intelligence enables quantification of
+  sleep stage ambiguity: hypnodensity based on multiple expert scorers and
+  auto-scoring.
+\newblock \emph{Sleep}, 46\penalty0 (2), 2023.
+\newblock \doi{10.1093/sleep/zsac154}.
+
+\bibitem[Beutel et~al.(2024)]{beutel2024redteam}
+Alex Beutel et~al.
+\newblock Diverse and effective red teaming with auto-generated rewards and
+  multi-step reinforcement learning.
+\newblock \emph{arXiv preprint arXiv:2412.18693}, 2024.
+
+\bibitem[Bullwinkel et~al.(2026)]{bullwinkel2026advgrpo}
+Blake Bullwinkel et~al.
+\newblock Learning to attack and defend: Adaptive red teaming of language
+  models via grpo.
+\newblock \emph{arXiv preprint arXiv:2606.09701}, 2026.
+
+\bibitem[Butler and Kazakov(2015)]{butler2015sax}
+Matthew Butler and Dimitar Kazakov.
+\newblock Sax discretization does not guarantee equiprobable symbols.
+\newblock \emph{IEEE Transactions on Knowledge and Data Engineering},
+  27\penalty0 (4), 2015.
+\newblock \doi{10.1109/TKDE.2014.2382882}.
+
+\bibitem[Carter et~al.(2026)]{carter2026hypnos}
+Jonathan Carter et~al.
+\newblock Next-token prediction learns generalisable representations of sleep
+  physiology.
+\newblock \emph{arXiv preprint arXiv:2606.09605}, 2026.
+
+\bibitem[Chen et~al.(2015)]{chen2015mesa}
+Xiaoli Chen et~al.
+\newblock Racial/ethnic differences in sleep disturbances: The {Multi-Ethnic
+  Study of Atherosclerosis} ({MESA}).
+\newblock \emph{Sleep}, 38\penalty0 (6):\penalty0 877--888, 2015.
+\newblock \doi{10.5665/sleep.4732}.
+
+\bibitem[Deng et~al.(2026)]{deng2026sleepvlm}
+Guifeng Deng et~al.
+\newblock Sleepvlm: A rule-grounded vision-language model for auditable sleep
+  staging.
+\newblock \emph{arXiv preprint arXiv:2603.26738}, 2026.
+
+\bibitem[Duggal et~al.(2020)Duggal, Freitas, Xiao, Chau, and
+  Sun]{duggal2020rest}
+Rahul Duggal, Scott Freitas, Cao Xiao, Duen~Horng Chau, and Jimeng Sun.
+\newblock Rest: Robust and efficient neural networks for sleep monitoring in
+  the wild.
+\newblock In \emph{Proceedings of The Web Conference 2020}, 2020.
+\newblock \doi{10.1145/3366423.3380241}.
+\newblock arXiv:2001.11363.
+
+\bibitem[Fiorillo et~al.(2023)]{fiorillo2023usleep}
+Luigi Fiorillo et~al.
+\newblock U-sleep's resilience to {AASM} guidelines.
+\newblock \emph{npj Digital Medicine}, 2023.
+\newblock \doi{10.1038/s41746-023-00784-0}.
+
+\bibitem[Fox et~al.(2025)]{fox2025pftsleep}
+Benjamin Fox et~al.
+\newblock A foundational transformer leveraging full night, multichannel sleep
+  study data accurately classifies sleep stages.
+\newblock \emph{Sleep}, 2025.
+\newblock \doi{10.1093/sleep/zsaf061}.
+
+\bibitem[Geirhos et~al.(2020)]{geirhos2020shortcut}
+Robert Geirhos et~al.
+\newblock Shortcut learning in deep neural networks.
+\newblock \emph{Nature Machine Intelligence}, 2:\penalty0 665--673, 2020.
+\newblock \doi{10.1038/s42256-020-00257-z}.
+
+\bibitem[Gruver et~al.(2023)Gruver, Finzi, Qiu, and Wilson]{gruver2023llmtime}
+Nate Gruver, Marc Finzi, Shikai Qiu, and Andrew~Gordon Wilson.
+\newblock Large language models are zero-shot time series forecasters.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023.
+\newblock arXiv:2310.07820.
+
+\bibitem[Hardarson et~al.(2026)]{hardarson2026bythebook}
+Emil Hardarson et~al.
+\newblock Staging by the book: Automatic sleep stage classification using
+  scoring rules.
+\newblock \emph{arXiv preprint arXiv:2605.22859}, 2026.
+
+\bibitem[Honnavalli et~al.(2025)]{honnavalli2025llmsleep}
+Akshay Honnavalli et~al.
+\newblock Large language models for automated sleep staging.
+\newblock In \emph{2025 15th International Conference on Electrical Engineering
+  (ICEENG)}, 2025.
+\newblock \doi{10.1109/iceeng64546.2025.11031373}.
+
+\bibitem[Jiang et~al.(2024{\natexlab{a}})Jiang, Zhao, and Lu]{jiang2024labram}
+Wei-Bang Jiang, Li-Ming Zhao, and Bao-Liang Lu.
+\newblock Large brain model for learning generic representations with
+  tremendous {EEG} data in bci.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024{\natexlab{a}}.
+\newblock arXiv:2405.18765.
+
+\bibitem[Jiang et~al.(2024{\natexlab{b}})]{jiang2024neurolm}
+Wei-Bang Jiang et~al.
+\newblock Neurolm: A universal multi-task foundation model for bridging the gap
+  between language and {EEG} signals.
+\newblock \emph{arXiv preprint arXiv:2409.00101}, 2024{\natexlab{b}}.
+
+\bibitem[Jin et~al.(2024)]{jin2024timellm}
+Ming Jin et~al.
+\newblock Time-llm: Time series forecasting by reprogramming large language
+  models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+\newblock arXiv:2310.01728.
+
+\bibitem[Korznikov et~al.(2026)]{korznikov2026sanity}
+Anton Korznikov et~al.
+\newblock Sanity checks for sparse autoencoders: Do {SAEs} beat random
+  baselines?
+\newblock \emph{arXiv preprint arXiv:2602.14111}, 2026.
+
+\bibitem[Kostas et~al.(2021)Kostas, Aroca-Ouellette, and
+  Rudzicz]{kostas2021bendr}
+Demetres Kostas, Stephane Aroca-Ouellette, and Frank Rudzicz.
+\newblock Bendr: Using transformers and a contrastive self-supervised learning
+  task to learn from massive amounts of {EEG} data.
+\newblock \emph{Frontiers in Human Neuroscience}, 15, 2021.
+\newblock \doi{10.3389/fnhum.2021.653659}.
+\newblock arXiv:2101.12037.
+
+\bibitem[Langer et~al.(2025)]{langer2025opentslm}
+Patrick Langer et~al.
+\newblock Opentslm: Time-series language models for reasoning over multivariate
+  medical text- and time-series data.
+\newblock \emph{arXiv preprint arXiv:2510.02410}, 2025.
+
+\bibitem[Lee et~al.(2022)Lee, Lee, Cho, and Choi]{lee2022interrater}
+Yun~Ji Lee, Jae~Yong Lee, Jae~Hoon Cho, and Ji~Ho Choi.
+\newblock Interrater reliability of sleep stage scoring: a meta-analysis.
+\newblock \emph{Journal of Clinical Sleep Medicine}, 18\penalty0 (1):\penalty0
+  193--202, 2022.
+\newblock \doi{10.5664/jcsm.9538}.
+
+\bibitem[Lehn-Schi{\o}ler et~al.(2026)]{lehnschioler2026sae}
+William Lehn-Schi{\o}ler et~al.
+\newblock Mechanistic interpretability of {EEG} foundation models via sparse
+  autoencoders.
+\newblock \emph{arXiv preprint arXiv:2605.13930}, 2026.
+
+\bibitem[Lin et~al.(2007)Lin, Keogh, Wei, and Lonardi]{lin2007sax}
+Jessica Lin, Eamonn Keogh, Li~Wei, and Stefano Lonardi.
+\newblock Experiencing {SAX}: a novel symbolic representation of time series.
+\newblock \emph{Data Mining and Knowledge Discovery}, 15\penalty0 (2):\penalty0
+  107--144, 2007.
+\newblock \doi{10.1007/s10618-007-0064-z}.
+
+\bibitem[Lin et~al.(2026)]{lin2026identitytrap}
+Junye Lin et~al.
+\newblock The identity trap in {EEG} foundation models: A diagnostic audit.
+\newblock \emph{arXiv preprint arXiv:2606.06647}, 2026.
+
+\bibitem[Liu et~al.(2023)]{liu2023fewshot}
+Xin Liu et~al.
+\newblock Large language models are few-shot health learners.
+\newblock \emph{arXiv preprint arXiv:2305.15525}, 2023.
+
+\bibitem[Meng et~al.(2023)]{meng2023benchmark}
+Lubin Meng et~al.
+\newblock Adversarial robustness benchmark for eeg-based brain-computer
+  interfaces.
+\newblock \emph{Future Generation Computer Systems}, 2023.
+\newblock \doi{10.1016/j.future.2023.01.028}.
+
+\bibitem[Merrill et~al.(2024)]{merrill2024struggle}
+Mike~A Merrill et~al.
+\newblock Language models still struggle to zero-shot reason about time series.
+\newblock \emph{arXiv preprint arXiv:2404.11757}, 2024.
+
+\bibitem[Ong~Ly et~al.(2024)]{ongly2024shortcut}
+Cathy Ong~Ly et~al.
+\newblock Shortcut learning in medical {AI} hinders generalization: method for
+  estimating ai model generalization without external data.
+\newblock \emph{npj Digital Medicine}, 7, 2024.
+\newblock \doi{10.1038/s41746-024-01118-4}.
+
+\bibitem[Park et~al.(2026)]{park2026sleepmami}
+Keondo Park et~al.
+\newblock Sleepmami: A universal sleep foundation model for integrating macro-
+  and micro-structures.
+\newblock \emph{arXiv preprint arXiv:2602.07628}, 2026.
+
+\bibitem[Perslev et~al.(2021)]{perslev2021usleep}
+Mathias Perslev et~al.
+\newblock U-sleep: resilient high-frequency sleep staging.
+\newblock \emph{npj Digital Medicine}, 4, 2021.
+\newblock \doi{10.1038/s41746-021-00440-5}.
+
+\bibitem[Quan et~al.(1997)]{quan1997shhs}
+Stuart~F Quan et~al.
+\newblock The {Sleep Heart Health Study}: design, rationale, and methods.
+\newblock \emph{Sleep}, 20\penalty0 (12):\penalty0 1077--1085, 1997.
+\newblock \doi{10.1093/sleep/20.12.1077}.
+
+\bibitem[Redline et~al.(1998)]{redline1998shhs}
+Susan Redline et~al.
+\newblock Methods for obtaining and analyzing unattended polysomnography data
+  for a multicenter study.
+\newblock \emph{Sleep}, 21\penalty0 (7):\penalty0 759--767, 1998.
+\newblock \doi{10.1093/sleep/21.7.759}.
+
+\bibitem[Rossi et~al.(2025)]{rossi2025sleepyland}
+Alessandro~D Rossi et~al.
+\newblock Sleepyland: trust begins with fair evaluation of automatic sleep
+  staging models.
+\newblock \emph{npj Digital Medicine}, 2025.
+\newblock \doi{10.1038/s41746-025-02237-2}.
+
+\bibitem[Tan et~al.(2024)Tan, Merrill, Gupta, Althoff, and
+  Hartvigsen]{tan2024useful}
+Mingtian Tan, Mike~A Merrill, Vinayak Gupta, Tim Althoff, and Thomas
+  Hartvigsen.
+\newblock Are language models actually useful for time series forecasting?
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2024.
+\newblock arXiv:2406.16964.
+
+\bibitem[Tao et~al.(2025)]{tao2025tokencast}
+Xiaoyu Tao et~al.
+\newblock From values to tokens: An llm-driven framework for context-aware time
+  series forecasting via symbolic discretization.
+\newblock \emph{arXiv preprint arXiv:2508.09191}, 2025.
+
+\bibitem[Thapa et~al.(2024)]{thapa2024sleepfm}
+Rahul Thapa et~al.
+\newblock Sleepfm: Multi-modal representation learning for sleep across brain
+  activity, {ECG} and respiratory signals.
+\newblock \emph{arXiv preprint arXiv:2405.17766}, 2024.
+
+\bibitem[Thapa et~al.(2026)]{thapa2026sleepfm}
+Rahul Thapa et~al.
+\newblock A multimodal sleep foundation model for disease prediction.
+\newblock \emph{Nature Medicine}, 2026.
+\newblock \doi{10.1038/s41591-025-04133-4}.
+
+\bibitem[Vallat and Walker(2021)]{vallat2021yasa}
+Raphael Vallat and Matthew~P Walker.
+\newblock An open-source, high-performance tool for automated sleep staging.
+\newblock \emph{eLife}, 10:\penalty0 e70092, 2021.
+\newblock \doi{10.7554/eLife.70092}.
+
+\bibitem[Xu et~al.(2026)]{xu2026sleeplm}
+Zongzhe Xu et~al.
+\newblock Sleeplm: Natural-language intelligence for human sleep.
+\newblock \emph{arXiv preprint arXiv:2602.23605}, 2026.
+
+\bibitem[Yang et~al.(2023)Yang, Westover, and Sun]{yang2023biot}
+Chaoqi Yang, M~Brandon Westover, and Jimeng Sun.
+\newblock Biot: Biosignal transformer for cross-data learning in the wild.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, volume~36, 2023.
+\newblock arXiv:2305.10351.
+
+\bibitem[Yin et~al.(2026)]{yin2026pismith}
+Chenlong Yin et~al.
+\newblock Pismith: Reinforcement learning-based red teaming for prompt
+  injection defenses.
+\newblock \emph{arXiv preprint arXiv:2603.13026}, 2026.
+
+\bibitem[Yoo et~al.(2022)]{yoo2022noiserobust}
+Chaehwa Yoo et~al.
+\newblock Noise-robust sleep staging via adversarial training with an auxiliary
+  model.
+\newblock \emph{IEEE Transactions on Biomedical Engineering}, 2022.
+\newblock \doi{10.1109/TBME.2022.3214269}.
+
+\bibitem[Zhang et~al.(2018)]{zhang2018nsrr}
+Guo-Qiang Zhang et~al.
+\newblock The {National Sleep Research Resource}: towards a sleep data commons.
+\newblock \emph{Journal of the American Medical Informatics Association},
+  25\penalty0 (10):\penalty0 1351--1358, 2018.
+\newblock \doi{10.1093/jamia/ocy064}.
+
+\bibitem[Zhang and Wu(2019)]{zhang2019vulnerability}
+Xiao Zhang and Dongrui Wu.
+\newblock On the vulnerability of {CNN} classifiers in eeg-based bcis.
+\newblock \emph{IEEE Transactions on Neural Systems and Rehabilitation
+  Engineering}, 27\penalty0 (5):\penalty0 814--825, 2019.
+\newblock \doi{10.1109/TNSRE.2019.2908955}.
+\newblock arXiv:1904.01002.
+
+\bibitem[Zhang et~al.(2024)]{zhang2024nsrr}
+Ying Zhang et~al.
+\newblock The {National Sleep Research Resource}: making data findable,
+  accessible, interoperable, reusable and promoting sleep science.
+\newblock \emph{Sleep}, 2024.
+\newblock \doi{10.1093/sleep/zsae088}.
+
+\end{thebibliography}
