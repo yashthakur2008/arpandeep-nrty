@@ -16,3 +16,4 @@ test_generation.py
 .claude/
 wandb/
 
+results/
