@@ -1,6 +1,6 @@
 # RunPod pod settings (10 lines)
 
-1. GPU: `4x H100 80GB SXM` (one pod, 4 GPUs). GPU0-1 serve the 72B target (tensor-parallel 2), GPU2 GRPO attacker seeds, GPU3 sleep SFT + red-teamer. ~40-60 GPU-hours total with 3 seeds and frontier targets.
+1. GPU: `6x H100 80GB SXM` minimum, 8x fine (one pod). GPU0-1 serve the 72B target (TP2), GPU2-3 GRPO attacker seeds, GPU4-5 sleep SFT + red-teamer. API experiment needs no GPU. ~40-60 GPU-hours total with 3 seeds and frontier targets.
 2. Template: custom image `runpod/pytorch:2.6-py3.12-cuda-12.1` (same base as `Dockerfile.runpod`).
 3. Container disk: 50 GB. Volume: 200 GB mounted at `/workspace` (repo, HF cache, NSRR EDFs, logs all live here and survive restarts).
 4. Expose TCP ports: `22` (ssh) and `8000` (vLLM target).
