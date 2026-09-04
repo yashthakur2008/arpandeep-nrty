@@ -1,6 +1,6 @@
 # START: paste this whole file into Claude (with the RunPod MCP) and say "go"
 
-You are setting up one RunPod pod and launching a fully automated overnight research run. The human (Yash) will answer four questions, then you do everything else. Do not start any step until you have every key. Never print a key back. Never commit a key.
+You are setting up ONE RunPod pod and launching a fully automated overnight run that serves BOTH workshop papers at once: AgentWild (branch `agentwild-pivot`, code on `aw-env`) and BrainBodyFM sleep (branch `sleep-pivot`, code on `sleep-paper`). One pod, one command, both experiments. `run_all.sh` fetches the sleep-branch files itself; you never switch branches. The human (Yash) will answer four questions, then you do everything else. Do not start any step until you have every key. Never print a key back. Never commit a key.
 
 ## Step 1. Ask Yash for exactly these, one message, all at once
 
@@ -45,9 +45,9 @@ Expect 6 green checks. It installs the venv + vllm + agentdojo + pyedflib/yasa, 
 ```bash
 bash handoff/run_all.sh
 ```
-Two tmux lanes start:
-- `agentwild`: template experiment on GPT-4o + Claude under none/PromptArmor/refuter (API only, the headline number) -> gate -> 72B vLLM on GPU0-1 -> GRPO x3 seeds on GPU2. **It stops cleanly after the gate** with `illusion_trainer.py does not exist. Implement per issue #4`. That is expected; a human writes that file Saturday morning and reruns this same command.
-- `sleep`: 630 GB NSRR download -> loader -> LR gate -> SFT x3 on GPU4-5.
+Two tmux lanes start, one per paper:
+- `agentwild` (AgentWild paper): template experiment on GPT-4o + Claude under none/PromptArmor/refuter (API only, the headline number) -> gate -> 72B vLLM on GPU0-1 -> GRPO x3 seeds on GPU2. **It stops cleanly after the gate** with `illusion_trainer.py does not exist. Implement per issue #4`. That is expected; a human writes that file Saturday morning and reruns this same command.
+- `sleep` (BrainBodyFM paper): 630 GB NSRR download -> loader -> LR gate -> SFT x3 on GPU4-5. Uses `NSRR_TOKEN`.
 - `summary`: rewrites `results/SUMMARY.md` every 10 min with STRONG / OK / WEAK.
 
 Confirm with `tmux ls` (3 sessions) and `tail -5 /workspace/logs/agentwild.log /workspace/logs/sleep.log`.
