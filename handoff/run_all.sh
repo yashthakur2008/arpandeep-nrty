@@ -20,15 +20,9 @@ lane() { # name, gpus, cmd
   echo "  launched $1 on gpu[$2]  -> tail -f $LOG/$1.log"
 }
 
-# Lane A: local frontier target, GPU0-1 --------------------------------------
-lane target 0,1 "bash handoff/run_agentwild.sh --serve-only"
-
-# Lane B: API experiment (the headline number), no GPU -----------------------
-lane api "" "bash handoff/run_templates.sh"
-
-# Lane C: GRPO attacker B4, 3 seeds, GPU2 and GPU3 (seed2 follows seed0) ------
-lane grpo2 2 "bash handoff/run_agentwild.sh --grpo-only --seed 0 && bash handoff/run_agentwild.sh --grpo-only --seed 2"
-lane grpo3 3 "bash handoff/run_agentwild.sh --grpo-only --seed 1"
+# Lane A+B+C: AgentWild, one sequential lane (giraffe's script owns the order):
+#   templates on API targets (no GPU, headline number) -> gate -> vLLM 72B on GPU0-1 -> GRPO B4 x3 seeds on GPU2
+lane agentwild 0,1,2,3 "bash handoff/run_agentwild.sh"
 
 # Lane D: sleep, GPU4-5: download -> loader -> LR gate -> SFT x3 seeds ------
 lane sleep 4,5 "bash handoff/run_sleep.sh && \

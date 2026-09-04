@@ -7,7 +7,7 @@ st() { # lane -> RUNNING / DONE / FAILED
   e=$(grep -o 'LANE_EXIT=[0-9]*' "$f" | tail -1 | cut -d= -f2)
   [ -z "$e" ] && echo RUNNING || { [ "$e" = 0 ] && echo DONE || echo "FAILED (exit $e)"; }
 }
-for lane in target api grpo2 grpo3 sleep; do printf "%-8s %s\n" "$lane" "$(st $lane)"; done; echo
+for lane in agentwild sleep; do printf "%-8s %s\n" "$lane" "$(st $lane)"; done; echo
 
 echo "## API lane: the headline number (silent failure under PromptArmor)"
 if [ -f "$RES/table1.md" ]; then cat "$RES/table1.md"; echo
@@ -24,10 +24,10 @@ elif b>=0.30 and (a or 0)<0.05: print(f"VERDICT: STRONG  (B silent-failure {b:.2
 elif b>=0.15: print(f"VERDICT: OK      (B {b:.2f} vs A1 {a:.2f}). Paper exists, headline softer. Check refuter column.")
 else: print(f"VERDICT: WEAK    (B {b:.2f}). Templates do not beat PromptArmor. Lean on GRPO row or pivot to sleep.")
 EOF
-else echo "(no table1 yet)  last: $(tail -1 $LOG/api.log 2>/dev/null)"; fi; echo
+else echo "(no table1 yet)  last: $(tail -1 $LOG/agentwild.log 2>/dev/null)"; fi; echo
 
-echo "## GRPO lanes (reward curve must not be flat)"
-for g in grpo2 grpo3; do echo "- $g: $(grep -E 'reward/mean|smoke|KILL|step' $LOG/$g.log 2>/dev/null | tail -2 | tr '\n' ' ')"; done; echo
+echo "## AgentWild lane: gate + GRPO (reward curve must not be flat)"
+grep -E 'GATE|PASS|LOW|HIGH|smoke|reward|KILL|seed' "$LOG/agentwild.log" 2>/dev/null | tail -6; echo
 
 echo "## Sleep lane"
 grep -E 'download done|GATE|macro|kappa|MESA' "$LOG/sleep.log" 2>/dev/null | tail -6; echo
