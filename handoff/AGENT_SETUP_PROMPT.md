@@ -5,7 +5,7 @@ You are setting up a RunPod box and starting two ML runs for a NeurIPS 2026 work
 ## 1. Provision (RunPod MCP or console)
 - GPU: 4x H100 80GB SXM (2x is the minimum; 4x lets both papers run in parallel).
 - Image: `runpod/pytorch:2.6-py3.12-cuda-12.1`
-- Container disk 50 GB. Network volume 200 GB mounted at `/workspace`.
+- Container disk 50 GB. Network volume **500 GB** mounted at `/workspace` (sleep data alone is ~100 GB at default sizes; full cohorts are 630 GB).
 - Expose TCP 22 (ssh) and HTTP 8000 (vllm).
 - Do not set CUDA_VISIBLE_DEVICES globally; the scripts set it per process.
 
@@ -24,14 +24,18 @@ bash handoff/bootstrap.sh
 ```
 Expect 6 green checks. It creates the venv, installs deps + vllm + agentdojo + pyedflib/yasa, installs the nsrr gem, writes `~/.nsrr_token`, pre-downloads Qwen2.5-7B and 1.5B, and runs the env smoke test. Red = stop and report the line.
 
-## 4. Start the runs in two tmux panes
+## 4. Prepare data ONLY. Do NOT start training yet.
 ```bash
-tmux new -d -s aw 'bash handoff/run_agentwild.sh 2>&1 | tee /workspace/logs/aw.log'
 tmux new -d -s sl 'bash handoff/run_sleep.sh 2>&1 | tee /workspace/logs/sl.log'
 ```
-- `run_agentwild.sh`: serves the target on GPU0, runs the H2 gate (prints PASS / LOW / HIGH with the next model size), then GRPO.
-- `run_sleep.sh`: downloads 220 SHHS + 70 MESA nights (~25 GB) with resume.
-- Both will STOP LOUDLY with `!! <file> does not exist. Implement per issue #N` for files not yet written. That is expected. Read the issue, implement, rerun. Before the GRPO step: `git pull` on `aw-env`, a hardening pass lands `handoff/HARDENING_AGENTWILD.md` with the reward v2 spec.
+`run_sleep.sh` downloads 1000 SHHS + 300 MESA nights (~100 GB, resumable, 8 parallel). Override with `N_SHHS=5793 N_MESA=2056` for the full 630 GB if the volume allows. It stops loudly at issue #7 when the loader is missing; that is expected.
+
+**Do NOT run `handoff/run_agentwild.sh` yet.** Two hardening commits are landing on `aw-env` and `sleep-paper` (reward v2 spec, env bug fixes, `handoff/HARDENING_*.md`). Wait until `git log origin/aw-env` shows a commit mentioning HARDENING, then:
+```bash
+git fetch && git checkout aw-env && git pull
+bash handoff/run_agentwild.sh 2>&1 | tee /workspace/logs/aw.log
+```
+It serves the target on GPU0, runs the H2 gate (PASS / LOW / HIGH), then stops at issue #4 for the attacker file. Implement #4 from `handoff/HARDENING_AGENTWILD.md`, rerun.
 
 ## 5. Report back
 Paste the last 30 lines of each log and the H2 gate verdict.

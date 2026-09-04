@@ -8,8 +8,8 @@ WORKSPACE="${WORKSPACE:-/workspace}"
 LOKI="${LOKI:-$WORKSPACE/loki}"
 PY="${PY:-$WORKSPACE/venv/bin/python}"
 NSRR="$WORKSPACE/nsrr"
-N_SHHS="${N_SHHS:-220}"   # first N nights by id, ~40 MB each  (~9 GB)
-N_MESA="${N_MESA:-70}"    # first N nights by id, ~220 MB each (~15 GB)
+N_SHHS="${N_SHHS:-1000}"  # first N nights by id, ~39 MB each (1000 = 39 GB; full 5793 = 228 GB)
+N_MESA="${N_MESA:-300}"   # first N nights by id, ~196 MB each (300 = 59 GB; full 2056 = 402 GB)
 PAR="${PAR:-8}"
 mkdir -p "$WORKSPACE/logs" "$NSRR"
 exec > >(tee -a "$WORKSPACE/logs/run_sleep.sh.log") 2>&1
