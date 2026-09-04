@@ -87,9 +87,9 @@ Each step is one row in Table 2 for both LR and Qwen. The claim "per-night words
 | R8 | Paper writing time (6 h minimum) squeezed by reruns | 0.30 | Tables from jsonl via script; skeleton already committed on sleep-paper | 0.20 | h+10 |
 | R9 | Reviewer says "symbolic edits are not signal-realizable" | 0.25 | Frame as interface robustness; vetoes and continuity make edits physiologically bounded; metadata attack needs zero signal edits | 0.15 | at review |
 
-P(submittable) = product over paper-killing failures only: (1-0.05)(1-0.05)(1-0.10)(1-0.20)(1-0.05)(1-0.10)(1-0.10)(1-0.20)(1-0.15) = **0.95 x 0.95 x 0.90 x 0.80 x 0.95 x 0.90 x 0.90 x 0.80 x 0.85 = 0.40**.
+P(submittable) = product over paper-killing failures only: (1-0.05)(1-0.05)(1-0.10)(1-0.20)(1-0.05)(1-0.10)(1-0.10)(1-0.20)(1-0.15) = **0.95 x 0.95 x 0.90 x 0.80 x 0.95 x 0.90 x 0.90 x 0.80 x 0.85 = 0.34**.
 
-That is honest: **0.70 is not reached by this table.** The two terms that hold it down are R4 (MESA collapse, 0.20) and R8 (writing time, 0.20). Under the tiered plan the paper is still submittable if R4 fires (SHHS-only tokenizer + attack paper, weaker), so the conditional P(submittable at all) is ~0.62, and P(submittable and beats PFTSleep's 0.60 on MESA) is ~0.35. Reaching 0.70 requires R4 and R8 to both come in under 0.10, which means: MESA words visibly transfer at the first 20-night eval (h+3), and writing starts at h+6 regardless of attacker state.
+That is honest: **0.70 is not reached by this table.** The two terms that hold it down are R4 (MESA collapse, 0.20) and R8 (writing time, 0.20). Under the tiered plan the paper is still submittable if R4 fires (SHHS-only tokenizer + attack paper, weaker), so the conditional P(submittable at all) is ~0.55, and P(submittable and beats PFTSleep's 0.60 on MESA) is ~0.30. Reaching 0.70 requires R4 and R8 to both come in under 0.10, which means: MESA words visibly transfer at the first 20-night eval (h+3), and writing starts at h+6 regardless of attacker state.
 
 **Kill order under pressure (unchanged from PLAN.md):** 3B row -> GRPO attacker (keep greedy/random) -> attacker MESA transfer -> N3 harmonization sub-step (b) -> MESA (paper becomes SHHS-only).
 
