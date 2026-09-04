@@ -45,13 +45,16 @@ xargs -P "$PAR" -n 2 sh -c '
 n_err=$(grep -c '^ERR' "$WORKSPACE/logs/run_sleep.sh.log" || true)
 echo "download done: $(find "$NSRR" -name '*.edf' | wc -l) edf, $(find "$NSRR" -name '*.xml' | wc -l) xml, $(du -sh "$NSRR" | cut -f1). errors this+past runs: $n_err (rerun to resume)"
 
-# 3. loader + tokenizer (sleep-pivot PLAN.md nodes N1, N3) -------------------
+git fetch -q origin sleep-paper 2>/dev/null || true
+# 3. loader + tokenizer (issue #7). They live on branch sleep-paper; fetch them in. ----
 for f in nsrr_load.py psg_words.py; do
-  [ -f "$f" ] || die "$f does not exist. Implement per sleep-pivot plan/PLAN.md node $([ "$f" = nsrr_load.py ] && echo N1 || echo N3) (git show sleep-pivot:plan/PLAN.md). No GitHub issue filed yet; file one under the workshop-sleep label. Not stubbing."
+  [ -f "$f" ] || git show origin/sleep-paper:"$f" > "$f" 2>/dev/null || true
+  [ -f "$f" ] || die "$f does not exist on origin/sleep-paper yet. Issue #7. Not stubbing."
 done
 "$PY" nsrr_load.py --nsrr "$NSRR" --out "$WORKSPACE/outputs/nights"
 "$PY" psg_words.py --nights "$WORKSPACE/outputs/nights" --out "$WORKSPACE/outputs/words"
 
 echo
 echo "DONE. Words in $WORKSPACE/outputs/words."
-echo "NEXT (go/no-go gate): LR on the words must reach > 0.5 macro-F1 on one held-out night (PLAN.md N3 check). If not, tokenizer bug: fix before SFT. Then SFT stager on GPU1 once run_agentwild.sh prints DONE."
+"$PY" psg_words.py --selfcheck --words "$WORKSPACE/outputs/words" || die "GATE FAILED: LR on words < 0.5 macro-F1. Tokenizer bug, fix before any GPU time."
+echo "GATE PASSED. NEXT: SFT stager on GPU3: see handoff/HARDENING_SLEEP.md (branch sleep-paper) for the exact command, 1.5B-3B, full SHHS, 3 seeds."
