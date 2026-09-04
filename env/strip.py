@@ -21,7 +21,9 @@ _PATTERNS = re.compile(
     r"\b(ignore|you must|you should|please|you (?:can|will|need|have to|may|shall|are to))\b",
     re.I,
 )
-_SPLIT = re.compile(r"(?<=[.!?\n])(\s+)")
+# sentence boundary: terminal punctuation then whitespace, unless the "sentence" ended in a 1-3 letter
+# abbreviation ("St.", "U.S.", "No.") so entity names do not fragment an imperative.
+_SPLIT = re.compile(r"(?<=[.!?\n])(?<!\b[A-Za-z]\.)(?<!\b[A-Za-z]{2}\.)(?<!\b[A-Za-z]{3}\.)(\s+)")
 
 
 def is_imperative(sentence: str) -> bool:
