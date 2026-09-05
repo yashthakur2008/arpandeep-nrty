@@ -50,6 +50,14 @@ class TrainingConfig:
     output_dir: str = "./outputs/harmbench-grpo"
     seed: int = 0
 
+    # Checkpointing. Required before spot/interruptible instances are safe:
+    # without periodic saves a reclaim loses the entire run.
+    save_steps: int = 10
+    save_total_limit: int = 3
+    # "auto" resumes from the latest checkpoint in output_dir if one exists,
+    # "none" always starts fresh, or pass an explicit checkpoint path.
+    resume_from_checkpoint: str = "auto"
+
     # Reward backend: "heuristic" (offline), "ollama", or "openai".
     reward_backend: str = "heuristic"
     judge_model: str = "llama3.2"
@@ -178,6 +186,13 @@ def add_cli_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("--report-to", dest="report_to", choices=["none", "wandb"])
     parser.add_argument("--run-name", dest="run_name")
     parser.add_argument("--seed", type=int)
+    parser.add_argument("--save-steps", dest="save_steps", type=int)
+    parser.add_argument("--save-total-limit", dest="save_total_limit", type=int)
+    parser.add_argument(
+        "--resume-from-checkpoint",
+        dest="resume_from_checkpoint",
+        help="'auto' (default), 'none', or an explicit checkpoint path",
+    )
     return parser
 
 

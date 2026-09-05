@@ -48,6 +48,11 @@ def build_grpo_config(config: TrainingConfig):
         logging_steps=1,
         log_completions=True,
         seed=config.seed,
+        # Periodic checkpoints so an interrupted run resumes instead of
+        # restarting. Prerequisite for spot/interruptible instances.
+        save_strategy="steps",
+        save_steps=config.save_steps,
+        save_total_limit=config.save_total_limit,
         # Device comes from config rather than a hardcoded use_cpu=True, which
         # previously made the RunPod GPU path unable to use the GPU.
         use_cpu=config.use_cpu,
@@ -56,6 +61,30 @@ def build_grpo_config(config: TrainingConfig):
         report_to=config.report_to,
         run_name=config.run_name,
     )
+
+
+def resolve_resume_checkpoint(config: TrainingConfig) -> str | None:
+    """Decide which checkpoint, if any, ``train()`` should resume from.
+
+    Returns a path, or ``None`` to start fresh. ``"auto"`` looks for the latest
+    checkpoint in ``output_dir``, which is what makes a reclaimed spot instance
+    or a dropped SSH session recoverable.
+    """
+    setting = (config.resume_from_checkpoint or "auto").strip()
+
+    if setting.lower() in {"none", "false", ""}:
+        return None
+
+    if setting.lower() != "auto":
+        if not os.path.isdir(setting):
+            raise FileNotFoundError(f"resume_from_checkpoint not found: {setting}")
+        return setting
+
+    from transformers.trainer_utils import get_last_checkpoint
+
+    if not os.path.isdir(config.output_dir):
+        return None
+    return get_last_checkpoint(config.output_dir)
 
 
 def train(config: TrainingConfig):
@@ -88,8 +117,12 @@ def train(config: TrainingConfig):
         reward_funcs=reward,
     )
 
+    resume = resolve_resume_checkpoint(config)
+    if resume:
+        logger.info("Resuming from checkpoint: %s", resume)
+
     try:
-        result = trainer.train()
+        result = trainer.train(resume_from_checkpoint=resume)
         os.makedirs(config.output_dir, exist_ok=True)
         trainer.save_model(config.output_dir)
         logger.info("Saved trained model to %s", config.output_dir)
