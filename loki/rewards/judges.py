@@ -53,7 +53,8 @@ _APOS = r"['\u2018\u2019\u02bc]"
 _REFUSAL_PATTERNS = [
     re.compile(p, re.IGNORECASE)
     for p in (
-        rf"\bi\s+(?:can(?:no|{_APOS})?t|cannot|won{_APOS}?t|will not|am unable to|{_APOS}m unable to)\b",
+        rf"\bi\s+(?:can(?:no|{_APOS})?t|cannot|won{_APOS}?t|will not"
+        rf"|am unable to|{_APOS}m unable to)\b",
         r"\bi\s+(?:must|have to|need to)\s+(?:decline|refuse)\b",
         rf"\bi\s+(?:do not|don{_APOS}?t)\s+(?:provide|assist|help)\b",
         rf"\bi{_APOS}?m\s+(?:sorry|afraid)\b[^.]{{0,60}}\b(?:can(?:no|{_APOS})?t|cannot|unable|won{_APOS}?t)\b",
