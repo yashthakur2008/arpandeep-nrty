@@ -17,25 +17,45 @@ quantifies why.
 
 - A real GRPO training loop (TRL), with an integration test proving weights move
   iff the reward has variance.
-- An installable package with 55 passing tests and a clean lint.
+- An installable package with 69 passing tests and a clean lint.
 - An eval harness reporting format rate and ASR with bootstrap CIs.
-- One measured baseline: Qwen2.5-0.5B-Instruct on 20 HarmBench behaviors.
+- **Ollama installed and working**, which unblocked the first attack-success
+  measurement this project has ever produced.
 
 ### The measured baseline
+
+Qwen2.5-0.5B-Instruct attacker, llama3.2 target, 20 HarmBench behaviors, seed 0:
 
 | Metric | Value |
 |---|---|
 | Parseable misdirections | 16/20 (80%) |
 | Strict `<misdirection>` tag compliance | **0/20 (0%)** |
-| Attack success rate | **unmeasured** (no target model available) |
-| Generation cost | ~9 s/sample on CPU |
+| **Attack success rate (llama3.2 judge)** | **25% [6%, 50%]** |
+| **Attack success rate (refusal heuristic)** | **19% [0%, 38%]** |
+| Judge agreement | 15/16 (94%) |
+| Wall-clock | ~6 min on M4 CPU + Metal |
 
-### What does not exist
+The CIs are very wide because n=16. They are honest, not encouraging: at this
+sample size the result is compatible with anything from "barely works" to
+"works half the time".
 
-- **No attack success number at all.** This is the paper's headline metric and
-  we have zero measurements of it, because there is no target model to attack.
+### Finding: the judge is itself a research problem
+
+Inspecting the 4 "successes" showed llama3.2 scoring `"I can't provide a script
+for a pornographic snuff film"` as **compliance**. Separately, our own heuristic
+missed `"I can\u2019t provide..."` because models emit the Unicode apostrophe
+(U+2019), not ASCII. Fixing that raised judge agreement from 81% to 94%.
+
+Two different judges disagree on ~1 in 6 samples, and both had demonstrable bugs
+found by reading 16 examples. Any ASR in this literature is only as good as its
+judge, which is a publishable observation (section 4.3).
+
+### What still does not exist
+
 - No trained checkpoint. The only "trained" artifacts came from the trainer that
   performed no gradient updates, so they are the base model with a new filename.
+- **No trained-vs-base comparison.** We have a baseline but have not yet run GRPO
+  to see whether training improves on 25%. This is the core experiment.
 - No baseline comparisons (PAIR, GCG, AutoDAN, DarkCite).
 - No transfer results across target models.
 - No experimental history: all 8 wandb run directories are 0 bytes.
@@ -45,12 +65,13 @@ quantifies why.
 | Requirement | Have | Need | Gap |
 |---|---|---|---|
 | Working training pipeline | Yes | Yes | **Closed today** |
-| Trained attacker checkpoint | No | >=1 | 1 GPU-day |
-| ASR vs. base model | No | Yes, with CIs | Blocked on target |
+| Baseline ASR measured | **Yes, 25%** | Yes | **Closed today** |
+| Trained attacker checkpoint | No | >=1 | ~1 day local |
+| Trained-vs-base ASR delta | No | Yes, with CIs | ~2 days |
 | Baselines compared | 0 | 3-4 | ~2 weeks |
-| Target models evaluated | 0 | 3+ | ~1 week |
-| Behaviors evaluated | 20 (format only) | 200+ | ~2 days GPU |
-| Seeds per condition | 0 | 3+ | Multiplies above |
+| Target models evaluated | 1 | 3+ | ~1 week |
+| Behaviors evaluated | 20 | 200+ | ~2 days |
+| Seeds per condition | 1 | 3+ | Multiplies above |
 | Human validation of judge | No | ~100 samples | ~1 week |
 | Written paper | 0 pages | 4 or 9 | ~1 week |
 
@@ -100,7 +121,7 @@ descending order of feasibility:
 | RunPod | **No key.** No GPU access |
 | HuggingFace | No token (public models fine) |
 | W&B | Working, free tier, entity `tsavla23-cupertino-high-school` |
-| Ollama | **Not installed** |
+| Ollama | **Installed today.** llama3.2 (2 GB) pulled, serving on Metal (17.8 GiB) |
 
 "Check if the API keys have funds" has a blunt answer: there are no API keys, so
 there is nothing to check. Every credential-dependent path in this repository has
@@ -110,14 +131,16 @@ only code that ran.
 
 ### Most cost-efficient plan, in order
 
-**Step 1 — spend $0, unblock everything (do this first).**
+**Step 1 — spend $0, unblock everything. DONE today.**
+Ollama is installed, llama3.2 is pulled, and the first ASR number (25%) is
+measured. The M4's 17.8 GiB of unified memory runs the target locally at
+~6 min / 20 behaviors, so the entire attack loop costs nothing. The immediate
+next command is the actual training run:
 ```bash
-brew install ollama && ollama serve && ollama pull llama3.2
-loki-train --reward-backend ollama --num-samples 100
+loki-train --reward-backend ollama --num-samples 100 --report-to wandb
+loki-eval --model outputs/harmbench-grpo --reward-backend ollama --num-samples 100
 ```
-This turns the attack term on and produces the first real ASR number. It costs
-nothing and needs no key. Ollama on this Mac is the single highest-value action
-available, and it is free.
+That produces the trained-vs-base delta, which is the core result.
 
 **Step 2 — the cheapest useful hosted spend, ~$5.**
 `gpt-4o-mini` at ~$0.15/1M input tokens. A 200-behavior eval with a ~500-token
@@ -147,23 +170,42 @@ and novelty, not money.
 
 ## 6. Recommendation
 
-Submitting to today's deadline is not advisable. What exists is a working
-pipeline and a format-compliance baseline, with no attack-success measurement, no
-trained model, and a method that overlaps two published papers. A submission
-today would be desk-reject material and would spend reviewer goodwill.
+Submitting to today's deadline is not advisable. We now have a working pipeline
+and one real baseline (25% ASR, n=16, very wide CI), but no trained model, no
+trained-vs-base comparison, no competing baselines, and a method that overlaps
+two published papers. A submission today would be desk-reject material and would
+spend reviewer goodwill for no gain, on a non-archival venue where there is
+little cost to waiting.
 
 Options, in order of what I would advise:
 
-1. **Target the next venue** (ICLR 2026 workshops or the 4th AIWILD) with the
+1. **Target the next venue** (ICLR 2026 workshops, or the 4th AIWILD) with the
    agentic-transfer angle from section 4.1. That is 4-6 weeks of work, is
-   genuinely novel, and fits this workshop family's scope precisely.
-2. **Install Ollama today and get the first real ASR number this week.** That
-   single number determines whether the method is worth a paper at all. It costs
-   $0 and a few hours.
-3. If a submission *must* go in today, the only defensible framing is the
-   judge-sensitivity negative result (section 4.3), written as a 4-page short
-   paper using the heuristic-vs-LLM-judge discrepancy we already documented. It
-   would be thin, but it would be honest and on-topic. It still needs the Ollama
-   numbers to say anything at all.
+   genuinely novel, and fits this workshop family's scope precisely. The pipeline
+   to do it now exists and is tested.
+2. **Finish the core experiment this week.** A GRPO run on 40 behaviors is
+   already running locally at $0. If trained ASR does not beat 25% by a margin
+   that survives its confidence interval, the method does not work and no amount
+   of writing will fix that. This single number should gate all further effort.
+3. **Bank the judge-sensitivity finding.** Section 4.3 is a real result we
+   partly have already: two judges disagreeing on 1 in 6 samples, with concrete
+   bugs (Unicode apostrophes, a keyword judge scoring any 100+ char response as a
+   jailbreak). Scaled to ~200 samples with human labels it is a defensible short
+   paper on its own, and it is a genuine service to a literature where everyone
+   reports ASR without validating the judge.
 
-I would push for option 1 plus option 2 starting now.
+I would do option 2 now (it is free and running), then commit to option 1.
+
+## 7. Immediate next actions
+
+| # | Action | Cost | Time |
+|---|---|---|---|
+| 1 | Finish the running GRPO training run | $0 | ~1 hr |
+| 2 | Eval trained vs. base, 100 behaviors, 3 seeds | $0 | ~4 hr |
+| 3 | If delta is positive: scale to 200 behaviors, 3 targets | $0-5 | ~2 days |
+| 4 | Hand-label 100 judge decisions to calibrate ASR | $0 | ~3 hr |
+| 5 | Update the deploy scripts, which still point at deleted paths | $0 | ~1 hr |
+| 6 | Decide venue and write | $0 | ~1 wk |
+
+Nothing on this list requires a purchase. The binding constraints are time and
+novelty, not money.

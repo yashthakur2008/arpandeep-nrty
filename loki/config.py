@@ -177,6 +177,12 @@ def add_cli_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("--num-generations", dest="num_generations", type=int)
     parser.add_argument("--learning-rate", dest="learning_rate", type=float)
     parser.add_argument("--num-samples", dest="num_samples", type=int)
+    parser.add_argument("--max-prompt-length", dest="max_prompt_length", type=int)
+    parser.add_argument("--max-completion-length", dest="max_completion_length", type=int)
+    parser.add_argument(
+        "--gradient-accumulation-steps", dest="gradient_accumulation_steps", type=int
+    )
+    parser.add_argument("--beta", type=float)
     parser.add_argument("--output-dir", dest="output_dir")
     parser.add_argument("--device", choices=["cpu", "cuda", "mps"])
     parser.add_argument(
