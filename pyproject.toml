@@ -1,6 +1,6 @@
 [project]
 name = "loki"
-version = "0.1.0"
+version = "0.2.0"
 description = "Loki: Adversarial steering and red-teaming for LLM steerability testing"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,19 +14,45 @@ dependencies = [
   "numpy>=1.24.0,<3.0",
   "scikit-learn>=1.3.0,<2.0",
   "jinja2>=3.1.6,<4.0",
-  "openai>=2.0.1",
   "python-dotenv>=1.0.1,<2.0",
+  "pyyaml>=6.0",
+  "tqdm>=4.64.0",
   "wandb>=0.22.2",
-  "ollama>=0.4.0",
 ]
+
+[project.optional-dependencies]
+# Hosted judge/target. Only needed for --reward-backend openai.
+openai = ["openai>=2.0.1"]
+# Local judge/target. Only needed for --reward-backend ollama.
+ollama = ["ollama>=0.4.0"]
+
+[project.scripts]
+loki-train = "loki.trainers.grpo:main"
+loki-eval = "loki.eval:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["code"]
+# Previously pointed at a directory named "code" that does not exist, so the
+# project could not be installed at all.
+packages = ["loki"]
 
-# optional, replace the deprecated dev-dependencies
+[tool.hatch.build.targets.wheel.force-include]
+"scripts/harmbench_behaviors_text_all.csv" = "loki/data/harmbench_behaviors_text_all.csv"
+
 [dependency-groups]
 dev = ["pytest>=8.0", "ruff>=0.6", "black>=24.0", "mypy>=1.10", "ipykernel>=6.29"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["slow: slower integration tests (model training)"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
