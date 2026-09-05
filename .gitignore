@@ -9,9 +9,9 @@ __pycache__/
 .venv/
 .env
 
-# Output directories
-outputs/
-data/
+# Output directories (anchored to repo root so loki/data/ source is tracked)
+/outputs/
+/data/
 test_generation.py
 .claude/
 wandb/
