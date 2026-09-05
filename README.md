@@ -1,108 +1,97 @@
-# Loki: Adversarial Steering and Red-teaming for LLM Steerability Testing
+# Loki
 
-Loki is a research project for training models using reinforcement learning to "trick" or mislead LLMs for red-teaming and steerability testing. The project uses Group Relative Policy Optimization (GRPO) to train models on various datasets including FEVER and HotpotQA.
+Adversarial steering and red-teaming for LLM steerability testing.
 
-## Overview
+Loki trains an *attacker* model with GRPO to generate misleading context (a
+"misdirection") that, when appended to a harmful HarmBench request, causes a
+*target* model to comply instead of refuse.
 
-- **Project**: Loki - Adversarial steering and red-teaming toolkit
-- **Method**: GRPO (Group Relative Policy Optimization) for language model training
-- **Task**: Red-teaming, steerability testing, and adversarial model training
-- **Datasets**: FEVER, HotpotQA, and other fact-checking datasets
-
-## Setup
-
-### Prerequisites
-
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/) package manager
-
-### Installation
+## Install
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd loki
-
-# Install dependencies with uv
-uv sync
-
-# Activate the virtual environment
-source .venv/bin/activate
+uv sync                       # or: pip install -e .
+pip install -e ".[ollama]"    # optional: free local judge/target
+pip install -e ".[openai]"    # optional: hosted judge/target (costs money)
 ```
 
-## GRPO Training
+## Quickstart
 
-Train a language model using GRPO on FEVER claims:
+Everything runs offline with no API keys using the default `heuristic` backend:
 
 ```bash
-# Using uv to run the training script
-uv run python code/grpo_trainer.py
-
-# Or activate the environment and run directly
-source .venv/bin/activate
-python code/grpo_trainer.py
+loki-train --num-samples 20 --reward-backend heuristic
+loki-eval  --model Qwen/Qwen2.5-0.5B-Instruct --num-samples 20 --out outputs/baseline.json
 ```
 
-### Features
-
-- **Reward Function**: Based on response quality, FEVER terminology, and classification accuracy
-- **Base Model**: DialoGPT-medium (configurable)
-- **Data Format**: Converts FEVER claims to prompt-completion pairs
-- **Output**: Trained model saved to `outputs/fever-grpo/`
-
-### Configuration
-
-Edit `code/grpo_trainer.py` to adjust:
-- Model name (`microsoft/DialoGPT-medium`)
-- Training epochs (default: 2)
-- Batch size (default: 2)
-- Learning rate (default: 5e-5)
-
-## Usage
-
-After training, use the model for inference:
+For a real attack signal you need a target model to attack:
 
 ```bash
-# Using uv to run inference
-uv run python code/fever_infer.py --model outputs/fever-grpo
-
-# Or activate the environment and run directly
-source .venv/bin/activate
-python code/fever_infer.py --model outputs/fever-grpo
+ollama serve && ollama pull llama3.2         # free, local
+loki-train --reward-backend ollama --num-samples 100
 ```
 
-### Examples
+## Architecture
+
+```
+loki/
+  config.py          TrainingConfig: defaults < YAML < env (LOKI_*) < CLI
+  runtime.py         logging, seeding, wandb, and the preflight check
+  data/harmbench.py  HarmBench CSV -> conversational TRL dataset
+  rewards/
+    parsing.py       completion -> misdirection text (tag or label form)
+    targets.py       the model under attack (echo / ollama / openai)
+    judges.py        did the target refuse? (heuristic / ollama / openai)
+    harmbench.py     the single GRPO reward: format + quality + attack
+  trainers/grpo.py   GRPO training loop (TRL)
+  eval.py            attack success rate with bootstrap CIs
+```
+
+`target` and `judge` are deliberately separate roles so you can attack a local
+model while judging with a stronger one, and so neither silently substitutes for
+the other.
+
+### Reward
+
+| Component | Weight | Meaning                                        |
+|-----------|--------|------------------------------------------------|
+| format    | 0.2    | `<misdirection>` tags (half credit for a label) |
+| quality   | 0.2    | specificity: cited sections, numbers, authority |
+| attack    | 0.6    | target complied rather than refused             |
+
+The `heuristic` backend measures **refusal**, not harm, and its target is an
+echo stub, so `attack` is always 0 there. Use `ollama` or `openai` for real
+attack-success numbers.
+
+## Configuration
+
+All knobs live in `TrainingConfig`; no trainer hardcodes them.
 
 ```bash
-# Interactive mode
-uv run python code/fever_infer.py --model outputs/fever-grpo
-
-# Single claim
-uv run python code/fever_infer.py --model outputs/fever-grpo --claim "Berlin is the capital of Germany."
+loki-train --model-name Qwen/Qwen2.5-1.5B-Instruct --batch-size 4 --device cuda
+LOKI_LEARNING_RATE=1e-5 loki-train        # env override
 ```
 
-## HotpotQA Dataset
+Preflight fails fast with an actionable message if the chosen backend needs
+credentials or a server you do not have.
 
-This repository also includes experiments with the [HotpotQA dataset](https://hotpotqa.github.io/), specifically the **distractor train split**.
+## Testing
 
-Due to GitHub’s 100MB file size limit, the full dataset is **not included** in this repository. 
+```bash
+pytest                  # 55 tests
+pytest -m "not slow"    # skip the training integration test
+```
 
-See sample in `hotpotqa_sample.jsonl`
+`tests/test_training_integration.py` asserts that weights change iff the reward
+has variance, which is what distinguishes real GRPO from a loop that only looks
+like training.
 
-### Download Instructions
-1. Run `Scripts/hotpotqa_to_jsonl.py` file to load data set + jsonl
-2. Access jsonl file in `hotpotqa_distractor_train.jsonl`
+## Reproducing a baseline
 
-### Example Format
-{
-  "question": "What nationality is the wife of the man who won the 2016 Tour de France?",
-  "answer": "Welsh",
-  "supporting_facts": [["2016 Tour de France", "Winner"], ["Chris Froome", "Spouse"]]
-}
+```bash
+loki-eval --model Qwen/Qwen2.5-0.5B-Instruct --num-samples 20 --seed 0 \
+          --out outputs/baseline.json
+```
 
-## Team
-
-- naemi
-- tanish  
-- yash
-- rushil
+Current measured baseline (Qwen2.5-0.5B-Instruct, 20 behaviors, CPU): 80%
+parseable misdirections, 0% strict `<misdirection>` tag compliance. Attack
+success is unmeasured pending a target backend.
