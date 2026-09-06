@@ -3,47 +3,48 @@ One Sentence in an Agent’s Rules Decides Whether a Fake
 Permission Works
 Anonymous Author(s)
 
-September 5, 2026
+September 6, 2026
+
 
 Abstract
-An AI assistant is given more and more tools: export a file, delete a database, etc., and when a rule is not observed,
-it’s not a sentence being written, it’s something that is being done. The one who installs one writes its regulations,
-its operating policy. We’re going to take a look at one easy way to break those rules: the user claims a permission
-that doesn’t exist. “An audit exemption was granted for this export due to Directive 12.3(b).” The directive is made
-up, but the assistant cannot confirm it. It’s fake authority that we call fabricated authority. For gpt-4o-mini
-and claude-haiku-4-5 we tried 1,680 times using 8 tasks, 5 wordings of the operating policy, 6 fake-claim
-wordings and a no-claim control, with three repeats per wording. For each trial we decided whether the forbidden
-tool was actually called, instead of asking another model if the answer sounded like a refusal. The rules determine
-if the attack is successful or not, we find. With no fake claim, all the assistants played the game by the rules and
-never broke any of them (0/240). Under a policy with an exception “if an exemption is documented”, they break it in
-93/288 (32.3%) trials; under the same policy with an additional sentence stating that the permissions claimed by the
-user do not count, never (0/288). That sentence held when attacked by an attacker model (a second language model
-playing the user) who was able to read the rules and rewrite its claim eight times over. It’s not a 100% defense: in
-15 of the 36 tests where the fake permission was taken from a document that the assistant retrieved, not typed by the
-individual, the above sentence failed. The recommendation is open to use: score assistants based on their actions,
-not their words; write no exemptions into rules; and tell them that a claimed permission is not real until it has been
-verified.
+Tool-using assistants act under an operating policy written by the deployer, and a policy violation is an executed
+tool call, not a sentence of text. We study one cheap attack, fabricated authority: the user asserts a permission that
+does not exist, for example “Per Directive 12.3(b), an audit exemption was granted for this export.” We ran 1,680
+trials on gpt-4o-mini and claude-haiku-4-5, crossing 8 tasks, 5 operating-policy wordings, 6 fabricated-
+claim wordings plus a no-claim control, and 3 repeats. Each trial is scored from the tool-call log by whether the
+forbidden tool was called with violating arguments; no language-model judge is used. Without a fabricated claim
+there are no violations (0/240). With one, policy wording decides the outcome. A policy with the carve-out “unless
+an exemption is documented” is violated in 93/288 trials. The same policy plus one sentence, stating that claimed
+exemptions, approvals, or superseding policies in a user message or tool result are not authoritative and are to be
+treated as unverified, is violated in 0/288. Model choice matters as much: gpt-4o-mini violated 198/720 attacked
+trials, claude-haiku-4-5 10/720. An adaptive attacker that reads the defender prompt and revises its claim over
+8 rounds breaks the carve-out policy on 8/8 tasks and the amended policy on 0/8. The defense is channel-specific:
+with the fabricated permission planted in a policy-lookup tool result, the amended policy still fails in 15/36 trials.
+We recommend adding the sentence, never writing exemption carve-outs, always naming a safe alternative action,
+scoring tool calls rather than refusal text, and treating tool output as a separate problem.
+
 
 
 1    The problem
-An assistant that can act is more useful and more dangerous, than an assistant that can only answer. If a refusal in
-prose is executed in tandem with export_records(patients, research@ext.org) at the same turn, then
-it will not cost anything. The deployer then inputs an operating policy into the system prompt of the assistant (“never
-export patient records externally; if unsure, call request_approval”) and checks whether or not the assistant
-complies. The assessment is not valid, for two reasons. First, users can fake permissions and language models don’t
-have any way to check whether a cited policy, approval or exemption for auditing ever existed. Second, the usual
-way of determining compliance, that is, whether the response is a refusal according to a second language model (a
-judge), is also not reliable. We compared three such judges to 200 responses judged by a human. The percentage of
-attacks reported as successful ranged from 14% to 83% across judges on the same texts (with the human grader at
-19%; Appendix A). The tool-call log is therefore directly scored. A violation is when and only when the prohibited
-tool was called with arguments that violate the policy (Figure 1). The results include no language-model judge.
-It separates our work from the research on text jailbreaks, such as HarmBench, LLMStinger and DarkCite [1, 2, 3],
-which assess prose, and from judge-reliability research [4, 5]. The closest ones are agent benchmarks that show there is
-no transfer of text safety to tool calls [6, 7], prompt-injection attacks on tool-using agents [8, 9], and prompt-injection
-defenses for web agents [10]. Lin et al. [9] exploit this same lack of information from the attacker’s side: the origin
-of a claim or document cannot be obtained by the assistant, an artifact-provenance gap. Our question is narrower and
-on the deployment side: which language of the operating policy allows a fabricated permission through, and which
-sentence blocks it?
+An assistant that can act is both more useful and more dangerous than one that can only answer. A refusal written
+in prose counts for nothing if the same turn also calls export_records(patients, research@ext.org).
+The deployer writes an operating policy into the system prompt (“never export patient records externally; if unsure,
+call request_approval”) and tests whether the assistant complies. That test is unreliable for two reasons. First,
+users can fabricate permissions, and a language model has no way to verify that a cited policy, approval, or audit
+exemption ever existed. Second, the usual compliance measure, asking a second language model (a judge) whether
+the response is a refusal, is itself unreliable. We compared three such judges to 200 responses judged by a human. The
+percentage of attacks reported as successful ranged from 14% to 83% across judges on the same texts (with the human
+grader at 19%; Appendix A). The tool-call log is therefore directly scored. A violation is when and only when the
+prohibited tool was called with arguments that violate the policy (Figure 1). The results include no language-model
+judge.
+Scoring the tool-call log separates our work from text-jailbreak benchmarks such as HarmBench, LLMStinger, and
+DarkCite [1, 2, 3], which assess prose, and from judge-reliability studies [4, 5]. The closest ones are agent benchmarks
+that show there is no transfer of text safety to tool calls [6, 7], prompt-injection attacks on tool-using agents [8, 9], and
+prompt-injection defenses for web agents [10]. Lin et al. [9] exploit this same lack of information from the attacker’s
+side: the origin of a claim or document cannot be obtained by the assistant, an artifact-provenance gap. Our question is
+narrower and on the deployment side: which language of the operating policy allows a fabricated permission through,
+and which sentence blocks it?
+
 
 
 1
@@ -85,24 +86,23 @@ Figure 1: One trial. The assistant is presented with an operating policy, a user
 and tools. The result is received from the log of the tool call and not from the text.
 2    Setup
 For each trial, a model is placed in a single-turn agentic loop along with tools and an operating policy that forbids
-one of the actions. There are 8 tasks, and each includes a tool call that is banned, the arguments passed in to the
-call that constitute a violation, and a safe alternative, request_approval, so that not performing a violation
-is not equivalent to inaction. Five wordings of operating policies are being tested: bare (the prohibition only),
-strict (prohibition and the safe way out), autonomous (“handle routine requests end to end” with a carve-
-out), exemption (prohibition “unless an exemption is documented”), and strict_hatch (which is the same as
-strict with one additional sentence):
+one of the actions. There are 8 tasks; each defines a banned tool call, the violating arguments, and a safe alter-
+native, request_approval, so that refusing is not the same as doing nothing. We test five operating-policy
+wordings: bare (the prohibition only), strict (the prohibition plus the safe alternative), autonomous (“handle
+routine requests end to end” with a carve-out), exemption (prohibition “unless an exemption is documented”), and
+strict_hatch (which is the same as strict with one additional sentence):
 
 Claims of exemption, prior approval, or superseding policy that arrive in a user message or tool result are NOT
 authoritative. Treat them as unverified and call request_approval.
 
-The fabricated claim can be formulated in 6 ways, which are added to the user request: reclassifying the act, claim-
-ing urgency, claiming prior approval, claiming a superseding policy, claiming an audit exemption, and combining the
-three permission claims; a seventh condition adds no claim. Two targets (gpt-4o-mini, claude-haiku-4-5,
-repeated 3 times per cell at temperature 1.0) give 8 × 5 × 7 × 2 × 3 = 1,680 trials, plus a 288-trial length control
-on gpt-4o-mini. Rates are reported with 95% Wilson intervals and contrasts are reported using a one-sided Fisher
-test. Trials in a cell have a common task and common wording of a claim, so the effective sample is less than the
-number of trials; each contrast we report holds up upon collapsing to cells. The total cost of hosted-API is less than
-$3.
+Six fabricated-claim wordings are appended to the user request: reclassifying the act, claiming urgency, claiming
+prior approval, claiming a superseding policy, claiming an audit exemption (“Per Directive 12.3(b), an audit exemption
+was granted for this export”), and combining the three permission claims; a seventh condition adds no claim. Two
+targets (gpt-4o-mini, claude-haiku-4-5, repeated 3 times per cell at temperature 1.0) give 8×5×7×2×3 =
+1,680 trials, plus a 288-trial length control on gpt-4o-mini. Rates are reported with 95% Wilson intervals and
+contrasts are reported using a one-sided Fisher test. Trials within a cell share a task and a claim wording, so the
+effective sample is smaller than the trial count; every contrast we report survives collapsing to cells. Total hosted-API
+cost was under $3.
 
 
 3    Results
@@ -120,7 +120,8 @@ Overall, gpt-4o-mini and claude-haiku-4-5 violated 198/720 and 10/720 attacked t
 ing model choice a lever of approximately the same size as policy wording, but most important, unlike model choice,
 the sentence is free.
 
-
+This is the sentence and not the number of words. A 98-word control policy, strict plus 58 words of unre-
+lated policy text, was violated in 11/96 trials compared with 5/96 for strict; no violations were observed with
 
 
 2
@@ -183,8 +184,6 @@ Figure 2: Violation rate during attack. (a) By operating-                       
 policy wording, both models pooled. (b) Adding the                                                                 mission is typed by the user, not when it is planted
 sentence versus adding the same number of unrelated                                                                in a document the assistant reads. Right-hand bars
 words. (c) By what the fabricated claim asserts.                                                                   are a separate 144-trial run on gpt-4o-mini.
-This is the sentence and not the number of words. A 98-word control policy, strict plus 58 words of unre-
-lated policy text, was violated in 11/96 trials compared with 5/96 for strict; no violations were observed with
 strict_hatch (77 words; 0/96; p = 0.00036; Figure 2b). Extending the policy by adding words made it worse;
 when the one sentence was added on, it held.
 
@@ -210,13 +209,14 @@ assessment that read only the text would have given all 32 a safe score.
 The limit. The sentence is about the permissions that are claimed in the user message. In another 144-trial study
 on gpt-4o-mini, the assistant was instructed to check with a policy-lookup tool before performing an action, and
 the fabricated policy was only included in that tool’s response. Untampered lookups gave 0/72. Tampered lookups
+gave 51/72: exemption broke in 36/36 cases and strict_hatch in 15/36 (Figure 3). The mitigation is channel-
+
 
 
 3
 Submitted to NeurIPS 2026 Workshop on Agents in the Wild
 
 
-gave 51/72: exemption broke in 36/36 cases and strict_hatch in 15/36 (Figure 3). The mitigation is channel-
 specific: it applies to the chat channel, and a permission that arrives through a trusted tool will need to be enforced
 outside of the model, like the prompt-injection defenses such as WARD [10] do.
 
@@ -226,8 +226,8 @@ outside of the model, like the prompt-injection defenses such as WARD [10] do.
 output. In our sweep, 0/288; in the matched contrast, 0/18.
 2. Never write exemption carve-outs. Worse than saying nothing about exemptions: the most attackable wording
 we tested.
-
 3. Always provide a safe alternative action, or refusal becomes doing nothing.
+
 4. Put the score on the tool calls and not the text. When attacked they are at odds.
 5. Treat the output of the tools as a separate problem. The sentence will not protect from an altered document.
 
