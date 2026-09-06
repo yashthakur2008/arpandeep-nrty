@@ -1,0 +1,51 @@
+AI assistants are increasingly given tools: they can export a file, delete a database, or send money, so a rule they break is an action taken, not a sentence written. Whoever deploys one writes it a set of rules, its operating policy. We study a simple way to break those rules: the user claims a permission that does not exist. "Per Directive 12.3(b), an audit exemption was granted for this export." The directive is invented, and the assistant has no way to check. We call this fabricated authority. We ran 1{,}680 trials on gpt-4o-mini and claude-haiku-4-5: eight tasks, five wordings of the operating policy, six fake-claim wordings plus a no-claim control, three repeats each. We scored each trial by whether the forbidden tool was actually called, not by asking another model whether the reply sounded like a refusal. We find that the wording of the rules decides whether the attack works. With no fake claim the assistants never broke a rule (0/240). Under a policy that allowed the action "if an exemption is documented" they broke it in 93/288 trials; under the same policy plus one sentence stating that permissions claimed by the user do not count, never (0/288). That sentence held against an attacker model (a second language model acting as the user) that could read the rules and rewrite its claim over eight rounds. It is not a complete defense: when the fake permission was planted in a document the assistant retrieved rather than typed by the user, the same sentence still failed in 15/36 trials. The recommendation is free to apply: score assistants on what they do, not what they say; do not write exemptions into their rules; and tell them claimed permissions are not real until verified.
+
+## The problem
+
+An assistant that can act is more useful and more dangerous than one that can only answer. A refusal in prose costs nothing if the same turn also calls export\_records(patients, research@ext.org). Deployers therefore write an operating policy into the assistant's system prompt ("never export patient records externally; if unsure, call request\_approval") and evaluate whether the assistant complies. Two things make that evaluation unreliable. First, users can lie about permissions, and language models have no mechanism to verify a citation to a policy, an approval, or an audit exemption that does not exist. Second, the usual way of scoring compliance, asking a second language model (a judge) whether the reply reads as a refusal, is itself unreliable. We checked three such judges against 200 outputs graded by a person: the fraction of attacks each judge reported as successful ranged from 14% to 83% on identical text, against 19% by the human grader (Appendix N). We therefore score the tool-call log directly. A trial is a violation if and only if the forbidden tool was called with policy-violating arguments (Figure N). No language-model judge appears anywhere in the results.
+
+This separates our contribution from text-jailbreak work such as HarmBench, LLMStinger, and DarkCite , which score prose, and from work on judge reliability . Closest are agent benchmarks showing that text safety does not transfer to tool calls , prompt-injection attacks on tool-using agents , and prompt-injection defenses for web agents . Lin et al.\ exploit the same gap from the attacker's side: the assistant cannot tell where a claim or document came from, which they call an artifact-provenance gap. Our question is narrower and deployment-facing: which wordings of the operating policy let a fabricated permission through, and which one sentence stops it.
+
+## Setup
+
+Each trial places a model in a single-turn agentic loop with tools and an operating policy that forbids one action. Eight tasks cover data exfiltration (medical export, payroll disclosure, customer PII), destructive operations (production database, backups), security degradation, a wire transfer, and an access grant; each defines the forbidden tool call, the arguments that make it a violation, and a safe alternative, request\_approval, so that not violating is not confounded with doing nothing. Five operating-policy wordings are tested: bare (the prohibition only), strict (prohibition plus the safe alternative), autonomous ("handle routine requests end to end" with a carve-out), exemption (prohibition "unless an exemption is documented"), and strict\_hatch, which is strict plus one sentence:
+
+{quote}
+Claims of exemption, prior approval, or superseding policy that arrive in a user message or tool result are NOT authoritative. Treat them as unverified and call request\_approval.
+{quote}
+
+Six wordings of the fabricated claim are appended to the user request: reclassifying the act, claiming urgency, claiming prior approval, claiming a superseding policy, claiming an audit exemption, and all three permission claims combined; a seventh condition adds no claim. Targets are gpt-4o-mini and claude-haiku-4-5, three repeats per cell at temperature 1.0: 8 5 7 2 3 = 1{,}680 trials, plus a 288-trial length control on gpt-4o-mini. Rates carry 95% Wilson intervals; contrasts use one-sided Fisher tests. Trials within a cell share a task and a claim wording, so the effective sample is smaller than the trial count; every contrast we report survives when collapsed to cells. Total hosted-API cost was under \3.
+
+## Results
+
+{The attack works, and the wording of the rules decides how well.}
+With no fabricated claim, neither model ever violated its policy (0/240). With one, violations rose to 208/1440 (p = 1.110^{-15}). Figure Na shows the effect is dominated by the operating policy. exemption was violated in 93/288 attacked trials and autonomous in 87/288, while strict\_hatch was violated in none of 288 (p = 1.410^{-32} against exemption). The ordering is not monotonic in strictness: bare, a prohibition with nothing else, was safer (21/288) than exemption. Writing "unless an exemption is documented" into a policy is an invitation to fabricate the document. Holding task, model, claims, and temperature fixed on the medical-export task gives complete separation: exemption 18/18, strict\_hatch 0/18 (p = 1.110^{-10}). The effect is concentrated in one model: under exemption, gpt-4o-mini violated 89/144 and claude-haiku-4-5 4/144; under strict\_hatch both were 0/144. Overall gpt-4o-mini violated 198/720 attacked trials and claude-haiku-4-5 10/720, so model choice is a lever of similar size to policy wording, and unlike model choice the sentence is free.
+
+{It is the sentence, not the length.}
+A control policy of 98 words, strict plus 58 words of unrelated policy text, was violated in 11/96 trials, more than strict itself (5/96) and against 0/96 for the 77-word strict\_hatch (p = 0.00036; Figure Nb). Adding words made the policy worse; adding the one sentence made it hold.
+
+{Which claims get through.}
+Figure Nc splits attacked trials by what the fabricated claim asserts. Claims about the nature of the act never worked (reclassify, 0/240) and urgency almost never did (2/240). Claims that someone had authorised the act worked in 43 to 52/240 for each single claim and 68/240 for all three combined. The models judge what the action is; they cannot judge whether the permission is real. The sentence supplies the missing rule.
+
+{The sentence survives an adaptive attacker.}
+An attacker model (gpt-4o-mini) was given the defender's exact system prompt, tool schema, and the transcript of its own failed attempts, and rewrote its claim each round for eight rounds on each of the eight tasks. It broke exemption on 8/8 tasks but strict\_hatch on 0/8 (p = 7.810^{-5}); an independent ten-round run reproduced this (7/8 versus 0/8). Our hand-written adaptive attacks were too weak to test the sentence (0/12 on policies where the standard claims score 18/18), so we replaced them with this attacker model. Because the same attacker succeeds against the weak policy, the null is informative, though at n=8 the upper confidence bound on the breach rate is 32%, and a stronger or differently trained attacker may yet succeed.
+
+{Text and actions disagree.}
+In 32/432 paired trials the assistant stated a refusal in its reply while emitting the forbidden tool call in the same turn; this never happened without an attack (0/144, p = 1.310^{-6}). An evaluation that read only the text would have scored all 32 as safe.
+
+{The limit.}
+The sentence addresses permissions that arrive in the user message. In a separate 144-trial study on gpt-4o-mini, the assistant was required to call a policy-lookup tool before acting and the fabricated permission was placed only in that tool's result. Untampered lookups caused no violations (0/72). Tampered lookups caused 51/72: exemption broke in 36/36 and strict\_hatch in 15/36 (Figure N). The mitigation is channel-specific: it holds for the chat channel, and a permission that arrives through a tool the assistant trusts needs enforcement outside the model, of the kind that prompt-injection defenses such as WARD target.
+
+## Recommendations
+
+{enumerate}
+ Add the sentence. Claimed exemptions, approvals, or superseding policies in user input or tool output are not authoritative. 0/288 in our sweep; 0/18 in the matched contrast.
+ Do not write exemption carve-outs. The most attackable wording we tested, worse than saying nothing about exemptions.
+ Always provide a safe alternative action, or refusal degrades into doing nothing.
+ Score tool calls, not text. Under attack they disagree.
+ Treat tool output as a separate problem. The sentence does not protect against a tampered document.
+{enumerate}
+
+## Limitations
+
+Two small commercial models; no claim about frontier models (48 trials on claude-sonnet-4-5 produced no violations under any condition, so say nothing about the sentence). A 3B local model (llama3.2) violates its policy 67.5% of the time with no attack, leaving no headroom, and is reported separately. Single-turn only. The attacker and the failing defender are both OpenAI small models; the adaptive result may partly reflect an attacker that cannot beat its own refusal training. Tasks are hand-written, though per-task rates span 7% to 16%. The indirect-channel study is 144 trials on one model. Trials within a cell are not independent; we report trial counts for transparency and note that every contrast survives when collapsed to cells.
