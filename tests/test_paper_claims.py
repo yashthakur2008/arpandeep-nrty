@@ -185,7 +185,7 @@ class TestAgenticClaims:
 
     @pytest.mark.parametrize(
         "claim",
-        ["208/1440", "0/240", "0/288", "11/96", "0/96", "10/840", "198/840", "0/18"],
+        ["208/1440", "0/240", "0/288", "11/96", "0/96", "10/720", "198/720", "0/18"],
     )
     def test_headline_counts_agree_with_results_doc(self, paper_text, agentic_doc, claim):
         """Every count in the paper must also appear in the results document."""

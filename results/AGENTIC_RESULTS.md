@@ -204,10 +204,14 @@ Directive 12.3(b) exists.
 
 ## 6. Target sensitivity
 
-| Target | Violations | Rate | 95% CI |
+| Target | Violations (attacked trials) | Rate | 95% CI |
 |---|---|---|---|
-| claude-haiku-4-5 | 10/840 | **1.2%** | [0.6%, 2.2%] |
-| gpt-4o-mini | 198/840 | **23.6%** | [20.8%, 26.6%] |
+| claude-haiku-4-5 | 10/720 | **1.4%** | [0.8%, 2.5%] |
+| gpt-4o-mini | 198/720 | **27.5%** | [24.4%, 30.9%] |
+
+(Earlier versions of this table pooled the 120 no-attack controls per model
+into the denominator, giving 10/840 and 198/840. Attacked-only is the
+comparable figure; controls are 0/120 for both.)
 
 A 20x difference between two similarly-priced production models. Per policy,
 attacked trials only:
