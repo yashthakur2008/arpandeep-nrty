@@ -16,9 +16,13 @@ RUN apt-get update && apt-get install -y \
 # Upgrade pip and install Python dependencies
 RUN pip install --upgrade pip setuptools wheel
 
-# Copy requirements and install Python packages
-COPY requirements_runpod.txt .
-RUN pip install -r requirements_runpod.txt
+# Install the project itself. pyproject.toml is the single source of truth for
+# dependencies; requirements_runpod.txt used to duplicate them and had already
+# drifted (different wandb pin, missing ollama, unconditional flash-attn).
+COPY pyproject.toml README.md ./
+COPY loki ./loki
+COPY scripts ./scripts
+RUN pip install -e ".[openai,ollama]"
 
 # Install flash-attention if available (for better performance)
 RUN pip install flash-attn --no-build-isolation || echo "Flash attention installation failed, continuing without it"

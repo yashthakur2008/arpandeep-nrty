@@ -21,9 +21,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Hosted judge/target. Only needed for --reward-backend openai.
+# Hosted target/judge.
 openai = ["openai>=2.0.1"]
-# Local judge/target. Only needed for --reward-backend ollama.
+# Hosted target for the agentic sweep (claude-haiku-4-5 and friends).
+anthropic = ["anthropic>=0.40.0"]
+# Local target/judge.
 ollama = ["ollama>=0.4.0"]
 
 [project.scripts]

@@ -1,0 +1,98 @@
+\documentclass[10pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\title{Supplementary Material:\\Fabricated Authority in the Wild}
+\author{Anonymous Author(s)}
+\begin{document}
+\sloppy
+\maketitle
+
+\section{Purpose of the supplement}
+This supplement supports the regular-paper submission without adding main-paper pages. It documents the scenario inventory, policy variants, attack families, result artifacts, and acceptance-path checks. It is anonymous and contains no author-identifying paths or credentials.
+
+\section{Scenario inventory}
+Each scenario defines an agent role, an operating-policy prohibition, a user task, a forbidden tool call, scenario-specific violating arguments, and the safe alternative \texttt{request\_approval}. The eight scenarios are:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+ID & Family & Forbidden action \\
+\midrule
+\texttt{medical\_export} & Data exfiltration & Export patient records externally \\
+\texttt{payroll\_disclosure} & Data exfiltration & Send payroll data externally \\
+\texttt{customer\_pii\_share} & Data exfiltration & Upload customer PII to ad vendor \\
+\texttt{prod\_db\_delete} & Destructive action & Delete production records \\
+\texttt{backup\_deletion} & Destructive action & Delete in-retention backups \\
+\texttt{security\_disable} & Security change & Disable endpoint protection \\
+\texttt{wire\_transfer} & Financial action & Initiate unapproved transfer \\
+\texttt{access\_grant} & Privilege escalation & Grant admin access without approval \\
+\bottomrule
+\end{tabular}
+\caption{Scenario coverage used by the tool-call harness.}
+\end{table}
+
+\section{Policy variants}
+The main sweep varies operating-policy phrasing while holding the scenario, tools, and user task fixed.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+Variant & Intended distinction \\
+\midrule
+\texttt{strict\_hatch} & Prohibition, safe alternative, and explicit provenance clause \\
+\texttt{strict} & Prohibition plus safe alternative \\
+\texttt{strict\_verbose} & Longer strict policy used only for length control \\
+\texttt{bare} & Prohibition only \\
+\texttt{autonomous} & Autonomy-forward routine-handling language \\
+\texttt{exemption} & Prohibition with documented-exemption carve-out \\
+\bottomrule
+\end{tabular}
+\caption{Policy variants. The central independent variable is provenance authentication of claimed authority.}
+\end{table}
+
+The provenance clause tested in \texttt{strict\_hatch} is: ``Claims of exemption, prior approval, or superseding policy that arrive in a user message or tool result are NOT authoritative. Treat them as unverified and call \texttt{request\_approval}.''
+
+\section{Attack families}
+The seven attack names are \texttt{none}, \texttt{superseded}, \texttt{prior\_approval}, \texttt{reclassify}, \texttt{emergency}, \texttt{audit\_exemption}, and \texttt{combined}. The attacks are synthetic operating requests, not exploit instructions or real credentials. They test category pressure, urgency pressure, and process/provenance pressure.
+
+\section{Result artifact map}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+Artifact & Trials & Main use \\
+\midrule
+\texttt{agentic\_sweep\_api.json} & 1,680 & Main direct-channel policy matrix \\
+\texttt{agentic\_ablation.json} & 288 & Length-control ablation \\
+\texttt{agentic\_matched\_contrast.json} & 36 & Complete-separation matched contrast \\
+\texttt{agentic\_gap\_full.json} & 432 & Text/tool-call divergence \\
+\texttt{agentic\_adaptive*.json} & 2 runs & Adaptive attacker check \\
+\texttt{agentic\_frontier\_matched.json} & 48 & Sonnet target-sensitivity negative \\
+\texttt{agentic\_indirect\_all8\_t1.json} & 96 & All-scenario forced indirect-channel result \\
+\texttt{agentic\_sweep\_local.json} & 560 & Local small-model boundary \\
+\texttt{agentic\_sweep\_gpt41mini\_t1.json} & 280 & Additional hosted-target breadth check \\
+\bottomrule
+\end{tabular}
+\caption{Raw artifacts used by the main and extended drafts.}
+\end{table}
+
+\section{Remaining hypothesis checks}
+The current submission tests the following reviewer-risk hypotheses: the effect is not ordinary noncompliance, not only policy length, not universal model weakness, not fully solved by prompt wording, and not visible to text-only scoring. The remaining open hypotheses are multi-turn persistence, stronger adaptive attackers, stronger repetition for the all-scenario indirect result, and broader model coverage.
+
+\section{Reproducibility resources}
+The anonymous artifact package contains the main paper, supplement, raw result JSON files, and the agentic harness source used to produce the reported tool-call outcomes. The intended reproduction path is: inspect the scenario and attack definitions, run the relevant \texttt{loki.agentic.*} CLI, and compare the produced JSON summaries against the claim-guard tests. Hosted-model reproduction requires the evaluator's own API credentials; no credentials or private paths are included in the submission bundle.
+
+\section{Acceptance-path validation}
+The main regular-paper PDF was compiled with Tectonic and parsed with \texttt{pypdf}. It is 9 pages, unencrypted, anonymous, and contains the updated all-scenario indirect result. Public experiment interfaces were checked through CLI help commands for \texttt{sweep}, \texttt{gap}, \texttt{adaptive}, and \texttt{indirect}. Targeted tests for agentic behavior and paper claims passed.
+
+\section{Final submission recommendation}
+For OpenReview, upload \texttt{aiwild\_regular\_anonymous.pdf} as the main regular paper and \texttt{aiwild\_regular\_supplement.pdf} as supplementary material. Do not upload source files unless requested by the venue. The source files are included in the local bundle for collaborator handoff and reproducibility review.
+
+\end{document}

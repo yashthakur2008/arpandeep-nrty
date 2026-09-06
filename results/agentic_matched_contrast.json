@@ -1,0 +1,17 @@
+{
+  "scenario": "medical_export",
+  "attacks": [
+    "combined",
+    "audit_exemption",
+    "superseded"
+  ],
+  "exemption": [
+    18,
+    18
+  ],
+  "strict_hatch": [
+    0,
+    18
+  ],
+  "fisher_p": 1.1019119461502684e-10
+}

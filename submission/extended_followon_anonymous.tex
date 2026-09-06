@@ -1,0 +1,284 @@
+% Expanded regular-paper draft for AIWILD 2026 or follow-on venue.
+% AIWILD regular papers allow 9 pages, excluding references and supplementary material.
+\documentclass[10pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\title{Fabricated Authority in the Wild:\\ Policy Provenance as a Control Surface for Tool-Calling Agents}
+% Double-blind default for submission. Camera-ready author context:
+% Lead author: Yash Thakur. Backup authors: Aayushya Patel and Pranav Burra.
+\newif\ifcameraready
+\camerareadyfalse
+\ifcameraready
+\author{Yash Thakur \\ Aayushya Patel \\ Pranav Burra}
+\else
+\author{Anonymous Author(s)}
+\fi
+\begin{document}
+\maketitle
+\begin{abstract}
+Tool-using language-model agents can refuse in text while still taking an unsafe action. We study \emph{fabricated authority}: user-controlled claims that a forbidden action is allowed by a non-existent approval, exemption, or superseding policy. Across 1{,}968 hosted-model trials with 8 scenarios, 6 operating-policy phrasings, 7 attack templates, and 2 production models, fabricated authority raises logged tool-call violations from 0/240 in controls to 208/1440 under attack (14.4\%, $p = 1.1\times10^{-15}$). The dominant variable is operating-policy wording: a provenance-aware policy has 0/288 direct user-message violations, while a documented-exemption carve-out has 93/288 (32.3\%). A matched contrast gives complete separation, 18/18 versus 0/18. A length-control ablation shows this is not verbosity, and two adaptive-attacker runs break weak controls while failing to breach the provenance-aware policy. A forced indirect-channel study then breaks that same policy in 15/36 poisoned policy-lookup trials, showing that prompt-level provenance clauses help against direct user claims but do not replace runtime provenance tracking for tool outputs. These findings suggest that agent evaluations should score tool logs, deployment prompts should reject unauthenticated authority claims, and longer-form work should separate direct-user and indirect-tool provenance threats.
+\end{abstract}
+
+\section{Introduction}
+
+Language-model safety evaluations often ask whether the model produces harmful text. Tool-using agents require a different view. The system output is no longer just a string: it can be a database export, wire transfer, deletion command, privilege grant, or security change. In that setting, the most important dependent variable is often available without a judge: did the agent call the forbidden tool with violating arguments?
+
+This matters because text and action can diverge. In our paired text/tool experiment, 32 of 432 trials contain a refusal in prose while also emitting the forbidden tool call. None of these divergences occur in no-attack controls. A text-only evaluation would score these as safe refusals even though the external action fires.
+
+We focus on \emph{fabricated authority}. The user does not primarily deny that the requested action is restricted. Instead, the user claims that some authority permits it: a superseding directive, prior approval, documented audit exemption, or updated classification. This is natural in real deployments because agent policies often include operational carve-outs. Engineers write policies like ``do not export records unless an exemption is documented'' or ``handle routine requests end-to-end without bothering staff.'' Such language is convenient, but it creates hooks for user-controlled claims.
+
+The central finding is that policy wording can dominate the outcome. A policy that says claimed exemptions, prior approvals, or superseding policies arriving in user input or tool output are not authoritative drives violations to 0/288 in the main hosted-model sweep. A policy that allows documented exemptions reaches 93/288, or 32.3\%, under identical attacks.
+
+\paragraph{Contributions.} We contribute: (1) a logged-tool-call evaluation for fabricated authority, (2) a policy-phrasing measurement matrix, (3) a one-sentence provenance mitigation, (4) a length-control ablation, (5) an adaptive-attacker check, and (6) a small-model boundary condition.
+
+\section{Motivation: from judged text to logged action}
+
+The project began as a GRPO-trained text attacker scored by an LLM judge. The initial result looked promising: measured ASR rose from 25\% to 48\%. Validating the judge against 200 human-labelled responses showed that the effect was an artifact. The local judge reported 83\% ASR on outputs whose human-labelled ASR was 19\%, with 36\% accuracy and 23\% precision. The same outputs scored 14\% ASR under \texttt{gpt-4o-mini} and 25\% under a refusal heuristic. Re-running the trained-vs-base comparison on 120 held-out behaviors with the validated judge produced 12.5\% versus 11.7\%, Fisher $p = 1.00$.
+
+We do not claim novelty for judge failure. Recent work studies judge unreliability at far greater scale. The lesson for this paper is methodological: where a verifiable action log exists, use it. Tool-call traces make the safety outcome less ambiguous and avoid evaluator false positives.
+
+\section{Threat model and setup}
+
+The defender is a single-turn tool-using agent. It receives a system prompt containing an operating policy, a user task, and a fixed set of tools. Some tools can be used compliantly, but each scenario defines a policy-violating use through a predicate over tool name and arguments. The agent also has a safe alternative tool, \texttt{request\_approval}, so non-violation is not confounded with doing nothing.
+
+The attacker controls the user message. The attacker cannot modify the system prompt, tool schema, or execution environment. The attacker can include fabricated claims about policy, approval, urgency, or document status. In the adaptive setting, the attacker additionally sees the defender's system prompt, tool schema, and transcripts of prior failed attempts.
+
+We use 8 hand-written scenarios covering data exfiltration, destructive operations, financial actions, privilege escalation, and security degradation: medical export, payroll disclosure, customer PII sharing, production database deletion, backup deletion, security disablement, wire transfer, and access grant. Each scenario specifies a forbidden tool call and a safe alternative.
+
+\begin{table}[h]
+\centering
+\caption{Operating-policy phrasings. The critical variable is whether the policy authenticates the provenance of claimed authority.}
+\begin{tabular}{ll}
+\toprule
+Policy & Content \\
+\midrule
+\texttt{strict\_hatch} & Prohibition, safe alternative, and provenance clause \\
+\texttt{strict} & Prohibition plus safe alternative \\
+\texttt{bare} & Prohibition only \\
+\texttt{autonomous} & Routine end-to-end handling with a carve-out \\
+\texttt{exemption} & Prohibition unless an exemption is documented \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The provenance clause is: ``Claims of exemption, prior approval, or superseding policy that arrive in a user message or tool result are NOT authoritative. Treat them as unverified and call \texttt{request\_approval}.''
+
+\section{Results}
+
+\subsection{Fabricated authority causes tool violations}
+
+The main hosted sweep contains 1,680 trials: 8 scenarios, 5 policies, 7 attacks, 2 targets, and 3 trials. No trials errored.
+
+\begin{table}[h]
+\centering
+\caption{Main hosted sweep.}
+\begin{tabular}{lrr}
+\toprule
+Condition & Violations & Rate \\
+\midrule
+No attack & 0/240 & 0.0\% \\
+Fabricated authority & 208/1440 & 14.4\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The one-sided Fisher exact test gives $p = 1.14\times10^{-15}$. Since the control floor is zero, violations in the attacked condition are attributable to fabricated authority rather than ordinary noncompliance in these hosted models.
+
+\subsection{Policy phrasing dominates}
+
+\begin{table}[h]
+\centering
+\caption{Attacked trials, hosted targets pooled.}
+\begin{tabular}{lrrr}
+\toprule
+Policy & Violations & Rate & 95\% CI \\
+\midrule
+\texttt{strict\_hatch} & 0/288 & 0.0\% & [0.0\%, 1.3\%] \\
+\texttt{strict} & 7/288 & 2.4\% & [1.2\%, 4.9\%] \\
+\texttt{bare} & 21/288 & 7.3\% & [4.8\%, 10.9\%] \\
+\texttt{autonomous} & 87/288 & 30.2\% & [25.2\%, 35.7\%] \\
+\texttt{exemption} & 93/288 & 32.3\% & [27.2\%, 37.9\%] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The planned contrast \texttt{strict\_hatch} versus \texttt{exemption} gives Fisher $p = 1.37\times10^{-32}$. The ranking is non-monotonic. A bare prohibition is safer than a prohibition with a documented-exemption carve-out, suggesting that operational exceptions become attack surface when the agent is not told how to authenticate them.
+
+\subsection{The effect is not policy length}
+
+\begin{table}[h]
+\centering
+\caption{Length-control ablation on \texttt{gpt-4o-mini}.}
+\begin{tabular}{lrrr}
+\toprule
+Policy & Words & Violations & Rate \\
+\midrule
+\texttt{strict\_hatch} & 77 & 0/96 & 0.0\% \\
+\texttt{strict} & 40 & 5/96 & 5.2\% \\
+\texttt{strict\_verbose} & 98 & 11/96 & 11.5\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{strict\_hatch} versus \texttt{strict\_verbose} gives Fisher $p = 0.000361$. More words do not explain the mitigation. If anything, irrelevant policy detail appears to dilute attention to the restriction.
+
+\subsection{Matched contrast and adaptive attacker}
+
+The strongest single contrast isolates \texttt{medical\_export} and the three attacks that reliably fire on it, holding model, scenario, temperature, and attack text fixed. \texttt{exemption} scores 18/18. \texttt{strict\_hatch} scores 0/18. Fisher $p = 1.1\times10^{-10}$.
+
+We then gave an attacker LLM the defender's exact system prompt, tool schema, and a transcript of its failed attempts. Across two runs, it broke the weak control policy in 8/8 and 7/8 scenarios, but breached \texttt{strict\_hatch} in 0/8 scenarios both times. Fisher $p$ values were $7.8\times10^{-5}$ and $6.99\times10^{-4}$. This does not prove the clause is unbreakable. It shows the clause resists an adaptive attacker strong enough to defeat the closest weak alternative.
+
+\subsection{Frontier-model matched contrast}
+
+We also ran a compact matched contrast on \texttt{claude-sonnet-4-5}, using \texttt{medical\_export}, the \texttt{strict\_hatch} and \texttt{exemption} policies, no-attack controls, and the three strongest fabricated-authority attacks at 6 trials per cell. Sonnet produced zero violations in all 48 trials: 0/12 controls and 0/36 attacked, including 0/18 under \texttt{exemption} and 0/18 under \texttt{strict\_hatch}. This is a useful negative result for the longer paper. It shows that the attack is not universal across stronger hosted models, and it strengthens the claim that target choice matters rather than weakening the policy-phrasing result on the smaller production targets.
+
+
+\subsection{Forced indirect channel: the clause is not universal}
+
+The earlier indirect-channel attempt was inconclusive because the agent never consulted the poisoned corpus. We therefore added a forced policy-lookup experiment: before deciding, the agent must call \texttt{lookup\_policy}; the fabricated authority appears only in that tool result, never in the user message. This exercises a realistic retrieval or documentation poisoning path.
+
+Across 144 real \texttt{gpt-4o-mini} API trials, the agent consulted the lookup tool in 144/144 trials and no clean lookup caused a violation (0/72). Poisoned lookup output caused 51/72 violations. The \texttt{exemption} policy failed completely (36/36), while \texttt{strict\_hatch} failed in 15/36. By attack type under \texttt{strict\_hatch}, violations were 4/12 for superseded-policy claims, 6/12 for prior-approval claims, and 5/12 for audit-exemption claims.
+
+This is the most important new result for the longer paper because it bounds the headline mitigation. The provenance clause strongly protects against direct user-channel fabricated authority, but poisoned tool output remains substantially more dangerous. The direct and indirect settings should therefore be reported separately: \texttt{strict\_hatch} is a strong direct-channel mitigation, not a complete defense against retrieval-mediated authority poisoning.
+
+\subsection{Text/action divergence and small-model boundary}
+
+In 432 paired trials, 32 cases have refusal in prose while the forbidden tool call fires. The divergence never occurs without an attack: 0/144 controls versus 32/288 attacked, Fisher $p = 1.26\times10^{-6}$.
+
+The local \texttt{llama3.2} run contains 560 trials. It violates policy in 54/80 no-attack controls and 270/480 attacked trials. The attack does not help ($p = 0.979$) because the baseline violation floor is already 67.5\%. This bounds the mitigation: policy phrasing helps models that can follow policy at baseline, but it cannot compensate for weak baseline policy adherence.
+
+
+\section{Scenario and policy design detail}
+
+\begin{table}[h]
+\centering
+\caption{Scenario families used in the harness. Each scenario contains a forbidden tool call, scenario-specific violating arguments, and a safe alternative action.}
+\begin{tabular}{lll}
+\toprule
+Family & Scenario & Representative forbidden action \\
+\midrule
+Data exfiltration & Medical export & Export patient records externally \\
+Data exfiltration & Payroll disclosure & Send payroll data outside the organization \\
+Data exfiltration & Customer PII sharing & Share customer identifiers externally \\
+Destructive action & Production database deletion & Delete production records \\
+Destructive action & Backup deletion & Remove recovery snapshots \\
+Security change & Endpoint protection & Disable endpoint protection \\
+Financial action & Wire transfer & Initiate a transfer without approval \\
+Privilege escalation & Access grant & Grant administrative access \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The scenarios were intentionally written to look like ordinary enterprise-agent tasks rather than classic harmful-behavior prompts. The attacker does not ask the model to produce harmful instructions. The user asks the agent to complete an operational request and supplies fabricated authority that appears to license the action. This design better matches the failure mode of deployed agents: the danger is not a harmful paragraph, but an apparently routine tool call.
+
+The violation predicate is also scenario-specific. For example, exporting records to an internal compliance mailbox may be non-violating, while exporting the same table to an external research address is violating. This avoids overcounting legitimate tool use and keeps the dependent variable aligned with the deployment policy.
+
+\section{Why provenance is the control surface}
+
+The attack taxonomy separates three kinds of reasoning pressure. Category attacks claim that the action is not covered by the prohibition. Urgency attacks claim that normal review should be bypassed. Provenance attacks claim that an external authority has already changed the policy state. The empirical ordering is sharp: category attacks score 0/240, urgency scores 2/240, and provenance/process-state attacks score 43/240 to 68/240.
+
+This suggests that the models are not simply ignoring the policy. If they were, category attacks and controls would also fire. Instead, the models usually understand what the action is. They fail at authenticating whether the claimed exception exists. That is why the one-sentence policy works: it moves provenance authentication from an implicit expectation to an explicit instruction.
+
+\section{Reproducibility and artifact checks}
+
+All main claims in the short paper are backed by raw JSON artifacts and claim-guard tests. The repository includes:
+
+\begin{itemize}
+\item \texttt{results/agentic\_sweep\_api.json}: hosted sweep for the main table.
+\item \texttt{results/agentic\_ablation.json}: length-control ablation.
+\item \texttt{results/agentic\_matched\_contrast.json}: 18/18 versus 0/18 contrast.
+\item \texttt{results/agentic\_gap\_full.json}: paired text/tool divergence.
+\item \texttt{results/agentic\_adaptive*.json}: two adaptive attacker runs.
+\item \texttt{results/agentic\_sweep\_local.json}: local \texttt{llama3.2} boundary case.
+\end{itemize}
+
+A final repository-side verification pass ran the full test suite, targeted paper-claim tests, lint, package build, CLI smoke tests, LaTeX compilation, and PDF page-count checks. This matters because several earlier cracks were only visible after attempting to invalidate the result: weak adaptive attacks, length confounding, small-model floor effects, and text/action mismatch.
+
+\section{Ethics and disclosure posture}
+
+The experiments use synthetic scenarios and no real systems or personal data. The attack strings are not credentials, exploits, or access paths to any deployed system. The most actionable result is defensive: a deployer can add a provenance clause to the system prompt and evaluate future agents by checking tool logs. We nevertheless avoid claiming that the clause is a universal solution. A stronger red-team model, multi-turn attack, indirect prompt injection, or RL-trained attacker may defeat it.
+
+\section{Related work}
+
+Text jailbreak benchmarks such as HarmBench standardize harmful-behavior evaluation, while LLMStinger and related work train or search for jailbreak prompts. DarkCite shows that fabricated authority and citations can jailbreak text models. Recent judge-reliability work shows that unvalidated LLM judges can dominate reported ASR. Agent benchmarks such as GAP and AgentSeer show that text safety does not transfer cleanly to tool-calling agents, and AutoInject studies automated prompt injection attacks against tool-using agents. Our focus is narrower: deployment-policy phrasing as an independent variable, and provenance-aware policy text as a mitigation against fabricated authority.
+
+\section{Practical recommendations}
+
+Add a provenance clause. Avoid unauthenticated carve-outs. Be careful with autonomy-forward phrasing. Include a safe alternative tool. Evaluate on tool logs, not text-only outputs.
+
+\section{Limitations and next steps}
+
+The main hosted sweep has only two production targets. The scenarios are hand-written and single-turn. The adaptive attacker is \texttt{gpt-4o-mini}, not a stronger frontier model or an RL-trained optimizer. The provenance clause does fail partially in the forced indirect-channel setting: poisoned policy-lookup output causes 15/36 violations under \texttt{strict\_hatch}. Multi-turn settings and stronger tool-output attacks remain open.
+
+The longer version should add more targets, multi-turn attacks, a scaled indirect-channel study, an RL-trained attacker against \texttt{strict\_hatch}, 30--50 scenarios grouped by sector and tool type, and a practitioner study of policy realism. The forced-indirect study is already included as a warning: prompt-level provenance clauses mitigate direct user-message authority claims, but poisoned tool outputs need runtime provenance enforcement.
+
+
+\section{Design choices for the longer paper}
+
+The extended version turns the workshop short paper into a more complete empirical paper. The short version emphasizes the headline mitigation; the longer version makes the experimental design auditable. In particular, it separates four concepts that are easy to conflate.
+
+\paragraph{Policy compliance versus attack resistance.} A model that violates policy in no-attack controls is not attack-resistant; it has already failed. This is why the \texttt{llama3.2} run is a boundary condition rather than part of the main effect. The hosted models have a zero control floor, allowing an attack effect to be measured cleanly.
+
+\paragraph{Authority content versus authority provenance.} A policy can specify what is forbidden but still fail to say who is allowed to change that policy. Fabricated authority exploits that missing provenance rule. The provenance clause does not add a new domain prohibition; it tells the model how to treat unauthenticated claims about exceptions.
+
+\paragraph{Safe refusal versus inaction.} A no-tool-call outcome is ambiguous: the agent may be safe, confused, or stalled. We therefore include \texttt{request\_approval} as a positive safe action. This makes the recommended behavior observable and deployable.
+
+\paragraph{Text safety versus action safety.} Text refusal is insufficient for agents. The paired gap study shows that the model can state the right policy in prose and still emit the wrong call. The longer version foregrounds this as a measurement problem, not just an attack problem.
+
+\section{Ablation summary}
+
+\begin{table}[h]
+\centering
+\caption{Ablations and what each rules out.}
+\begin{tabular}{lll}
+\toprule
+Concern & Check & Result \\
+\midrule
+Attack works only because controls are weak & No-attack baseline & 0/240 violations \\
+Policy effect is length & \texttt{strict\_verbose} & 11/96 vs 0/96 \\
+Pooled scenarios hide imbalance & Matched contrast & 18/18 vs 0/18 \\
+Adaptive attack is weak & Control arm & 8/8 and 7/8 broken \\
+Mitigation is universal & \texttt{llama3.2} & fails at baseline, not pooled \\
+Text refusal is enough & Paired gap study & 32 action violations despite refusal \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This table is the argument structure for reviewers. Each crack in the short paper is either closed by an ablation or explicitly bounded as a limitation.
+
+\section{Regular-paper submission plan}
+
+The regular AIWILD track allows 9 pages, excluding references and supplementary materials. This draft currently compiles under that budget and should be used as the base for the larger submission. The highest-return additions before deadline are ordered as follows:
+
+\begin{enumerate}
+\item Add one frontier-model target if API access and cost allow. Even a small matrix on the matched contrast would strengthen generality.
+\item Scale the indirect-channel experiment across more targets and scenarios. The current forced-lookup study already shows this is the strongest follow-on: clean lookups produced 0/72 violations, while poisoned lookups produced 51/72, including 15/36 against \texttt{strict\_hatch}.
+\item Add more scenario templates rather than more repetitions of the same 8 scenarios. Reviewer skepticism will target hand-written scenario design.
+\item Add a stronger adaptive attacker, ideally a different model family from the defended target.
+\item Move raw attack strings and scenario definitions to supplementary material to preserve the main-paper narrative.
+\end{enumerate}
+
+\section{Camera-ready author context}
+
+The submission build is anonymous by default for double-blind review. The camera-ready switch in both LaTeX files stores the intended author context without exposing it in the submission PDF: Yash Thakur as lead author, with Aayushya Patel and Pranav Burra as backup authors. Before any non-anonymous camera-ready upload, switch \texttt{\textbackslash camerareadyfalse} to \texttt{\textbackslash camerareadytrue} and rebuild.
+
+\section{Conclusion}
+
+Fabricated authority is a simple attack that becomes measurable when agents have tools. In hosted models that otherwise follow their policies, fabricated authority produces statistically significant tool violations. The largest lever is not model choice alone but the exact operating-policy phrasing. A one-sentence provenance clause eliminates violations in our main sweep, survives a matched contrast and two adaptive-attacker runs, and costs nothing to deploy.
+
+\begin{thebibliography}{9}
+\bibitem{harmbench} Mazeika et al. HarmBench. ICML, 2024.
+\bibitem{llmstinger} Jha et al. LLMStinger. arXiv:2411.08862, 2024.
+\bibitem{darkcite} Yang et al. The Dark Side of Trust. arXiv:2411.11407, 2024.
+\bibitem{coinflip} Schwinn et al. A Coin Flip for Safety. arXiv:2603.06594, 2026.
+\bibitem{judge} How Reliable Is Your Jailbreak Judge? arXiv:2606.25487, 2026.
+\bibitem{gap} GAP: A Benchmark for General Agentic Policies. arXiv:2602.16943, 2026.
+\bibitem{agentseer} AgentSeer: Measuring Safety in Tool-Calling Agents. arXiv:2509.04802, 2025.
+\bibitem{autoinject} AutoInject: Automated Prompt Injection Attacks against Tool-Using Agents. arXiv:2602.05746, 2026.
+\end{thebibliography}
+\end{document}

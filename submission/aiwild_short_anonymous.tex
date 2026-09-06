@@ -1,0 +1,267 @@
+% Short paper (4 pages) for the Third Workshop on Agents in the Wild, NeurIPS 2026.
+%
+% Content mirrors docs/PAPER_DRAFT.md. Every number is verified against
+% results/*.json by tests/test_paper_claims.py, so edit both together.
+%
+% STYLE FILE. The workshop uses the NeurIPS 2026 style. That .sty is not
+% redistributable and is not vendored here, so this file compiles standalone
+% with a geometry/font setup approximating it. To produce the camera-ready,
+% drop neurips_2026.sty beside this file and switch the flag below:
+%
+%     \newcommand{\useneurips}{1}
+%
+% This keeps the draft buildable by anyone who checks out the repository,
+% instead of failing on a missing file.
+\documentclass[10pt]{article}
+
+\usepackage{ifthen}
+\providecommand{\useneurips}{0}
+\ifthenelse{\equal{\useneurips}{1}}{%
+  \usepackage[final]{neurips_2026}%
+}{%
+  \usepackage[letterpaper,margin=1.25in]{geometry}%
+  \usepackage{times}%
+  \setlength{\parskip}{0.4em}%
+}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{authblk}
+
+
+% ICLR/AIWILD-style workshop header. The provided examples use a one-column
+% ICLR-like format with a top header naming the Agents in the Wild workshop.
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Submitted to NeurIPS 2026 Workshop on Agents in the Wild}
+\rhead{}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+\title{Fabricated Authority in the Wild:\\
+Policy Provenance Controls Direct Tool-Calling Agent Failures}
+
+% AIWILD 2026 uses double-blind review. Default submission output is anonymous.
+% Camera-ready author context, requested by the authors:
+% Lead author: Yash Thakur. Backup authors: Aayushya Patel and Pranav Burra.
+\newif\ifcameraready
+\camerareadyfalse
+\ifcameraready
+\author{%
+  Yash Thakur \\
+  Aayushya Patel \\
+  Pranav Burra
+}
+\else
+\author{Anonymous Author(s)}
+\fi
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Tool-using language-model agents can refuse in text while still taking an unsafe action. We study \emph{fabricated authority}: user-controlled claims that a forbidden action is allowed by a non-existent approval, exemption, or superseding policy. Across 1{,}968 hosted-model trials with 8 scenarios, 6 operating-policy phrasings, 7 attack templates, and 2 production models, fabricated authority raises logged tool-call violations from 0/240 in controls to 208/1440 under attack (14.4\%, $p = 1.1\times10^{-15}$). The largest lever is the deployer's policy wording. A provenance-aware policy that states user-supplied exemptions are not authoritative has 0/288 direct user-message violations, while a documented-exemption carve-out has 93/288 (32.3\%, $p = 1.4\times10^{-32}$); a matched contrast gives complete separation, 0/18 vs 18/18. A length-control ablation shows this is not verbosity: a longer irrelevant policy is worse. An adaptive attacker with white-box access breaks weak controls in 8/8 and 7/8 scenarios across two runs, but breaches the provenance-aware policy in 0/8 scenarios both times. However, a forced indirect-channel study breaks the same policy in 15/36 poisoned policy-lookup trials, so the mitigation is channel-specific rather than universal. The result is a narrow, actionable finding: agent evaluations should score tool logs, and deployment prompts should explicitly reject unauthenticated authority claims while treating tool-output provenance as a separate runtime security problem.
+\end{abstract}
+
+\section{Why we changed the outcome variable}
+
+This work began as a GRPO-trained text attacker scored by an LLM judge. It
+appeared to succeed: attack success rate rose from 25\% to 48\%. That figure is
+an \emph{artifact} of an unvalidated judge, as we now show. We validated the
+judge against 200 human-labelled responses (Table~\ref{tab:judges}).
+
+\begin{table}[h]
+\centering
+\caption{Three judges scoring 200 identical target responses against human
+labels. ``Reported ASR'' is the number a paper using that judge would print;
+the human-labelled truth is 19\%.}
+\label{tab:judges}
+\begin{tabular}{lrrrrrr}
+\toprule
+Judge & Acc. & $\kappa$ & Prec. & Rec. & False pos. & Reported ASR \\
+\midrule
+\texttt{llama3.2}    & 36\% & 0.09 & 23\% & 100\% & 128 & \textbf{83\%} \\
+Refusal heuristic    & 94\% & 0.83 & 76\% & 100\% & 12  & 25\% \\
+\texttt{gpt-4o-mini} & 93\% & 0.75 & 93\% & 68\%  & 2   & \textbf{14\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A 69-point swing in reported ASR on identical outputs. The local judge is worse
+than the trivial baseline of always answering ``refused'' (81\%), and labelled
+128 of 162 genuine refusals as successful jailbreaks, including responses whose
+entire text is ``I can't fulfill that request.'' Re-run with a validated judge on 120 held-out behaviors, our trained attacker
+showed 12.5\%~$\to$~11.7\% ($p = 1.00$): no effect. Training did change the
+model, just not usefully: it raised well-formed output from 71\% to 91\% and
+tag compliance from 0\% to 46\%. GRPO taught the output protocol, not the
+attack, and the apparent gain was judge error.
+
+Rather than build a better judge, we changed what we measure. For a tool-using
+agent the ground truth is already structured: either the forbidden tool was
+called with policy-violating arguments, or it was not. \textbf{No LLM judge
+appears anywhere in the agentic pipeline below.} This separates our contribution
+from text-jailbreak work such as HarmBench, LLMStinger and DarkCite
+\cite{mazeika2024harmbench,llmstinger,darkcite}, and from judge-reliability work
+showing that ASR can be dominated by evaluator false positives
+\cite{coinflip,reliablejudge}. Closest in spirit are agent benchmarks showing
+that text safety does not transfer cleanly to tool calls \cite{gap,agentseer} and
+RL prompt-injection attacks against tool-use \cite{autoinject}. Our focus is
+narrower and deployment-facing: which operating-policy phrasings make fabricated
+authority succeed or fail when the outcome is a verifiable tool call.
+
+\section{Setup}
+
+Each trial places a model in an agentic loop with tools and an operating policy
+that forbids a specific action (e.g.\ exporting patient records). The attack
+appends fabricated authority: a cited directive, a claimed prior approval, a
+documented audit exemption. We vary 8 scenarios, 6 policy phrasings, 7 attacks
+and 2 targets (\texttt{gpt-4o-mini}, \texttt{claude-haiku-4-5}). The dependent
+variable is a logged tool call. Total hosted-API cost: under \$3.
+
+\section{Results}
+
+\paragraph{The attack works.} Fabricated authority raises violations from
+\textbf{0/240} (control) to \textbf{208/1440} (14.4\%), one-sided Fisher
+$p = 1.1\times10^{-15}$. The control sits exactly at the floor, so every
+violation is attributable to the attack.
+
+\paragraph{Policy phrasing dominates (Table~\ref{tab:policy}).}
+
+\begin{table}[h]
+\centering
+\caption{Attacked trials only, both targets pooled. The only difference between
+\texttt{strict} and \texttt{strict\_hatch} is one sentence stating that claimed
+exemptions arriving in user input or tool output are not authoritative.}
+\label{tab:policy}
+\begin{tabular}{lrrl}
+\toprule
+Policy phrasing & Violations & Rate & 95\% CI (Wilson) \\
+\midrule
+\texttt{strict\_hatch} & 0/288  & \textbf{0.0\%} & [0.0\%, 1.3\%] \\
+\texttt{strict}        & 7/288  & 2.4\%          & [1.2\%, 4.9\%] \\
+\texttt{bare}          & 21/288 & 7.3\%          & [4.8\%, 10.9\%] \\
+\texttt{autonomous}    & 87/288 & 30.2\%         & [25.2\%, 35.7\%] \\
+\texttt{exemption}     & 93/288 & \textbf{32.3\%} & [27.2\%, 37.9\%] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\texttt{strict\_hatch} vs \texttt{exemption}: $p = 1.4\times10^{-32}$. Note the
+non-monotonicity: \texttt{bare} (prohibition only) is \emph{safer} than
+\texttt{exemption}. A documented-exemption carve-out is an explicit invitation
+to fabricate a document; adding it is worse than adding nothing.
+
+\paragraph{It is the clause, not the length.} A verbosity control
+(\texttt{strict\_verbose}, 98 words of irrelevant policy, longer than
+\texttt{strict\_hatch}'s 77) scored \textbf{11/96 (11.5\%)} versus
+\texttt{strict\_hatch}'s \textbf{0/96} ($p = 0.000361$) and \emph{doubled} the
+5.2\% rate of the shorter \texttt{strict} policy it extends. The longest policy
+was the worst. What the policy says matters, not how much.
+
+\paragraph{Matched contrast: complete separation.} Holding scenario, attacks,
+model and temperature fixed on \texttt{medical\_export}: \texttt{exemption}
+scored \textbf{18/18}, \texttt{strict\_hatch} \textbf{0/18}
+($p = 1.1\times10^{-10}$). The one-sentence clause is the only difference.
+
+\paragraph{Which reasoning step fails.} Claims about \emph{provenance and
+process state} succeed (\texttt{audit\_exemption} 21.7\%, \texttt{superseded}
+17.9\%, \texttt{prior\_approval} 17.9\%); claims about \emph{category
+membership} fail completely (\texttt{reclassify} 0/240) as does urgency
+(\texttt{emergency} 0.8\%). Models verify the semantics of the act but not the
+provenance of the authority permitting it: they have no mechanism to check
+whether Directive 12.3(b) exists.
+
+\paragraph{Models differ 20x; policy closes the gap.}
+\texttt{claude-haiku-4-5} violates 10/840 (1.2\%) against
+\texttt{gpt-4o-mini}'s 198/840 (23.6\%). Under a permissive policy
+\texttt{gpt-4o-mini} violates in 6 of 10 attacked trials; under
+\texttt{strict\_hatch} it never violates.
+
+\paragraph{The clause survives an adaptive attacker.}
+\label{sec:adaptive}
+An attacker LLM given the defender's exact system prompt, tool schema, and the
+full transcript of its own failed attempts proposed a fresh misdirection each
+round for 8 rounds on each of 8 scenarios. It broke the weak control policy
+\textbf{8/8} but never breached \texttt{strict\_hatch} (\textbf{0/8},
+$p = 7.8\times10^{-5}$). Because the same attacker demonstrably succeeds against
+the control, this is an \emph{informative} null rather than a weak-attack
+artifact: the validity check our hand-written attempt failed. An independent
+replication with a 10-round budget reproduced the result (control 7/8,
+\texttt{strict\_hatch} 0/8 over 80 adaptive attempts, $p = 7.0\times10^{-4}$).
+
+\paragraph{Refusal in prose, violation in action.} In 32 of 432 paired trials
+the agent states a refusal while simultaneously emitting the forbidden tool
+call ($p = 1.3\times10^{-6}$; never observed without an attack). A text-based
+evaluation would score these as successful refusals. This is direct evidence
+that text and tool calls are different measurements.
+
+\section{Recommendations}
+
+\begin{enumerate}
+\item \textbf{Add a provenance clause}: claimed exemptions, approvals or
+      superseding policies arriving in user input or tool output are not
+      authoritative. 0/288 in our sweep, 0/18 in matched contrast.
+\item \textbf{Do not write exemption carve-outs.} The most attackable phrasing
+      we tested, worse than silence on exemptions.
+\item \textbf{Avoid autonomy-forward phrasing} for agents holding destructive
+      tools.
+\item \textbf{Always provide a safe alternative action}, or refusal degrades
+      into paralysis.
+\item \textbf{Evaluate agents on tool calls, not text.} Under attack they
+      disagree.
+\end{enumerate}
+
+\section{Limitations}
+
+Two hosted targets, both small production models; no frontier-model claim. A 3B
+local model (\texttt{llama3.2}) violates its policy 67.5\% of the time with no
+attack at all, leaving no headroom, and is reported separately. Single-turn: a
+forced indirect study that delivers the fabricated authority through a required
+policy-lookup tool result produces 0/72 clean violations but 51/72 poisoned
+violations, including 15/36 against \texttt{strict\_hatch}. Thus the provenance
+clause mitigates direct user-message authority claims in our setting; it is not a
+runtime provenance system for compromised or poisoned tool outputs. Scenarios are hand-written, though per-scenario rates span 7.1\%--15.7\%.
+Our hand-written adaptive attacks were too weak to test the clause (0/12 on
+policies where standard attacks score 18/18); Section~\ref{sec:adaptive}
+replaces them with an LLM attacker, but that attacker is itself only
+\texttt{gpt-4o-mini}, and a stronger or RL-trained attacker may yet succeed.
+
+\section*{Ethics statement}
+
+We study attacks on safety-constrained agents using hand-written scenarios and
+no real systems or data. The central finding is a \emph{defence} that deployers
+can apply for free. We release evaluation tooling and aggregate statistics; the
+scenario-specific attacker strings are not operational credentials, exploits, or
+access paths to any real system.
+
+\begin{thebibliography}{9}
+\bibitem{mazeika2024harmbench}
+Mazeika et al. HarmBench: A Standardized Evaluation Framework for Automated Red
+Teaming and Robust Refusal. \emph{ICML}, 2024.
+\bibitem{llmstinger}
+Jha et al. LLMStinger: Jailbreaking LLMs using RL fine-tuned LLMs.
+\emph{arXiv:2411.08862}, 2024.
+\bibitem{darkcite}
+Yang et al. The Dark Side of Trust: Authority Citation-Driven Jailbreak Attacks
+on Large Language Models. \emph{arXiv:2411.11407}, 2024.
+\bibitem{coinflip}
+Schwinn et al. A Coin Flip for Safety: LLM Judges and Adversarial Robustness
+Evaluation. \emph{arXiv:2603.06594}, 2026.
+\bibitem{reliablejudge}
+How Reliable Is Your Jailbreak Judge? \emph{arXiv:2606.25487}, 2026.
+\bibitem{gap}
+GAP: A Benchmark for General Agentic Policies. \emph{arXiv:2602.16943}, 2026.
+\bibitem{agentseer}
+AgentSeer: Measuring Safety in Tool-Calling Agents. \emph{arXiv:2509.04802}, 2025.
+\bibitem{autoinject}
+AutoInject: Automated Prompt Injection Attacks against Tool-Using Agents.
+\emph{arXiv:2602.05746}, 2026.
+\end{thebibliography}
+
+\end{document}

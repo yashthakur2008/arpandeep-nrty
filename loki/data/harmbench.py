@@ -48,19 +48,55 @@ def load_behaviors(csv_path: str = DEFAULT_CSV, num_samples: int | None = None) 
     return rows
 
 
+def split_behaviors(
+    csv_path: str = DEFAULT_CSV,
+    test_fraction: float = 0.3,
+    seed: int = 0,
+) -> tuple[list[dict], list[dict]]:
+    """Deterministic train/test split over the behavior list.
+
+    Without this, training and evaluation both sampled ``seed=0`` from the same
+    list, so the eval behaviors were a subset of the training behaviors and the
+    reported numbers were not held out.
+    """
+    import random
+
+    rows = load_behaviors(csv_path, num_samples=None)
+    shuffled = list(rows)
+    random.Random(seed).shuffle(shuffled)
+    n_test = max(1, int(len(shuffled) * test_fraction))
+    return shuffled[n_test:], shuffled[:n_test]
+
+
 def create_harmbench_dataset(
     num_samples: int | None = None,
     csv_path: str = DEFAULT_CSV,
     seed: int | None = None,
+    split: str = "all",
+    test_fraction: float = 0.3,
 ) -> Dataset:
-    """Build the conversational dataset TRL's GRPOTrainer expects."""
+    """Build the conversational dataset TRL's GRPOTrainer expects.
+
+    ``split`` is one of ``"train"``, ``"test"`` or ``"all"``. Use ``train`` for
+    training and ``test`` for evaluation so that reported metrics are held out.
+    """
     env = _environment()
     system_prompt = env.get_template("harmbench_system.j2").render()
     user_template = env.get_template("harmbench_user.j2")
 
+    if split not in {"all", "train", "test"}:
+        raise ValueError(f"split must be 'all', 'train' or 'test', got {split!r}")
+
+    if split == "all":
+        rows = load_behaviors(csv_path, num_samples=None)
+    else:
+        train_rows, test_rows = split_behaviors(
+            csv_path, test_fraction=test_fraction, seed=seed if seed is not None else 0
+        )
+        rows = train_rows if split == "train" else test_rows
+
     # Sample before rendering when subsetting, so a small run is not always the
     # same first-N alphabetical slice of one category.
-    rows = load_behaviors(csv_path, num_samples=None)
     if num_samples is not None and num_samples < len(rows):
         if seed is not None:
             import random

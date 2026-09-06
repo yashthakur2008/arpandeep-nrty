@@ -34,6 +34,7 @@ runpod:
 # Training configuration optimized for RunPod
 training:
   model_name: "Qwen/Qwen2.5-0.5B-Instruct"
+  # NOTE: read by loki.config.TrainingConfig; unknown keys here are ignored.
   batch_size: 4
   gradient_accumulation_steps: 2
   learning_rate: 5e-6
@@ -49,9 +50,11 @@ training:
   save_total_limit: 3
   
   # Data settings
-  dataset_path: "data/hotpotqa.jsonl"
   num_samples: 100  # Increase for full training
-  output_dir: "./outputs/grpo-training"
+  split: "train"    # eval uses the held-out "test" split
+  reward_backend: "ollama"
+  judge_model: "llama3.2"
+  output_dir: "./outputs/harmbench-grpo"
 
 # Cost optimization
 cost_optimization:

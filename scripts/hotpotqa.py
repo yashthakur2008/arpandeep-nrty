@@ -1,5 +1,5 @@
-import json
 import os
+
 from datasets import Dataset, load_dataset
 from jinja2 import Environment, FileSystemLoader
 
@@ -40,14 +40,20 @@ def create_hotpotqa_dataset(data_dir: str = "data", num_samples: int = None, sav
         supporting_facts = item.get("supporting_facts", {})
         context = item.get("context", {})
         if supporting_facts and context:
-            for title, sent_id in zip(supporting_facts.get("title", []), supporting_facts.get("sent_id", [])):
+            for title, sent_id in zip(
+                supporting_facts.get("title", []),
+                supporting_facts.get("sent_id", []),
+                strict=False,
+            ):
                 if title in context.get("title", []):
                     title_idx = context["title"].index(title)
                     sentences = context["sentences"][title_idx]
                     if sent_id < len(sentences):
                         evidence += sentences[sent_id] + " "
         
-        user_prompt = user_template.render(question=question, evidence=evidence.strip(), answer=answer)
+        user_prompt = user_template.render(
+            question=question, evidence=evidence.strip(), answer=answer
+        )
         
         # Create conversational format for TRL GRPO trainer
         prompt_messages = [
@@ -79,10 +85,10 @@ def main():
     print(f"Dataset size: {len(dataset)}")
     
     example = dataset[0]
-    print(f"\n=== Example ===")
+    print("\n=== Example ===")
     print(f"Question: {example['original_question']}")
     print(f"Answer: {example['answer']}")
-    print(f"\n--- Prompt Format (for TRL) ---")
+    print("\n--- Prompt Format (for TRL) ---")
     print(f"Type: {type(example['prompt'])}")
     print(f"Messages: {len(example['prompt'])}")
     for msg in example['prompt']:

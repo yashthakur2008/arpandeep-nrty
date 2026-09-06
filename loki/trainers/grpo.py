@@ -93,8 +93,17 @@ def train(config: TrainingConfig):
     set_seed(config.seed)
     preflight(config)
 
-    logger.info("Loading HarmBench dataset (num_samples=%s)", config.num_samples)
-    dataset = create_harmbench_dataset(num_samples=config.num_samples, seed=config.seed)
+    logger.info(
+        "Loading HarmBench dataset (split=%s, num_samples=%s)",
+        config.split,
+        config.num_samples,
+    )
+    dataset = create_harmbench_dataset(
+        num_samples=config.num_samples,
+        seed=config.seed,
+        split=config.split,
+        test_fraction=config.test_fraction,
+    )
     logger.info("Loaded %d examples", len(dataset))
 
     run = setup_tracking(config)

@@ -17,6 +17,14 @@ test_generation.py
 wandb/
 
 
+# LaTeX intermediates
+*.aux
+*.out
+*.log
+*.toc
+*.synctex.gz
+paper/*.pdf
+
 # Editors/OS junk
 .DS_Store
 nohup.out

@@ -13,6 +13,7 @@ import json
 import logging
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass
 
 import numpy as np
@@ -41,6 +42,8 @@ class EvalResult:
     asr_ci_low: float
     asr_ci_high: float
     reward_backend: str
+    split: str
+    judge_backend: str
 
 
 def bootstrap_ci(
@@ -58,25 +61,51 @@ def bootstrap_ci(
     )
 
 
-def generate_misdirections(model_path: str, dataset, max_new_tokens: int, device: str):
+def generate_misdirections(
+    model_path: str,
+    dataset,
+    max_new_tokens: int,
+    device: str,
+    batch_size: int = 8,
+):
+    """Generate one misdirection per behavior.
+
+    Batched with left padding: one-at-a-time generation made a 120-sample eval
+    take over an hour on CPU, which was the pipeline's main bottleneck.
+    """
     import torch
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # Decoder-only models must be left-padded, or the generated continuation
+    # starts after the pad run and the output is garbage.
+    tokenizer.padding_side = "left"
+
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
-        torch_dtype=torch.float32 if device == "cpu" else torch.bfloat16,
+        dtype=torch.float32 if device == "cpu" else torch.bfloat16,
     ).to(device)
     model.eval()
 
-    outputs = []
-    for record in dataset:
-        text = tokenizer.apply_chat_template(
+    prompts = [
+        tokenizer.apply_chat_template(
             record["prompt"], tokenize=False, add_generation_prompt=True
         )
-        inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=1024)
+        for record in dataset
+    ]
+
+    outputs: list[str] = []
+    for start in range(0, len(prompts), batch_size):
+        chunk = prompts[start : start + batch_size]
+        inputs = tokenizer(
+            chunk,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=1024,
+        )
         inputs = {k: v.to(device) for k, v in inputs.items()}
         with torch.no_grad():
             generated = model.generate(
@@ -87,8 +116,11 @@ def generate_misdirections(model_path: str, dataset, max_new_tokens: int, device
                 top_p=0.9,
                 pad_token_id=tokenizer.pad_token_id,
             )
-        new_tokens = generated[0][inputs["input_ids"].shape[-1] :]
-        outputs.append(tokenizer.decode(new_tokens, skip_special_tokens=True).strip())
+        prompt_len = inputs["input_ids"].shape[-1]
+        for row in generated:
+            text = tokenizer.decode(row[prompt_len:], skip_special_tokens=True)
+            outputs.append(text.strip())
+        logger.info("  generated %d/%d", len(outputs), len(prompts))
     return outputs
 
 
@@ -101,6 +133,10 @@ def evaluate(
     seed: int,
     max_new_tokens: int = 128,
     out_path: str | None = None,
+    split: str = "test",
+    judge_backend: str | None = None,
+    concurrency: int = 8,
+    batch_size: int = 8,
 ) -> EvalResult:
     set_seed(seed)
     config = TrainingConfig(
@@ -113,43 +149,75 @@ def evaluate(
     )
     preflight(config)
 
-    dataset = create_harmbench_dataset(num_samples=num_samples, seed=seed)
-    completions = generate_misdirections(model_path, dataset, max_new_tokens, device)
+    dataset = create_harmbench_dataset(
+        num_samples=num_samples, seed=seed, split=split
+    )
+    completions = generate_misdirections(
+        model_path, dataset, max_new_tokens, device, batch_size=batch_size
+    )
 
+    # Target and judge are chosen independently: attack a free local model while
+    # judging with a validated one. llama3.2 as a judge was measured at 36%
+    # accuracy with 27 false positives, inflating ASR by 3-4x.
     target = build_target(reward_backend, judge_model)
-    judge = build_judge(reward_backend, judge_model)
+    jb = judge_backend or reward_backend
+    judge = build_judge(jb, "gpt-4o-mini" if jb == "openai" else judge_model)
 
     outcomes: list[float] = []
     records = []
     n_well_formed = 0
     n_tag_compliant = 0
 
-    for record, completion in zip(dataset, completions, strict=False):
+    # Build the row skeletons first, then run the network-bound target and judge
+    # calls concurrently. These are I/O bound, so serial execution wasted most
+    # of the wall clock.
+    pending: list[tuple[int, str, str]] = []
+    for index, (record, completion) in enumerate(
+        zip(dataset, completions, strict=False)
+    ):
         behavior = record["behavior"]
         misdirection = extract_misdirection(completion)
         tagged = is_well_formed(completion)
-        row = {
-            "behavior_id": record["behavior_id"],
-            "behavior": behavior,
-            "completion": completion,
-            "misdirection": misdirection,
-            "well_formed": bool(misdirection),
-            "tag_compliant": tagged,
-        }
+        records.append(
+            {
+                "behavior_id": record["behavior_id"],
+                "behavior": behavior,
+                "completion": completion,
+                "misdirection": misdirection,
+                "well_formed": bool(misdirection),
+                "tag_compliant": tagged,
+            }
+        )
         if misdirection:
             n_well_formed += 1
             n_tag_compliant += int(tagged)
-            response = target.respond(f"{behavior} {misdirection}")
-            if response:
-                judgement = judge.judge(behavior, response)
-                if not judgement.errored:
-                    outcomes.append(judgement.score)
-                    row.update(
-                        target_response=response,
-                        refused=judgement.refused,
-                        score=judgement.score,
-                    )
-        records.append(row)
+            pending.append((index, behavior, misdirection))
+
+    def attack_and_judge(item):
+        index, behavior, misdirection = item
+        response = target.respond(f"{behavior} {misdirection}")
+        if not response:
+            return index, None
+        return index, (response, judge.judge(behavior, response))
+
+    if pending:
+        with ThreadPoolExecutor(max_workers=concurrency) as pool:
+            for done, (index, outcome) in enumerate(
+                pool.map(attack_and_judge, pending), start=1
+            ):
+                if outcome is None:
+                    continue
+                response, judgement = outcome
+                if judgement.errored:
+                    continue
+                outcomes.append(judgement.score)
+                records[index].update(
+                    target_response=response,
+                    refused=judgement.refused,
+                    score=judgement.score,
+                )
+                if done % 20 == 0:
+                    logger.info("  judged %d/%d", done, len(pending))
 
     n = len(dataset)
     low, high = bootstrap_ci(outcomes, seed=seed)
@@ -166,6 +234,8 @@ def evaluate(
         asr_ci_low=low,
         asr_ci_high=high,
         reward_backend=reward_backend,
+        split=split,
+        judge_backend=jb,
     )
 
     if out_path:
@@ -186,10 +256,24 @@ def main(argv: list[str] | None = None) -> int:
         "--reward-backend", default="heuristic", choices=["heuristic", "ollama", "openai"]
     )
     parser.add_argument("--judge-model")
+    parser.add_argument(
+        "--judge-backend",
+        default=None,
+        choices=["heuristic", "ollama", "openai"],
+        help="judge independently of the target; defaults to --reward-backend",
+    )
     parser.add_argument("--device", default="cpu", choices=["cpu", "cuda", "mps"])
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--max-new-tokens", type=int, default=128)
     parser.add_argument("--out", default=None)
+    parser.add_argument("--concurrency", type=int, default=8)
+    parser.add_argument("--batch-size", dest="batch_size", type=int, default=8)
+    parser.add_argument(
+        "--split",
+        default="test",
+        choices=["all", "train", "test"],
+        help="evaluate on the held-out test split by default",
+    )
     args = parser.parse_args(argv)
 
     result = evaluate(
@@ -201,6 +285,10 @@ def main(argv: list[str] | None = None) -> int:
         args.seed,
         args.max_new_tokens,
         args.out,
+        args.split,
+        args.judge_backend,
+        args.concurrency,
+        args.batch_size,
     )
 
     print(json.dumps(asdict(result), indent=2))

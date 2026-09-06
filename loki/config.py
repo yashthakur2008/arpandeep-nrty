@@ -47,6 +47,8 @@ class TrainingConfig:
     max_completion_length: int = 128
     beta: float = 0.0
     num_samples: int | None = 5
+    split: str = "train"      # train on the train split; eval uses test
+    test_fraction: float = 0.3
     output_dir: str = "./outputs/harmbench-grpo"
     seed: int = 0
 
@@ -116,6 +118,8 @@ class TrainingConfig:
                 f"num_generations ({self.num_generations}); TRL requires this to "
                 f"group completions per prompt"
             )
+        if self.split not in {"all", "train", "test"}:
+            raise ValueError(f"split must be all/train/test, got {self.split!r}")
         if self.reward_backend not in {"heuristic", "ollama", "openai"}:
             raise ValueError(f"unknown reward_backend: {self.reward_backend!r}")
         if self.learning_rate <= 0:
@@ -183,6 +187,7 @@ def add_cli_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         "--gradient-accumulation-steps", dest="gradient_accumulation_steps", type=int
     )
     parser.add_argument("--beta", type=float)
+    parser.add_argument("--split", choices=["all", "train", "test"])
     parser.add_argument("--output-dir", dest="output_dir")
     parser.add_argument("--device", choices=["cpu", "cuda", "mps"])
     parser.add_argument(

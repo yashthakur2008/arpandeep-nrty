@@ -1,10 +1,12 @@
-import json
 import os
+
 from datasets import Dataset, load_dataset
 from jinja2 import Environment, FileSystemLoader
 
 
-def create_jailbreakbench_dataset(data_dir: str = "data", num_samples: int = None, save: bool = True):
+def create_jailbreakbench_dataset(
+    data_dir: str = "data", num_samples: int = None, save: bool = True
+):
     # Load templates
     current_dir = os.path.dirname(os.path.abspath(__file__))
     env = Environment(loader=FileSystemLoader(os.path.join(current_dir, "prompts")))
@@ -77,13 +79,13 @@ def main():
     print(f"Dataset size: {len(dataset)}")
     
     example = dataset[0]
-    print(f"\n=== Example ===")
+    print("\n=== Example ===")
     print(f"Original Prompt: {example['original_prompt']}")
     print(f"Target: {example['target']}")
     print(f"Behavior: {example['behavior']}")
     print(f"Category: {example['category']}")
     print(f"Source: {example['source']}")
-    print(f"\n--- Prompt Format (for TRL) ---")
+    print("\n--- Prompt Format (for TRL) ---")
     print(f"Type: {type(example['prompt'])}")
     print(f"Messages: {len(example['prompt'])}")
     for msg in example['prompt']:

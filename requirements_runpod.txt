@@ -1,35 +1,8 @@
-# RunPod Optimized Requirements
-# Core ML/AI dependencies
-torch==2.6.*
-transformers>=4.56.2
-trl>=0.23.1
-peft>=0.11.1,<1.0
-accelerate>=1.1.0,<2.0
-datasets>=4.1.1
-numpy>=1.24.0,<3.0
-scikit-learn>=1.3.0,<2.0
-
-# Template and environment
-jinja2>=3.1.6,<4.0
-python-dotenv>=1.0.1,<2.0
-
-# API and async
-openai>=2.0.1
-aiohttp>=3.8.0
-
-# Monitoring and logging
-wandb>=0.16.0
-tensorboard>=2.14.0
-
-# Development and utilities
-pyyaml>=6.0
-requests>=2.28.0
-tqdm>=4.64.0
-
-# Optional: For better performance
-flash-attn>=2.5.0  # Only if compatible with your setup
-bitsandbytes>=0.41.0  # For quantization if needed
-
-# RunPod specific
-runpod>=0.10.0  # RunPod SDK (optional)
-
+# DEPRECATED - do not edit.
+#
+# pyproject.toml is the single source of truth for dependencies. This file
+# duplicated them and had already drifted: a different wandb pin, no ollama,
+# and an unconditional flash-attn requirement that fails on most images.
+#
+# Install instead with:
+#     pip install -e ".[openai,ollama]"

@@ -1,8 +1,9 @@
-import json
 import csv
+import json
+
 
 def json_to_csv(json_file, csv_file):
-    with open(json_file, 'r', encoding='utf-8') as jf:
+    with open(json_file, encoding='utf-8') as jf:
         data = [json.loads(line) for line in jf]
 
     if not data:

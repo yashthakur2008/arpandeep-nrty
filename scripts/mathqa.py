@@ -1,5 +1,6 @@
 import json
 import os
+
 from datasets import Dataset
 from jinja2 import Environment, FileSystemLoader
 
@@ -27,7 +28,7 @@ def create_mathqa_dataset(data_dir: str = "data", num_samples: int = None, save:
     if not os.path.exists(mathqa_path):
         raise FileNotFoundError(f"MathQA train.json not found at {mathqa_path}")
     
-    with open(mathqa_path, 'r', encoding='utf-8') as f:
+    with open(mathqa_path, encoding='utf-8') as f:
         mathqa_data = json.load(f)
     
     os.makedirs(os.path.dirname(processed_path), exist_ok=True)
@@ -87,12 +88,12 @@ def main():
     print(f"Dataset size: {len(dataset)}")
     
     example = dataset[0]
-    print(f"\n=== Example ===")
+    print("\n=== Example ===")
     print(f"Problem: {example['original_problem']}")
     print(f"Options: {example['options']}")
     print(f"Correct Answer: {example['correct_answer']}")
     print(f"Category: {example['category']}")
-    print(f"\n--- Prompt Format (for TRL) ---")
+    print("\n--- Prompt Format (for TRL) ---")
     print(f"Type: {type(example['prompt'])}")
     print(f"Messages: {len(example['prompt'])}")
     for msg in example['prompt']:
