@@ -15,28 +15,34 @@
 \documentclass[10pt]{article}
 
 \usepackage{ifthen}
-\providecommand{\useneurips}{1}
+\providecommand{\useneurips}{0}
 \ifthenelse{\equal{\useneurips}{1}}{%
-  \usepackage[final,main,nonatbib]{neurips_2026}%
+  \usepackage[final]{neurips_2026}%
 }{%
   \usepackage[letterpaper,margin=1in]{geometry}%
   \usepackage{times}%
   \setlength{\parskip}{0.25em}\setlength{\textfloatsep}{6pt}\setlength{\intextsep}{4pt}\setlength{\abovecaptionskip}{4pt}%
 }
 
-\makeatletter
-\ifthenelse{\equal{\useneurips}{1}}{\renewcommand{\@trackname}{Submitted to the Third Workshop on Agents in the Wild, NeurIPS 2026.}}{}
-\makeatother
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
 \usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{authblk}
 \usepackage{graphicx}
 \emergencystretch=2em
 
 
+% ICLR/AIWILD-style workshop header.
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Submitted to NeurIPS 2026 Workshop on Agents in the Wild}
+\rhead{}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0pt}
 
 \title{Fabricated Authority in the Wild:\\
 One Sentence in an Agent's Rules Decides Whether a Fake Permission Works}
