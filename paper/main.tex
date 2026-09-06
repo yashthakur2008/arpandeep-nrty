@@ -68,7 +68,7 @@ An assistant that can act is more useful and more dangerous than one that can on
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.78\linewidth]{figures/fig1_threat_model.pdf}
+\includegraphics[width=0.74\linewidth]{figures/fig1_threat_model.pdf}
 \caption{One trial. The assistant receives an operating policy, a user request carrying a fabricated permission, and tools. The outcome is read from the tool-call log, not from the text.}
 \label{fig:threat}
 \end{figure}
@@ -141,10 +141,10 @@ We study attacks on safety-constrained agents using hand-written scenarios and n
 \appendix
 \section{Why we do not use a language-model judge}
 \label{app:judge}
-This work began as a reinforcement-learned text attacker scored by a language-model judge, and appeared to raise attack success from 25\% to 48\%. Validating three judges against 200 human-labelled responses (Table~\ref{tab:judges}) showed the gain was judge error: a 69-point swing in reported attack success on identical outputs. The local judge scored 128/162 genuine refusals as successful attacks and was worse than the trivial baseline of always answering ``refused'' (81\%). Re-run with a validated judge on 120 held-out behaviors, the trained attacker showed 12.5\% versus 11.7\% ($p = 1.00$); training had raised well-formed output from 71\% to 91\% and tag compliance from 0\% to 46\%, but not the attack.
+This work began as a reinforcement-learned text attacker scored by a language-model judge; attack success appeared to rise from 25\% to 48\%. That gain was judge error. Three judges checked against 200 human-labelled responses (Table~\ref{tab:judges}) showed a 69-point swing in reported attack success on identical outputs; the local judge scored 128/162 genuine refusals as attacks, worse than always answering ``refused'' (81\%). With a validated judge on 120 held-out behaviors the trained attacker showed 12.5\% versus 11.7\% ($p = 1.00$); training had raised well-formed output from 71\% to 91\% and tag compliance from 0\% to 46\%, not the attack.
 
 \begin{table}[h]
-\centering
+\centering\footnotesize
 \caption{Three judges scoring 200 identical target responses against human
 labels. ``Reported ASR'' is the number a paper using that judge would print;
 the human-labelled truth is 19\%.}
